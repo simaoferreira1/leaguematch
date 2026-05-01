@@ -28,6 +28,7 @@ import com.leaguematch.ui.theme.RedPrimary
 fun DetalheUtilizadorScreen(
     nome: String = "Simão Rodrigues Ferreira",
     email: String = "fsimao530@gmail.com",
+    tipo: String = "Organizador",
     equipas: Int = 2,
     torneios: Int = 4,
     jogos: Int = 12,
@@ -38,7 +39,7 @@ fun DetalheUtilizadorScreen(
     onGraficosClick: () -> Unit = {},
     onDefinicoesClick: () -> Unit = {}
 ) {
-    var tipoSelecionado by remember { mutableStateOf("Organizador") }
+    var tipoSelecionado by remember(tipo) { mutableStateOf(tipo) }
 
     Scaffold(
         bottomBar = {

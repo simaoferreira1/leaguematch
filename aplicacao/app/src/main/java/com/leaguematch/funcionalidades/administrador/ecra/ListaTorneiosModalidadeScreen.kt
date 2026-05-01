@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import com.leaguematch.ui.theme.LeagueMatchTheme
 import com.leaguematch.ui.theme.RedDark
 import com.leaguematch.ui.theme.RedPrimary
+import com.leaguematch.dados.modelos.Torneio
 
 data class TorneioModalidadeUi(
     val nome: String,
@@ -36,20 +37,19 @@ data class TorneioModalidadeUi(
 @Composable
 fun ListaTorneiosModalidadeScreen(
     modalidade: String = "Futebol",
+    torneios: List<Torneio> = listOf(
+        Torneio(1, "Carabao CUP", "Futebol", "Liga todos contra todos", "LIGA", "Em Progresso", 16),
+        Torneio(2, "Barca CUP", "Futebol", "Eliminatorias simples", "ELIMINATORIAS", "Em Progresso", 16),
+        Torneio(3, "MinhoFut", "Futebol", "Fase de grupos", "GRUPOS", "Em Progresso", 8),
+        Torneio(4, "Torneio de Futebol", "Futebol", "Inscricao aberta", "LIGA", "Por Iniciar", 12)
+    ),
     onBackClick: () -> Unit = {},
-    onTorneioClick: (String) -> Unit = {},
+    onTorneioClick: (Int) -> Unit = {},
     onHomeClick: () -> Unit = {},
     onUtilizadoresClick: () -> Unit = {},
     onGraficosClick: () -> Unit = {},
     onDefinicoesClick: () -> Unit = {}
 ) {
-    val torneios = listOf(
-        TorneioModalidadeUi("Carabao CUP", "16 equipas", "Em Progresso"),
-        TorneioModalidadeUi("Barca CUP", "16 equipas", "Em Progresso"),
-        TorneioModalidadeUi("MinhoFut", "8 equipas", "Em Progresso"),
-        TorneioModalidadeUi("Torneio de Futebol", "12 equipas", "Por Iniciar")
-    )
-
     Scaffold(
         bottomBar = {
             AdminBottomBar(
@@ -155,8 +155,12 @@ fun ListaTorneiosModalidadeScreen(
 
             torneios.forEach { torneio ->
                 TorneioModalidadeCard(
-                    torneio = torneio,
-                    onClick = { onTorneioClick(torneio.nome) }
+                    torneio = TorneioModalidadeUi(
+                        nome = torneio.nome,
+                        equipas = "${torneio.equipas} equipas",
+                        estado = torneio.estado
+                    ),
+                    onClick = { onTorneioClick(torneio.id) }
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))

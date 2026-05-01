@@ -41,9 +41,29 @@ import androidx.compose.ui.unit.sp
 import com.leaguematch.ui.theme.LeagueMatchTheme
 import com.leaguematch.ui.theme.RedDark
 import com.leaguematch.ui.theme.RedPrimary
+import com.leaguematch.dados.modelos.EstatisticasAdmin
+import com.leaguematch.dados.modelos.ParGrafico
 
 @Composable
 fun GraficosScreen(
+    estatisticas: EstatisticasAdmin = EstatisticasAdmin(
+        totalUtilizadores = 70,
+        totalTorneios = 5,
+        totalJogos = 30,
+        alertas = 0,
+        jogosPorPeriodo = listOf(0.2f, 0.45f, 0.28f, 0.55f, 0.48f, 0.78f, 0.50f),
+        torneiosPorEstado = listOf(
+            ParGrafico("Ativos", 0.55f),
+            ParGrafico("Inscrições", 0.8f),
+            ParGrafico("Termin.", 0.35f)
+        ),
+        topTorneios = listOf(
+            ParGrafico("Carabao CUP", 0.9f),
+            ParGrafico("Barça CUP", 0.75f),
+            ParGrafico("MinhoFut", 0.6f),
+            ParGrafico("Padel", 0.45f)
+        )
+    ),
     onHomeClick: () -> Unit = {},
     onUtilizadoresClick: () -> Unit = {},
     onTorneiosClick: () -> Unit = {},
@@ -100,8 +120,8 @@ fun GraficosScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                MiniResumoCard("Utilizadores", "70", Icons.Default.Group, Modifier.weight(1f))
-                MiniResumoCard("Torneios", "5", Icons.Default.EmojiEvents, Modifier.weight(1f))
+                MiniResumoCard("Utilizadores", estatisticas.totalUtilizadores.toString(), Icons.Default.Group, Modifier.weight(1f))
+                MiniResumoCard("Torneios", estatisticas.totalTorneios.toString(), Icons.Default.EmojiEvents, Modifier.weight(1f))
             }
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -110,13 +130,13 @@ fun GraficosScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                MiniResumoCard("Jogos", "30", Icons.Default.SportsSoccer, Modifier.weight(1f))
-                MiniResumoCard("Alertas", "0", Icons.Default.Warning, Modifier.weight(1f))
+                MiniResumoCard("Jogos", estatisticas.totalJogos.toString(), Icons.Default.SportsSoccer, Modifier.weight(1f))
+                MiniResumoCard("Alertas", estatisticas.alertas.toString(), Icons.Default.Warning, Modifier.weight(1f))
             }
 
             Spacer(modifier = Modifier.height(22.dp))
 
-            GraficoLinhaCard()
+            GraficoLinhaCard(points = estatisticas.jogosPorPeriodo)
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -124,8 +144,14 @@ fun GraficosScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                GraficoBarrasCard(modifier = Modifier.weight(1f))
-                TopTorneiosCard(modifier = Modifier.weight(1f))
+                GraficoBarrasCard(
+                    barras = estatisticas.torneiosPorEstado,
+                    modifier = Modifier.weight(1f)
+                )
+                TopTorneiosCard(
+                    torneios = estatisticas.topTorneios,
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
     }
@@ -177,7 +203,7 @@ fun MiniResumoCard(
 }
 
 @Composable
-fun GraficoLinhaCard() {
+fun GraficoLinhaCard(points: List<Float> = listOf(0.2f, 0.45f, 0.28f, 0.55f, 0.48f, 0.78f, 0.50f)) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -203,7 +229,6 @@ fun GraficoLinhaCard() {
                     .fillMaxWidth()
                     .height(120.dp)
             ) {
-                val points = listOf(0.2f, 0.45f, 0.28f, 0.55f, 0.48f, 0.78f, 0.50f)
                 val step = size.width / (points.size - 1)
                 val path = Path()
 
@@ -244,7 +269,14 @@ fun GraficoLinhaCard() {
 }
 
 @Composable
-fun GraficoBarrasCard(modifier: Modifier = Modifier) {
+fun GraficoBarrasCard(
+    barras: List<ParGrafico> = listOf(
+        ParGrafico("Ativos", 0.55f),
+        ParGrafico("Inscrições", 0.8f),
+        ParGrafico("Termin.", 0.35f)
+    ),
+    modifier: Modifier = Modifier
+) {
     Card(
         modifier = modifier.height(170.dp),
         shape = RoundedCornerShape(16.dp),
@@ -268,9 +300,9 @@ fun GraficoBarrasCard(modifier: Modifier = Modifier) {
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.Bottom
             ) {
-                BarraFake(0.55f, "Ativos")
-                BarraFake(0.8f, "Inscrições")
-                BarraFake(0.35f, "Termin.")
+                barras.forEach { barra ->
+                    BarraFake(barra.valorNormalizado, barra.legenda)
+                }
             }
         }
     }
@@ -297,7 +329,15 @@ fun BarraFake(valor: Float, texto: String) {
 }
 
 @Composable
-fun TopTorneiosCard(modifier: Modifier = Modifier) {
+fun TopTorneiosCard(
+    torneios: List<ParGrafico> = listOf(
+        ParGrafico("Carabao CUP", 0.9f),
+        ParGrafico("Barça CUP", 0.75f),
+        ParGrafico("MinhoFut", 0.6f),
+        ParGrafico("Padel", 0.45f)
+    ),
+    modifier: Modifier = Modifier
+) {
     Card(
         modifier = modifier.height(170.dp),
         shape = RoundedCornerShape(16.dp),
@@ -316,10 +356,9 @@ fun TopTorneiosCard(modifier: Modifier = Modifier) {
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            TopLinha("Carabao CUP", 0.9f)
-            TopLinha("Barça CUP", 0.75f)
-            TopLinha("MinhoFut", 0.6f)
-            TopLinha("Padel", 0.45f)
+            torneios.forEach { torneio ->
+                TopLinha(torneio.legenda, torneio.valorNormalizado)
+            }
         }
     }
 }

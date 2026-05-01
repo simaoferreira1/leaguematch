@@ -23,7 +23,10 @@ import com.leaguematch.ui.theme.RedDark
 import com.leaguematch.ui.theme.RedPrimary
 
 @Composable
-fun LoginScreen(onLoginClick: () -> Unit) {
+fun LoginScreen(
+    erro: String? = null,
+    onLoginClick: (String, String) -> Unit
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -88,10 +91,20 @@ fun LoginScreen(onLoginClick: () -> Unit) {
                 )
             )
 
+            if (erro != null) {
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = erro,
+                    color = MaterialTheme.colorScheme.error,
+                    fontSize = 13.sp
+                )
+            }
+
             Spacer(modifier = Modifier.height(32.dp))
 
             Button(
-                onClick = onLoginClick,
+                onClick = { onLoginClick(email, password) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
@@ -124,6 +137,6 @@ fun LoginScreen(onLoginClick: () -> Unit) {
 @Composable
 fun LoginScreenPreview() {
     LeagueMatchTheme {
-        LoginScreen(onLoginClick = {})
+        LoginScreen(onLoginClick = { _, _ -> })
     }
 }

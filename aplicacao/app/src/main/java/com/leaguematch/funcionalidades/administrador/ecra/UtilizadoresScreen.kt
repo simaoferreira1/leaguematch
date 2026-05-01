@@ -1,6 +1,7 @@
 package com.leaguematch.funcionalidades.administrador.ecra
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -23,21 +24,23 @@ import androidx.compose.ui.unit.sp
 import com.leaguematch.ui.theme.LeagueMatchTheme
 import com.leaguematch.ui.theme.RedDark
 import com.leaguematch.ui.theme.RedPrimary
+import com.leaguematch.dados.modelos.TipoUtilizador
+import com.leaguematch.dados.modelos.Utilizador
 
 @Composable
 fun UtilizadoresScreen(
+    utilizadores: List<Utilizador> = listOf(
+        Utilizador(1, "Rúben Ferreira", "ruben@leaguematch.pt", TipoUtilizador.ADMIN, true, 1, 3, 9),
+        Utilizador(2, "Diogo Gomes", "diogo@leaguematch.pt", TipoUtilizador.ORGANIZADOR, true, 2, 4, 12),
+        Utilizador(3, "João Fernandes", "joao@leaguematch.pt", TipoUtilizador.PARTICIPANTE, false, 1, 2, 7),
+        Utilizador(4, "Simão Rodrigues Ferreira", "fsimao530@gmail.com", TipoUtilizador.PARTICIPANTE, true, 2, 4, 12)
+    ),
+    onUtilizadorClick: (Int) -> Unit = {},
     onHomeClick: () -> Unit = {},
     onTorneiosClick: () -> Unit = {},
     onGraficosClick: () -> Unit = {},
     onDefinicoesClick: () -> Unit = {}
 ) {
-    val utilizadores = listOf(
-        Triple("Rúben Ferreira", "Administrador", true),
-        Triple("Diogo Gomes", "Organizador", true),
-        Triple("João Fernandes", "Participante", false),
-        Triple("Simão Rodrigues Ferreira", "Participante", true)
-    )
-
     Scaffold(
         bottomBar = {
             AdminBottomBar(
@@ -76,7 +79,10 @@ fun UtilizadoresScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            UtilizadoresResumoCard()
+            UtilizadoresResumoCard(
+                totalUtilizadores = utilizadores.size,
+                totalPerfis = utilizadores.map { it.tipo }.distinct().size
+            )
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -91,9 +97,10 @@ fun UtilizadoresScreen(
 
             utilizadores.forEach { utilizador ->
                 UtilizadorCard(
-                    nome = utilizador.first,
-                    perfil = utilizador.second,
-                    ativo = utilizador.third
+                    nome = utilizador.nome,
+                    perfil = utilizador.tipo.descricao,
+                    ativo = utilizador.ativo,
+                    onClick = { onUtilizadorClick(utilizador.id) }
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
@@ -103,7 +110,10 @@ fun UtilizadoresScreen(
 }
 
 @Composable
-fun UtilizadoresResumoCard() {
+fun UtilizadoresResumoCard(
+    totalUtilizadores: Int = 150,
+    totalPerfis: Int = 4
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -127,14 +137,14 @@ fun UtilizadoresResumoCard() {
                 )
 
                 Text(
-                    text = "150",
+                    text = totalUtilizadores.toString(),
                     color = Color.White,
                     fontSize = 34.sp,
                     fontWeight = FontWeight.Bold
                 )
 
                 Text(
-                    text = "4 perfis registados",
+                    text = "$totalPerfis perfis registados",
                     color = Color.White.copy(alpha = 0.75f),
                     fontSize = 13.sp
                 )
@@ -154,12 +164,14 @@ fun UtilizadoresResumoCard() {
 fun UtilizadorCard(
     nome: String,
     perfil: String,
-    ativo: Boolean
+    ativo: Boolean,
+    onClick: () -> Unit = {}
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(82.dp),
+            .height(82.dp)
+            .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
         colors = CardDefaults.cardColors(

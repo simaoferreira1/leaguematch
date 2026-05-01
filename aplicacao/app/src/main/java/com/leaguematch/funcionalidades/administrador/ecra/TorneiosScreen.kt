@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import com.leaguematch.ui.theme.LeagueMatchTheme
 import com.leaguematch.ui.theme.RedDark
 import com.leaguematch.ui.theme.RedPrimary
+import com.leaguematch.dados.modelos.ResumoModalidade
 
 data class ModalidadeUi(
     val nome: String,
@@ -37,20 +38,20 @@ data class ModalidadeUi(
 
 @Composable
 fun TorneiosScreen(
+    modalidades: List<ResumoModalidade> = listOf(
+        ResumoModalidade("Futebol", 5),
+        ResumoModalidade("Padel", 2),
+        ResumoModalidade("Ténis", 3),
+        ResumoModalidade("Basquetebol", 1),
+        ResumoModalidade("Andebol", 1)
+    ),
+    totalTorneios: Int = 12,
     onHomeClick: () -> Unit = {},
     onUtilizadoresClick: () -> Unit = {},
     onGraficosClick: () -> Unit = {},
     onDefinicoesClick: () -> Unit = {},
     onModalidadeClick: (String) -> Unit = {}
 ) {
-    val modalidades = listOf(
-        ModalidadeUi("Futebol", "5 torneios", Icons.Default.SportsSoccer),
-        ModalidadeUi("Padel", "2 torneios", Icons.Default.SportsTennis),
-        ModalidadeUi("Ténis", "3 torneios", Icons.Default.SportsTennis),
-        ModalidadeUi("Basquetebol", "1 torneio", Icons.Default.SportsBasketball),
-        ModalidadeUi("Andebol", "1 torneio", Icons.Default.SportsHandball)
-    )
-
     Scaffold(
         bottomBar = {
             AdminBottomBar(
@@ -118,7 +119,7 @@ fun TorneiosScreen(
                         )
 
                         Text(
-                            text = "12 torneios registados",
+                            text = "$totalTorneios torneios registados",
                             color = Color.White.copy(alpha = 0.75f),
                             fontSize = 13.sp
                         )
@@ -146,13 +147,27 @@ fun TorneiosScreen(
 
             modalidades.forEach { modalidade ->
                 ModalidadeCard(
-                    modalidade = modalidade,
+                    modalidade = modalidade.toUi(),
                     onClick = { onModalidadeClick(modalidade.nome) }
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
             }
         }
+    }
+}
+
+private fun ResumoModalidade.toUi(): ModalidadeUi {
+    val textoTorneios = if (totalTorneios == 1) "1 torneio" else "$totalTorneios torneios"
+    return ModalidadeUi(nome, textoTorneios, iconForModalidade(nome))
+}
+
+private fun iconForModalidade(modalidade: String): ImageVector {
+    return when (modalidade) {
+        "Futebol" -> Icons.Default.SportsSoccer
+        "Basquetebol" -> Icons.Default.SportsBasketball
+        "Andebol" -> Icons.Default.SportsHandball
+        else -> Icons.Default.SportsTennis
     }
 }
 

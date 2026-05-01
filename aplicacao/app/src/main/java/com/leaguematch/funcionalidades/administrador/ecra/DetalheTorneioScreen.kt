@@ -25,6 +25,8 @@ import androidx.compose.ui.unit.sp
 import com.leaguematch.ui.theme.LeagueMatchTheme
 import com.leaguematch.ui.theme.RedDark
 import com.leaguematch.ui.theme.RedPrimary
+import com.leaguematch.dados.modelos.DetalheTorneio
+import com.leaguematch.dados.modelos.Torneio
 
 data class ParticipanteTorneioUi(
     val nome: String,
@@ -39,6 +41,7 @@ data class JogoTorneioUi(
 
 @Composable
 fun DetalheTorneioScreen(
+    detalhe: DetalheTorneio? = null,
     nomeTorneio: String = "Carabao CUP",
     modalidade: String = "Futebol",
     onBackClick: () -> Unit = {},
@@ -47,19 +50,24 @@ fun DetalheTorneioScreen(
     onGraficosClick: () -> Unit = {},
     onDefinicoesClick: () -> Unit = {}
 ) {
-    val participantes = listOf(
-        ParticipanteTorneioUi("Rúben Ferreira", 12),
-        ParticipanteTorneioUi("Simão Ferreira", 8),
-        ParticipanteTorneioUi("João Fernandes", 4),
-        ParticipanteTorneioUi("Diogo Gomes", 4)
-    )
+    val torneio = detalhe?.torneio ?: Torneio(1, nomeTorneio, modalidade, "", "LIGA", "Em Progresso", 16)
+    val participantes = detalhe?.goleadores
+        ?.map { ParticipanteTorneioUi(it.nome, it.golos) }
+        ?: listOf(
+            ParticipanteTorneioUi("Rúben Ferreira", 12),
+            ParticipanteTorneioUi("Simão Ferreira", 8),
+            ParticipanteTorneioUi("João Fernandes", 4),
+            ParticipanteTorneioUi("Diogo Gomes", 4)
+        )
 
-    val jogos = listOf(
-        JogoTorneioUi("Prata da Casa FC", "2-0", "Bola na Rede FC"),
-        JogoTorneioUi("Bola Parada FC", "1-2", "Tiki Tasca FC"),
-        JogoTorneioUi("Prata da Casa FC", "4-0", "Tiki Tasca FC"),
-        JogoTorneioUi("Bola na Rede FC", "1-0", "Bola Parada FC")
-    )
+    val jogos = detalhe?.jogos
+        ?.map { JogoTorneioUi(it.casa, "${it.resultadoCasa}-${it.resultadoFora}", it.fora) }
+        ?: listOf(
+            JogoTorneioUi("Prata da Casa FC", "2-0", "Bola na Rede FC"),
+            JogoTorneioUi("Bola Parada FC", "1-2", "Tiki Tasca FC"),
+            JogoTorneioUi("Prata da Casa FC", "4-0", "Tiki Tasca FC"),
+            JogoTorneioUi("Bola na Rede FC", "1-0", "Bola Parada FC")
+        )
 
     Scaffold(
         bottomBar = {
@@ -139,7 +147,7 @@ fun DetalheTorneioScreen(
 
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = nomeTorneio,
+                            text = torneio.nome,
                             color = Color.White,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
@@ -148,7 +156,7 @@ fun DetalheTorneioScreen(
                         Spacer(modifier = Modifier.height(4.dp))
 
                         Text(
-                            text = "$modalidade • 16 equipas",
+                            text = "${torneio.modalidade} • ${torneio.equipas} equipas",
                             color = Color.White.copy(alpha = 0.85f),
                             fontSize = 13.sp
                         )
@@ -156,7 +164,7 @@ fun DetalheTorneioScreen(
                         Spacer(modifier = Modifier.height(6.dp))
 
                         Text(
-                            text = "Estado: Em Progresso",
+                            text = "Estado: ${torneio.estado}",
                             color = Color.White,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold
@@ -171,9 +179,9 @@ fun DetalheTorneioScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                InfoTorneioCard("Participantes", "16", Icons.Default.Person, Modifier.weight(1f))
-                InfoTorneioCard("Jogos", "4", Icons.Default.EmojiEvents, Modifier.weight(1f))
-                InfoTorneioCard("Golos", "28", Icons.Default.SportsSoccer, Modifier.weight(1f))
+                InfoTorneioCard("Participantes", torneio.equipas.toString(), Icons.Default.Person, Modifier.weight(1f))
+                InfoTorneioCard("Jogos", jogos.size.toString(), Icons.Default.EmojiEvents, Modifier.weight(1f))
+                InfoTorneioCard("Golos", (detalhe?.totalGolos ?: 28).toString(), Icons.Default.SportsSoccer, Modifier.weight(1f))
             }
 
             Spacer(modifier = Modifier.height(18.dp))

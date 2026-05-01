@@ -24,9 +24,11 @@ import androidx.compose.ui.unit.sp
 import com.leaguematch.ui.theme.LeagueMatchTheme
 import com.leaguematch.ui.theme.RedDark
 import com.leaguematch.ui.theme.RedPrimary
+import com.leaguematch.dados.modelos.ResumoDashboard
 
 @Composable
 fun HomeScreen(
+    dashboard: ResumoDashboard = ResumoDashboard(150, 12, 3, 0),
     onUtilizadoresClick: () -> Unit = {},
     onTorneiosClick: () -> Unit = {},
     onGraficosClick: () -> Unit = {},
@@ -64,7 +66,7 @@ fun HomeScreen(
 
             DashboardCard(
                 title = "Número total de utilizadores",
-                value = "150",
+                value = dashboard.totalUtilizadores.toString(),
                 icon = Icons.Default.Group
             )
 
@@ -72,7 +74,7 @@ fun HomeScreen(
 
             DashboardCard(
                 title = "Número total de torneios",
-                value = "12",
+                value = dashboard.totalTorneios.toString(),
                 icon = Icons.Default.EmojiEvents
             )
 
@@ -80,7 +82,7 @@ fun HomeScreen(
 
             DashboardCard(
                 title = "Torneios em curso",
-                value = "3",
+                value = dashboard.torneiosEmCurso.toString(),
                 icon = Icons.Default.PlayArrow
             )
 
@@ -88,7 +90,7 @@ fun HomeScreen(
 
             DashboardCard(
                 title = "Alertas do Sistema",
-                value = "0",
+                value = dashboard.alertasSistema.toString(),
                 icon = Icons.Default.Warning,
                 isAlert = true
             )
