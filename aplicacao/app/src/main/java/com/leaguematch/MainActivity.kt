@@ -5,8 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.*
-import com.leaguematch.ui.screens.HomeScreen
-import com.leaguematch.ui.screens.LoginScreen
+import com.leaguematch.funcionalidades.administrador.ecra.HomeScreen
+import com.leaguematch.funcionalidades.autenticacao.ecra.LoginScreen
 import com.leaguematch.ui.theme.LeagueMatchTheme
 
 class MainActivity : ComponentActivity() {

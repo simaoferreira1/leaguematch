@@ -1,5 +1,6 @@
-package com.leaguematch.ui.screens
+package com.leaguematch.funcionalidades.autenticacao.ecra
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,11 +10,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.leaguematch.R
 import com.leaguematch.ui.theme.LeagueMatchTheme
 import com.leaguematch.ui.theme.RedDark
 import com.leaguematch.ui.theme.RedPrimary
@@ -36,32 +40,24 @@ fun LoginScreen(onLoginClick: () -> Unit) {
             verticalArrangement = Arrangement.Center
         ) {
             Surface(
-                modifier = Modifier.size(120.dp),
-                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(190.dp),
                 color = Color.White,
-                tonalElevation = 4.dp
+                shape = RoundedCornerShape(16.dp),
+                tonalElevation = 2.dp
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text(
-                        "LM",
-                        fontSize = 48.sp,
-                        fontWeight = FontWeight.Black,
-                        color = RedPrimary
-                    )
-                }
+                Image(
+                    painter = painterResource(id = R.drawable.logo_leaguematch),
+                    contentDescription = "Logo LeagueMatch",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(8.dp),
+                    contentScale = ContentScale.Fit
+                )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "LEAGUEMATCH",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = MaterialTheme.colorScheme.onBackground,
-                letterSpacing = 2.sp
-            )
-
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(44.dp))
 
             OutlinedTextField(
                 value = email,
@@ -69,6 +65,7 @@ fun LoginScreen(onLoginClick: () -> Unit) {
                 label = { Text("Email") },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
+                singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = RedPrimary,
                     unfocusedBorderColor = Color.Gray
@@ -84,6 +81,7 @@ fun LoginScreen(onLoginClick: () -> Unit) {
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
+                singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = RedPrimary,
                     unfocusedBorderColor = Color.Gray
@@ -111,7 +109,7 @@ fun LoginScreen(onLoginClick: () -> Unit) {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        "ENTRAR",
+                        text = "ENTRAR",
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 1.2.sp

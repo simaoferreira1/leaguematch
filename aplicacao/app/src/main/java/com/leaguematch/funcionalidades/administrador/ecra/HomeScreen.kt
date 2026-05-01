@@ -1,4 +1,4 @@
-package com.leaguematch.ui.screens
+package com.leaguematch.funcionalidades.administrador.ecra
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -6,7 +6,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,48 +25,26 @@ import com.leaguematch.ui.theme.LeagueMatchTheme
 import com.leaguematch.ui.theme.RedDark
 import com.leaguematch.ui.theme.RedPrimary
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    onUtilizadoresClick: () -> Unit = {},
+    onTorneiosClick: () -> Unit = {},
+    onGraficosClick: () -> Unit = {},
+    onDefinicoesClick: () -> Unit = {}
+) {
     Scaffold(
         bottomBar = {
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = RedPrimary
-            ) {
-                NavigationBarItem(
-                    selected = true,
-                    onClick = { },
-                    icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-                    label = { Text("Home") },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = RedPrimary,
-                        unselectedIconColor = Color.Gray,
-                        selectedTextColor = RedPrimary,
-                        indicatorColor = MaterialTheme.colorScheme.surface
-                    )
-                )
-                NavigationBarItem(
-                    selected = false,
-                    onClick = { },
-                    icon = { Icon(Icons.Default.Person, contentDescription = "Utilizadores") },
-                    label = { Text("Utilizadores") }
-                )
-                NavigationBarItem(
-                    selected = false,
-                    onClick = { },
-                    icon = { Icon(Icons.Default.EmojiEvents, contentDescription = "Torneios") },
-                    label = { Text("Torneios") }
-                )
-                NavigationBarItem(
-                    selected = false,
-                    onClick = { },
-                    icon = { Icon(Icons.Default.Settings, contentDescription = "Definições") },
-                    label = { Text("Definições") }
-                )
-            }
+            AdminBottomBar(
+                selectedItem = "home",
+                onHomeClick = {},
+                onUtilizadoresClick = onUtilizadoresClick,
+                onTorneiosClick = onTorneiosClick,
+                onGraficosClick = onGraficosClick,
+                onDefinicoesClick = onDefinicoesClick
+            )
         }
     ) { innerPadding ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -78,7 +59,7 @@ fun HomeScreen() {
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground
             )
-            
+
             Spacer(modifier = Modifier.height(24.dp))
 
             DashboardCard(
@@ -86,7 +67,7 @@ fun HomeScreen() {
                 value = "150",
                 icon = Icons.Default.Group
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
 
             DashboardCard(
@@ -149,6 +130,7 @@ fun DashboardCard(
                     color = Color.White.copy(alpha = 0.8f),
                     fontSize = 14.sp
                 )
+
                 Text(
                     text = value,
                     color = Color.White,
@@ -156,6 +138,7 @@ fun DashboardCard(
                     fontWeight = FontWeight.Bold
                 )
             }
+
             Icon(
                 imageVector = icon,
                 contentDescription = null,

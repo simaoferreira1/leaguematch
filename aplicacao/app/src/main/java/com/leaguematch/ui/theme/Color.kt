@@ -3,12 +3,16 @@ package com.leaguematch.ui.theme
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
-val RedPrimary = Color(0xFFE31E24)
-val RedDark = Color(0xFF8B0000)
+val RedPrimary = Color(0xFFE53935)
+val RedDark = Color(0xFF1B1B1B)
 val DarkBackground = Color(0xFF0F0F0F)
 val SurfaceDark = Color(0xFF1A1A1A)
 val CardGradient = Brush.verticalGradient(
-    colors = listOf(RedPrimary, RedDark)
+    colors = listOf(
+        RedPrimary,
+        RedPrimary,
+        RedDark
+    )
 )
 
 val Purple80 = Color(0xFFD0BCFF)
