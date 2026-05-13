@@ -57,7 +57,7 @@ class MainActivity : ComponentActivity() {
                 val repository = remember {
                     SupabaseLeagueMatchRepository(
                         supabaseUrl = BuildConfig.SUPABASE_URL,
-                        anonKey = BuildConfig.SUPABASE_ANON_KEY
+                        anonKey = BuildConfig.SUPABASE_ANON_KEY,
                     )
                 }
                 val scope = rememberCoroutineScope()

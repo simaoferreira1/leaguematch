@@ -99,7 +99,7 @@ fun UtilizadoresScreen(
                 UtilizadorCard(
                     nome = utilizador.nome,
                     perfil = utilizador.tipo.descricao,
-                    ativo = utilizador.ativo,
+                    ativo = utilizador.active,
                     onClick = { onUtilizadorClick(utilizador.id) }
                 )
 

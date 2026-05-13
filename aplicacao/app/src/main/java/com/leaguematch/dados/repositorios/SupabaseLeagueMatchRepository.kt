@@ -43,7 +43,7 @@ class SupabaseLeagueMatchRepository(
             totalUtilizadores = utilizadores.size,
             totalTorneios = torneios.size,
             torneiosEmCurso = torneios.count { it.estado == "Em Progresso" },
-            alertasSistema = utilizadores.count { !it.ativo }
+            alertasSistema = utilizadores.count { !it.active }
         )
     }
 
@@ -92,7 +92,7 @@ class SupabaseLeagueMatchRepository(
             totalUtilizadores = utilizadores.size,
             totalTorneios = torneios.size,
             totalJogos = jogos.size,
-            alertas = utilizadores.count { !it.ativo },
+            alertas = utilizadores.count { !it.active },
             jogosPorPeriodo = calcularSerieJogos(jogos.size),
             torneiosPorEstado = listOf(
                 ParGrafico("Ativos", torneios.count { it.estado == "Em Progresso" } / divisor),
@@ -203,7 +203,7 @@ class SupabaseLeagueMatchRepository(
             nome = optString("nome"),
             email = optString("email"),
             tipo = optString("tipo").toTipoUtilizador(),
-            ativo = true,
+            active = true,
             equipas = 0,
             torneios = 0,
             jogos = 0
