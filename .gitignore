@@ -18,3 +18,7 @@ local.properties
 build/
 **/build/
 *.log
+
+# LeagueMatch handoff design assets
+/design/
+/League Match.zip

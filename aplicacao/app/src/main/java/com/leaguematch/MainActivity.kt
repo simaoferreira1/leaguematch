@@ -16,25 +16,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.leaguematch.dados.modelos.DetalheTorneio
-import com.leaguematch.dados.modelos.EstatisticasAdmin
-import com.leaguematch.dados.modelos.ResumoDashboard
-import com.leaguematch.dados.modelos.ResumoModalidade
-import com.leaguematch.dados.modelos.Torneio
-import com.leaguematch.dados.modelos.Utilizador
-import com.leaguematch.dados.repositorios.SupabaseLeagueMatchRepository
-import com.leaguematch.funcionalidades.administrador.ecra.HomeScreen
-import com.leaguematch.funcionalidades.administrador.ecra.DefinicoesScreen
-import com.leaguematch.funcionalidades.administrador.ecra.DetalheTorneioScreen
-import com.leaguematch.funcionalidades.administrador.ecra.DetalheUtilizadorScreen
-import com.leaguematch.funcionalidades.administrador.ecra.GestaoNotificacoesScreen
-import com.leaguematch.funcionalidades.administrador.ecra.GraficosScreen
-import com.leaguematch.funcionalidades.administrador.ecra.ListaTorneiosModalidadeScreen
-import com.leaguematch.funcionalidades.administrador.ecra.TorneiosScreen
-import com.leaguematch.funcionalidades.administrador.ecra.UtilizadoresScreen
-import com.leaguematch.funcionalidades.autenticacao.ecra.LoginScreen
+import com.leaguematch.data.remote.model.DetalheTorneio
+import com.leaguematch.data.remote.model.EstatisticasAdmin
+import com.leaguematch.data.remote.model.ResumoDashboard
+import com.leaguematch.data.remote.model.ResumoModalidade
+import com.leaguematch.data.remote.model.Torneio
+import com.leaguematch.data.remote.model.Utilizador
+import com.leaguematch.data.repository.SupabaseLeagueMatchRepository
+import com.leaguematch.ui.admin.HomeScreen
+import com.leaguematch.ui.admin.DefinicoesScreen
+import com.leaguematch.ui.admin.DetalheTorneioScreen
+import com.leaguematch.ui.admin.DetalheUtilizadorScreen
+import com.leaguematch.ui.admin.GestaoNotificacoesScreen
+import com.leaguematch.ui.admin.GraficosScreen
+import com.leaguematch.ui.admin.ListaTorneiosModalidadeScreen
+import com.leaguematch.ui.admin.TorneiosScreen
+import com.leaguematch.ui.admin.UtilizadoresScreen
+import com.leaguematch.ui.auth.LoginScreen
 import com.leaguematch.ui.theme.LeagueMatchTheme
 import kotlinx.coroutines.launch
+import androidx.lifecycle.ViewModelProvider
+import com.leaguematch.viewmodel.*
 
 sealed interface AdminRoute {
     data object Home : AdminRoute
@@ -49,20 +51,32 @@ sealed interface AdminRoute {
 }
 
 class MainActivity : ComponentActivity() {
+    private lateinit var authViewModel: AuthViewModel
+    private lateinit var homeViewModel: HomeViewModel
+    private lateinit var utilizadoresViewModel: UtilizadoresViewModel
+    private lateinit var torneiosViewModel: TorneiosViewModel
+    private lateinit var graficosViewModel: GraficosViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        val repository = SupabaseLeagueMatchRepository(
+            supabaseUrl = BuildConfig.SUPABASE_URL,
+            anonKey = BuildConfig.SUPABASE_ANON_KEY,
+        )
+        val factory = ViewModelFactory(repository)
+
+        authViewModel = ViewModelProvider(this, factory)[AuthViewModel::class.java]
+        homeViewModel = ViewModelProvider(this, factory)[HomeViewModel::class.java]
+        utilizadoresViewModel = ViewModelProvider(this, factory)[UtilizadoresViewModel::class.java]
+        torneiosViewModel = ViewModelProvider(this, factory)[TorneiosViewModel::class.java]
+        graficosViewModel = ViewModelProvider(this, factory)[GraficosViewModel::class.java]
+
         setContent {
             LeagueMatchTheme {
-                val repository = remember {
-                    SupabaseLeagueMatchRepository(
-                        supabaseUrl = BuildConfig.SUPABASE_URL,
-                        anonKey = BuildConfig.SUPABASE_ANON_KEY,
-                    )
-                }
-                val scope = rememberCoroutineScope()
-                var isLoggedIn by remember { mutableStateOf(false) }
-                var loginError by remember { mutableStateOf<String?>(null) }
+                val isLoggedIn by authViewModel.isLoggedIn.collectAsState()
+                val loginError by authViewModel.loginError.collectAsState()
                 var currentRoute by remember { mutableStateOf<AdminRoute>(AdminRoute.Home) }
 
                 fun navigate(route: AdminRoute) {
@@ -73,21 +87,7 @@ class MainActivity : ComponentActivity() {
                     LoginScreen(
                         erro = loginError,
                         onLoginClick = { email, password ->
-                            scope.launch {
-                                runCatching { repository.autenticar(email, password) }
-                                    .onSuccess { utilizador ->
-                                        if (utilizador != null) {
-                                            loginError = null
-                                            isLoggedIn = true
-                                            currentRoute = AdminRoute.Home
-                                        } else {
-                                            loginError = "Credenciais inválidas."
-                                        }
-                                    }
-                                    .onFailure { error ->
-                                        loginError = error.message ?: "Não foi possível ligar ao Supabase."
-                                    }
-                            }
+                            authViewModel.autenticar(email, password)
                         }
                     )
                 } else {
@@ -99,8 +99,9 @@ class MainActivity : ComponentActivity() {
 
                     when (val route = currentRoute) {
                         AdminRoute.Home -> {
-                            val dashboard by produceState<Result<ResumoDashboard>?>(null) {
-                                value = runCatching { repository.obterDashboard() }
+                            val dashboard by homeViewModel.dashboardState.collectAsState()
+                            LaunchedEffect(Unit) {
+                                homeViewModel.carregarDashboard()
                             }
                             RemoteContent(dashboard) {
                                 HomeScreen(
@@ -114,13 +115,17 @@ class MainActivity : ComponentActivity() {
                         }
 
                         AdminRoute.Utilizadores -> {
-                            val utilizadores by produceState<Result<List<Utilizador>>?>(null) {
-                                value = runCatching { repository.listarUtilizadores() }
+                            val utilizadores by utilizadoresViewModel.utilizadoresState.collectAsState()
+                            LaunchedEffect(Unit) {
+                                utilizadoresViewModel.carregarUtilizadores()
                             }
                             RemoteContent(utilizadores) {
                                 UtilizadoresScreen(
                                     utilizadores = it,
-                                    onUtilizadorClick = { id -> navigate(AdminRoute.DetalheUtilizador(id)) },
+                                    onUtilizadorClick = { id -> 
+                                        utilizadoresViewModel.carregarDetalhes(id)
+                                        navigate(AdminRoute.DetalheUtilizador(id)) 
+                                    },
                                     onHomeClick = goHome,
                                     onTorneiosClick = goTournaments,
                                     onGraficosClick = goCharts,
@@ -130,8 +135,9 @@ class MainActivity : ComponentActivity() {
                         }
 
                         is AdminRoute.DetalheUtilizador -> {
-                            val utilizador by produceState<Result<Utilizador?>?>(null, route.id) {
-                                value = runCatching { repository.obterUtilizador(route.id) }
+                            val utilizador by utilizadoresViewModel.detalheUtilizadorState.collectAsState()
+                            LaunchedEffect(route.id) {
+                                utilizadoresViewModel.carregarDetalhes(route.id)
                             }
                             RemoteContent(utilizador) { user ->
                                 DetalheUtilizadorScreen(
@@ -152,10 +158,9 @@ class MainActivity : ComponentActivity() {
                         }
 
                         AdminRoute.Torneios -> {
-                            val dados by produceState<Result<Pair<List<ResumoModalidade>, Int>>?>(null) {
-                                value = runCatching {
-                                    repository.listarModalidades() to repository.obterDashboard().totalTorneios
-                                }
+                            val dados by torneiosViewModel.modalidadesState.collectAsState()
+                            LaunchedEffect(Unit) {
+                                torneiosViewModel.carregarTorneios()
                             }
                             RemoteContent(dados) { (modalidades, totalTorneios) ->
                                 TorneiosScreen(
@@ -171,15 +176,19 @@ class MainActivity : ComponentActivity() {
                         }
 
                         is AdminRoute.TorneiosModalidade -> {
-                            val torneios by produceState<Result<List<Torneio>>?>(null, route.modalidade) {
-                                value = runCatching { repository.listarTorneiosPorModalidade(route.modalidade) }
+                            val torneios by torneiosViewModel.torneiosState.collectAsState()
+                            LaunchedEffect(route.modalidade) {
+                                torneiosViewModel.carregarTorneiosPorModalidade(route.modalidade)
                             }
                             RemoteContent(torneios) {
                                 ListaTorneiosModalidadeScreen(
                                     modalidade = route.modalidade,
                                     torneios = it,
                                     onBackClick = goTournaments,
-                                    onTorneioClick = { id -> navigate(AdminRoute.DetalheTorneio(id, route.modalidade)) },
+                                    onTorneioClick = { id -> 
+                                        torneiosViewModel.carregarDetalheTorneio(id)
+                                        navigate(AdminRoute.DetalheTorneio(id, route.modalidade)) 
+                                    },
                                     onHomeClick = goHome,
                                     onUtilizadoresClick = goUsers,
                                     onGraficosClick = goCharts,
@@ -189,8 +198,9 @@ class MainActivity : ComponentActivity() {
                         }
 
                         is AdminRoute.DetalheTorneio -> {
-                            val detalhe by produceState<Result<DetalheTorneio?>?>(null, route.id) {
-                                value = runCatching { repository.obterDetalheTorneio(route.id) }
+                            val detalhe by torneiosViewModel.detalheTorneioState.collectAsState()
+                            LaunchedEffect(route.id) {
+                                torneiosViewModel.carregarDetalheTorneio(route.id)
                             }
                             RemoteContent(detalhe) {
                                 DetalheTorneioScreen(
@@ -205,8 +215,9 @@ class MainActivity : ComponentActivity() {
                         }
 
                         AdminRoute.Graficos -> {
-                            val estatisticas by produceState<Result<EstatisticasAdmin>?>(null) {
-                                value = runCatching { repository.obterEstatisticasAdmin() }
+                            val estatisticas by graficosViewModel.estatisticasState.collectAsState()
+                            LaunchedEffect(Unit) {
+                                graficosViewModel.carregarEstatisticas()
                             }
                             RemoteContent(estatisticas) {
                                 GraficosScreen(
@@ -221,8 +232,7 @@ class MainActivity : ComponentActivity() {
 
                         AdminRoute.Definicoes -> DefinicoesScreen(
                             onTerminarSessaoClick = {
-                                isLoggedIn = false
-                                loginError = null
+                                authViewModel.terminarSessao()
                                 currentRoute = AdminRoute.Home
                             },
                             onGerirNotificacoesClick = { navigate(AdminRoute.Notificacoes) },

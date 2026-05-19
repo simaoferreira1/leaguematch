@@ -1,11 +1,11 @@
-package com.leaguematch.dados.repositorios
+package com.leaguematch.data.repository
 
-import com.leaguematch.dados.modelos.DetalheTorneio
-import com.leaguematch.dados.modelos.EstatisticasAdmin
-import com.leaguematch.dados.modelos.ResumoDashboard
-import com.leaguematch.dados.modelos.ResumoModalidade
-import com.leaguematch.dados.modelos.Torneio
-import com.leaguematch.dados.modelos.Utilizador
+import com.leaguematch.data.remote.model.DetalheTorneio
+import com.leaguematch.data.remote.model.EstatisticasAdmin
+import com.leaguematch.data.remote.model.ResumoDashboard
+import com.leaguematch.data.remote.model.ResumoModalidade
+import com.leaguematch.data.remote.model.Torneio
+import com.leaguematch.data.remote.model.Utilizador
 
 interface LeagueMatchRepository {
     suspend fun autenticar(email: String, password: String): Utilizador?

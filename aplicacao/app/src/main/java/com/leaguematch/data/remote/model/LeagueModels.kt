@@ -1,4 +1,4 @@
-package com.leaguematch.dados.modelos
+package com.leaguematch.data.remote.model
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow

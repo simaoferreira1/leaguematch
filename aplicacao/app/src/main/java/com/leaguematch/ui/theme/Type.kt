@@ -2,33 +2,46 @@ package com.leaguematch.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.*
+import androidx.compose.ui.text.googlefonts.Font
+import androidx.compose.ui.text.googlefonts.GoogleFont
 import androidx.compose.ui.unit.sp
+import com.leaguematch.R
 
-// Set of Material typography styles to start with
-val Typography = Typography(
-    bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    )
-    /* Other default text styles to override
-    titleLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.sp
-    ),
-    labelSmall = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
-    )
-    */
+private val provider = GoogleFont.Provider(
+    providerAuthority = "com.google.android.gms.fonts",
+    providerPackage = "com.google.android.gms",
+    certificates = R.array.com_google_android_gms_fonts_certs
 )
+
+val Geist = FontFamily(
+    Font(GoogleFont("Geist"), provider, weight = FontWeight.Normal),
+    Font(GoogleFont("Geist"), provider, weight = FontWeight.Medium),
+    Font(GoogleFont("Geist"), provider, weight = FontWeight.SemiBold),
+    Font(GoogleFont("Geist"), provider, weight = FontWeight.Bold),
+    Font(GoogleFont("Geist"), provider, weight = FontWeight.ExtraBold),
+)
+val Bricolage = FontFamily(
+    Font(GoogleFont("Bricolage Grotesque"), provider, weight = FontWeight.SemiBold),
+    Font(GoogleFont("Bricolage Grotesque"), provider, weight = FontWeight.Bold),
+    Font(GoogleFont("Bricolage Grotesque"), provider, weight = FontWeight.ExtraBold),
+)
+val GeistMono = FontFamily(
+    Font(GoogleFont("Geist Mono"), provider, weight = FontWeight.Medium),
+    Font(GoogleFont("Geist Mono"), provider, weight = FontWeight.Bold),
+)
+
+val LMTypography = Typography(
+    displayLarge  = TextStyle(fontFamily = Bricolage, fontWeight = FontWeight.ExtraBold, fontSize = 40.sp, letterSpacing = (-0.8).sp),
+    displayMedium = TextStyle(fontFamily = Bricolage, fontWeight = FontWeight.Bold,      fontSize = 32.sp, letterSpacing = (-0.6).sp),
+    headlineLarge = TextStyle(fontFamily = Bricolage, fontWeight = FontWeight.Bold,      fontSize = 24.sp, letterSpacing = (-0.4).sp),
+    titleLarge    = TextStyle(fontFamily = Geist,     fontWeight = FontWeight.Bold,      fontSize = 18.sp),
+    titleMedium   = TextStyle(fontFamily = Geist,     fontWeight = FontWeight.SemiBold,  fontSize = 15.sp),
+    bodyLarge     = TextStyle(fontFamily = Geist,     fontWeight = FontWeight.Normal,    fontSize = 15.sp, lineHeight = 22.sp),
+    bodyMedium    = TextStyle(fontFamily = Geist,     fontWeight = FontWeight.Normal,    fontSize = 13.sp, lineHeight = 20.sp),
+    labelLarge    = TextStyle(fontFamily = Geist,     fontWeight = FontWeight.SemiBold,  fontSize = 13.sp),
+    labelSmall    = TextStyle(fontFamily = GeistMono, fontWeight = FontWeight.Bold,      fontSize = 11.sp, letterSpacing = 0.6.sp),
+)
+
+// Legacy alias for compatibility with unrefactored screens
+val Typography = LMTypography
