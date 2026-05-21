@@ -9,6 +9,7 @@ import com.leaguematch.data.remote.model.Utilizador
 
 interface LeagueMatchRepository {
     suspend fun autenticar(email: String, password: String): Utilizador?
+    suspend fun registar(nome: String, email: String, password: String, tipo: String): Utilizador?
     suspend fun obterDashboard(): ResumoDashboard
     suspend fun listarUtilizadores(): List<Utilizador>
     suspend fun obterUtilizador(id: Int): Utilizador?
@@ -16,4 +17,5 @@ interface LeagueMatchRepository {
     suspend fun listarTorneiosPorModalidade(modalidade: String): List<Torneio>
     suspend fun obterDetalheTorneio(id: Int): DetalheTorneio?
     suspend fun obterEstatisticasAdmin(): EstatisticasAdmin
+    suspend fun atualizarUtilizador(id: Int, nome: String, password: String?): Utilizador?
 }

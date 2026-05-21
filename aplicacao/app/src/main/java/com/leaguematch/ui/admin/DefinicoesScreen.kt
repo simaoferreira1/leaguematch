@@ -1,5 +1,7 @@
 package com.leaguematch.ui.admin
 
+import com.leaguematch.data.remote.model.Utilizador
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -12,8 +14,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.*
+import androidx.compose.runtime.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,24 +31,31 @@ import com.leaguematch.ui.theme.*
 
 @Composable
 fun DefinicoesScreen(
+    utilizadorLogado: Utilizador? = null,
     onTerminarSessaoClick: () -> Unit = {},
+    onEditarPerfilClick: (String, String?) -> Unit = { _, _ -> },
     onGerirNotificacoesClick: () -> Unit = {},
     onHomeClick: () -> Unit = {},
     onUtilizadoresClick: () -> Unit = {},
     onTorneiosClick: () -> Unit = {},
-    onGraficosClick: () -> Unit = {}
+    onGraficosClick: () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {
+        AdminBottomBar(
+            selectedItem = "definicoes",
+            onHomeClick = onHomeClick,
+            onUtilizadoresClick = onUtilizadoresClick,
+            onTorneiosClick = onTorneiosClick,
+            onGraficosClick = onGraficosClick,
+            onDefinicoesClick = {}
+        )
+    }
 ) {
+    var showEditDialog by remember { mutableStateOf(false) }
+    var newNome by remember(utilizadorLogado) { mutableStateOf(utilizadorLogado?.nome.orEmpty()) }
+    var newPassword by remember { mutableStateOf("") }
+
     Scaffold(
-        bottomBar = {
-            AdminBottomBar(
-                selectedItem = "definicoes",
-                onHomeClick = onHomeClick,
-                onUtilizadoresClick = onUtilizadoresClick,
-                onTorneiosClick = onTorneiosClick,
-                onGraficosClick = onGraficosClick,
-                onDefinicoesClick = {}
-            )
-        },
+        bottomBar = bottomBar,
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         Column(
@@ -86,11 +95,14 @@ fun DefinicoesScreen(
                     .background(LMInk, RoundedCornerShape(16.dp))
                     .padding(14.dp)
             ) {
+                val nomeExibido = utilizadorLogado?.nome ?: "Utilizador LeagueMatch"
+                val tipoExibido = utilizadorLogado?.tipo?.descricao ?: "Participante"
+
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Avatar(
-                        name = "Simão Ferreira",
+                        name = nomeExibido,
                         size = 56.dp,
                         color = LMRed
                     )
@@ -101,7 +113,7 @@ fun DefinicoesScreen(
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(
-                            text = "Simão Ferreira",
+                            text = nomeExibido,
                             fontFamily = Bricolage,
                             fontSize = 17.sp,
                             fontWeight = FontWeight.ExtraBold,
@@ -109,7 +121,7 @@ fun DefinicoesScreen(
                         )
                         
                         Text(
-                            text = "Administrador · GD Rio Torto",
+                            text = "$tipoExibido · LeagueMatch",
                             fontFamily = Geist,
                             fontSize = 11.sp,
                             color = LMWhite.copy(alpha = 0.6f),
@@ -126,7 +138,7 @@ fun DefinicoesScreen(
                                     BorderStroke(1.dp, LMWhite.copy(alpha = 0.2f)),
                                     RoundedCornerShape(99.dp)
                                 )
-                                .clickable {}
+                                .clickable { showEditDialog = true }
                                 .padding(horizontal = 10.dp, vertical = 4.dp)
                         ) {
                             Text(
@@ -305,6 +317,85 @@ fun DefinicoesScreen(
                     .padding(vertical = 18.dp)
             )
         }
+    }
+
+    if (showEditDialog) {
+        AlertDialog(
+            onDismissRequest = { 
+                showEditDialog = false 
+                newPassword = ""
+            },
+            title = {
+                Text(
+                    text = "Editar Perfil",
+                    fontFamily = Bricolage,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    color = LMInk
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    LeagueMatchTextField(
+                        value = newNome,
+                        onValueChange = { newNome = it },
+                        label = "Nome completo",
+                        placeholder = "Nome completo"
+                    )
+
+                    LeagueMatchTextField(
+                        value = newPassword,
+                        onValueChange = { newPassword = it },
+                        label = "Nova palavra-passe (opcional)",
+                        placeholder = "Mudar palavra-passe",
+                        isPassword = true,
+                        hint = "Deixa em branco para manter a atual."
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (newNome.isNotBlank()) {
+                            onEditarPerfilClick(newNome, newPassword.takeIf { it.isNotBlank() })
+                            showEditDialog = false
+                            newPassword = ""
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = LMRed),
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Text(
+                        text = "Guardar",
+                        fontFamily = Geist,
+                        fontWeight = FontWeight.Bold,
+                        color = LMWhite
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { 
+                        showEditDialog = false 
+                        newPassword = ""
+                    }
+                ) {
+                    Text(
+                        text = "Cancelar",
+                        fontFamily = Geist,
+                        fontWeight = FontWeight.Bold,
+                        color = LMGray600
+                    )
+                }
+            },
+            containerColor = LMWhite,
+            shape = RoundedCornerShape(16.dp)
+        )
     }
 }
 

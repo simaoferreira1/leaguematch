@@ -566,8 +566,7 @@ fun AdminBottomBar(
         NavigationBar(
             containerColor = LMSurface,
             contentColor = LMInk,
-            tonalElevation = 0.dp,
-            modifier = Modifier.height(72.dp)
+            tonalElevation = 0.dp
         ) {
             NavigationBarItem(
                 selected = selectedItem == "home",
@@ -682,3 +681,115 @@ fun AdminBottomBar(
         }
     }
 }
+
+// ─── Organizer Bottom Bar ────────────────────────────────────────
+@Composable
+fun OrganizerBottomBar(
+    selectedItem: String,
+    onTorneiosClick: () -> Unit,
+    onEquipasClick: () -> Unit,
+    onJogosClick: () -> Unit,
+    onPerfilClick: () -> Unit
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = LMSurface,
+        border = BorderStroke(1.dp, LMBorder)
+    ) {
+        NavigationBar(
+            containerColor = LMSurface,
+            contentColor = LMInk,
+            tonalElevation = 0.dp
+        ) {
+            NavigationBarItem(
+                selected = selectedItem == "torneios",
+                onClick = onTorneiosClick,
+                icon = { Icon(Icons.Rounded.EmojiEvents, contentDescription = "Torneios") },
+                label = { 
+                    Text(
+                        text = "Torneios", 
+                        fontSize = 9.5.sp, 
+                        fontFamily = Geist, 
+                        maxLines = 1, 
+                        softWrap = false,
+                        overflow = TextOverflow.Clip
+                    ) 
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = LMRed,
+                    selectedTextColor = LMRed,
+                    unselectedIconColor = LMGray500,
+                    unselectedTextColor = LMGray500,
+                    indicatorColor = Color.Transparent
+                )
+            )
+            NavigationBarItem(
+                selected = selectedItem == "equipas",
+                onClick = onEquipasClick,
+                icon = { Icon(Icons.Rounded.Shield, contentDescription = "Equipas") },
+                label = { 
+                    Text(
+                        text = "Equipas", 
+                        fontSize = 9.5.sp, 
+                        fontFamily = Geist, 
+                        maxLines = 1, 
+                        softWrap = false,
+                        overflow = TextOverflow.Clip
+                    ) 
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = LMRed,
+                    selectedTextColor = LMRed,
+                    unselectedIconColor = LMGray500,
+                    unselectedTextColor = LMGray500,
+                    indicatorColor = Color.Transparent
+                )
+            )
+            NavigationBarItem(
+                selected = selectedItem == "jogos",
+                onClick = onJogosClick,
+                icon = { Icon(Icons.Rounded.SportsSoccer, contentDescription = "Jogos") },
+                label = { 
+                    Text(
+                        text = "Jogos", 
+                        fontSize = 9.5.sp, 
+                        fontFamily = Geist, 
+                        maxLines = 1, 
+                        softWrap = false,
+                        overflow = TextOverflow.Clip
+                    ) 
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = LMRed,
+                    selectedTextColor = LMRed,
+                    unselectedIconColor = LMGray500,
+                    unselectedTextColor = LMGray500,
+                    indicatorColor = Color.Transparent
+                )
+            )
+            NavigationBarItem(
+                selected = selectedItem == "perfil",
+                onClick = onPerfilClick,
+                icon = { Icon(Icons.Rounded.Person, contentDescription = "Perfil") },
+                label = { 
+                    Text(
+                        text = "Perfil", 
+                        fontSize = 9.5.sp, 
+                        fontFamily = Geist, 
+                        maxLines = 1, 
+                        softWrap = false,
+                        overflow = TextOverflow.Clip
+                    ) 
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = LMRed,
+                    selectedTextColor = LMRed,
+                    unselectedIconColor = LMGray500,
+                    unselectedTextColor = LMGray500,
+                    indicatorColor = Color.Transparent
+                )
+            )
+        }
+    }
+}
+

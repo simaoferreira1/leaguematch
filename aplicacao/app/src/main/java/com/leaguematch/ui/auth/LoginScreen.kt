@@ -26,7 +26,8 @@ import com.leaguematch.ui.theme.*
 @Composable
 fun LoginScreen(
     erro: String? = null,
-    onLoginClick: (String, String) -> Unit
+    onLoginClick: (String, String) -> Unit,
+    onRegisterClick: () -> Unit
 ) {
     val context = LocalContext.current
     var email by remember { mutableStateOf("") }
@@ -189,9 +190,7 @@ fun LoginScreen(
                     color = LMGray500
                 )
                 TextBtn(
-                    onClick = {
-                        Toast.makeText(context, "Criação de conta em desenvolvimento.", Toast.LENGTH_LONG).show()
-                    }, 
+                    onClick = onRegisterClick, 
                     color = LMInk
                 ) {
                     Text("Criar conta", fontWeight = FontWeight.Bold, fontSize = 13.sp, fontFamily = Geist)
@@ -205,6 +204,6 @@ fun LoginScreen(
 @Composable
 fun LoginScreenPreview() {
     LeagueMatchTheme {
-        LoginScreen(onLoginClick = { _, _ -> })
+        LoginScreen(onLoginClick = { _, _ -> }, onRegisterClick = {})
     }
 }
