@@ -11,8 +11,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class TorneiosViewModel(private val repository: LeagueMatchRepository) : ViewModel() {
+
     private val _modalidadesState = MutableStateFlow<Result<Pair<List<ResumoModalidade>, Int>>?>(null)
     val modalidadesState: StateFlow<Result<Pair<List<ResumoModalidade>, Int>>?> = _modalidadesState
+
+    private val _todosTorneiosState = MutableStateFlow<Result<List<Torneio>>?>(null)
+    val todosTorneiosState: StateFlow<Result<List<Torneio>>?> = _todosTorneiosState
 
     private val _torneiosState = MutableStateFlow<Result<List<Torneio>>?>(null)
     val torneiosState: StateFlow<Result<List<Torneio>>?> = _torneiosState
@@ -24,11 +28,26 @@ class TorneiosViewModel(private val repository: LeagueMatchRepository) : ViewMod
         viewModelScope.launch {
             _modalidadesState.value = null
             try {
-                val modalities = repository.listarModalidades()
+                val modalidades = repository.listarModalidades()
                 val totalTorneios = repository.obterDashboard().totalTorneios
-                _modalidadesState.value = Result.success(modalities to totalTorneios)
+                _modalidadesState.value = Result.success(modalidades to totalTorneios)
             } catch (e: Exception) {
                 _modalidadesState.value = Result.failure(e)
+            }
+        }
+    }
+
+    fun carregarTodosTorneios() {
+        viewModelScope.launch {
+            _todosTorneiosState.value = null
+            try {
+                val modalidades = repository.listarModalidades()
+                val torneios = modalidades.flatMap { modalidade ->
+                    repository.listarTorneiosPorModalidade(modalidade.nome)
+                }
+                _todosTorneiosState.value = Result.success(torneios)
+            } catch (e: Exception) {
+                _todosTorneiosState.value = Result.failure(e)
             }
         }
     }
@@ -53,6 +72,18 @@ class TorneiosViewModel(private val repository: LeagueMatchRepository) : ViewMod
                 _detalheTorneioState.value = Result.success(data)
             } catch (e: Exception) {
                 _detalheTorneioState.value = Result.failure(e)
+            }
+        }
+    }
+
+    fun removerTorneio(id: Int) {
+        viewModelScope.launch {
+            try {
+                repository.removerTorneio(id)
+                carregarTorneios()
+                carregarTodosTorneios()
+            } catch (e: Exception) {
+                _todosTorneiosState.value = Result.failure(e)
             }
         }
     }

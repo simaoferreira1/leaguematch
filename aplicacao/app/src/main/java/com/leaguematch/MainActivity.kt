@@ -300,22 +300,66 @@ class MainActivity : ComponentActivity() {
                                 }
 
                                 AdminRoute.Torneios -> {
-                                    val dados by torneiosViewModel.modalidadesState.collectAsState()
+
+                                    val dadosModalidades by torneiosViewModel.modalidadesState.collectAsState()
+                                    val dadosTorneios by torneiosViewModel.todosTorneiosState.collectAsState()
+
                                     LaunchedEffect(Unit) {
                                         torneiosViewModel.carregarTorneios()
+                                        torneiosViewModel.carregarTodosTorneios()
                                     }
-                                    RemoteContent(dados) { (modalidades, totalTorneios) ->
-                                        TorneiosScreen(
-                                            modalidades = modalidades,
-                                            totalTorneios = totalTorneios,
-                                            onHomeClick = goHome,
-                                            onUtilizadoresClick = goUsers,
-                                            onGraficosClick = goCharts,
-                                            onDefinicoesClick = goSettings,
-                                            onModalidadeClick = {
-                                                navigate(AdminRoute.TorneiosModalidade(it))
-                                            }
-                                        )
+
+                                    when {
+                                        dadosModalidades == null || dadosTorneios == null -> {
+                                            LoadingScreen()
+                                        }
+
+                                        dadosModalidades!!.isFailure -> {
+                                            ErrorScreen(
+                                                dadosModalidades!!.exceptionOrNull()?.message
+                                                    ?: "Erro ao carregar modalidades."
+                                            )
+                                        }
+
+                                        dadosTorneios!!.isFailure -> {
+                                            ErrorScreen(
+                                                dadosTorneios!!.exceptionOrNull()?.message
+                                                    ?: "Erro ao carregar torneios."
+                                            )
+                                        }
+
+                                        else -> {
+
+                                            val (modalidades, totalTorneios) =
+                                                dadosModalidades!!.getOrThrow()
+
+                                            val torneios =
+                                                dadosTorneios!!.getOrThrow()
+
+                                            TorneiosScreen(
+                                                modalidades = modalidades,
+                                                torneios = torneios,
+                                                totalTorneios = totalTorneios,
+                                                onHomeClick = goHome,
+                                                onUtilizadoresClick = goUsers,
+                                                onGraficosClick = goCharts,
+                                                onDefinicoesClick = goSettings,
+                                                onTorneioClick = { id ->
+                                                    val torneio =
+                                                        torneios.firstOrNull { it.id == id }
+
+                                                    navigate(
+                                                        AdminRoute.DetalheTorneio(
+                                                            id = id,
+                                                            modalidade = torneio?.modalidade ?: "Todos"
+                                                        )
+                                                    )
+                                                },
+                                                onRemoverTorneioClick = { id ->
+                                                    torneiosViewModel.removerTorneio(id)
+                                                }
+                                            )
+                                        }
                                     }
                                 }
 
@@ -349,11 +393,10 @@ class MainActivity : ComponentActivity() {
                                     RemoteContent(detalhe) {
                                         DetalheTorneioScreen(
                                             detalhe = it,
-                                            onBackClick = {
-                                                navigate(AdminRoute.TorneiosModalidade(route.modalidade))
-                                            },
+                                            onBackClick = goTournaments,
                                             onHomeClick = goHome,
                                             onUtilizadoresClick = goUsers,
+                                            onTorneiosClick = goTournaments,
                                             onGraficosClick = goCharts,
                                             onDefinicoesClick = goSettings
                                         )

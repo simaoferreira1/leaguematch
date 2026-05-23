@@ -18,4 +18,5 @@ interface LeagueMatchRepository {
     suspend fun obterDetalheTorneio(id: Int): DetalheTorneio?
     suspend fun obterEstatisticasAdmin(): EstatisticasAdmin
     suspend fun atualizarUtilizador(id: Int, nome: String, password: String?): Utilizador?
+    suspend fun removerTorneio(id: Int): Boolean
 }

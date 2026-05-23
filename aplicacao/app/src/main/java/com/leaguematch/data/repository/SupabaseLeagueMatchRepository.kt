@@ -184,6 +184,41 @@ class SupabaseLeagueMatchRepository(
             }
     }
 
+    override suspend fun removerTorneio(id: Int): Boolean {
+        deleteObject("torneio", id)
+        return true
+    }
+
+    private suspend fun deleteObject(table: String, id: Int): Unit = withContext(Dispatchers.IO) {
+        if (supabaseUrl.isBlank() || anonKey.isBlank()) {
+            error("Configura SUPABASE_URL e SUPABASE_ANON_KEY no local.properties.")
+        }
+
+        val url = URL("${supabaseUrl.trimEnd('/')}/rest/v1/$table?id=eq.$id")
+
+        val connection = (url.openConnection() as HttpURLConnection).apply {
+            requestMethod = "DELETE"
+            connectTimeout = 10_000
+            readTimeout = 10_000
+            setRequestProperty("apikey", anonKey)
+            setRequestProperty("Authorization", "Bearer $anonKey")
+            setRequestProperty("Content-Type", "application/json")
+        }
+
+        val code = connection.responseCode
+        val responseBody = if (code in 200..299) {
+            connection.inputStream?.bufferedReader()?.use { it.readText() }.orEmpty()
+        } else {
+            connection.errorStream?.bufferedReader()?.use { it.readText() }.orEmpty()
+        }
+
+        connection.disconnect()
+
+        if (code !in 200..299) {
+            error("Erro Supabase ($code): $responseBody")
+        }
+    }
+
     private suspend fun listarJogos(torneioId: Int? = null): List<Jogo> {
         val query = mutableMapOf("select" to "id,torneio_id,team_a_id,team_b_id,estado,resultado_a,resultado_b")
         if (torneioId != null) query["torneio_id"] = "eq.$torneioId"
@@ -220,7 +255,6 @@ class SupabaseLeagueMatchRepository(
             .map { (nome, golos) -> Goleador(nome, golos) }
             .sortedByDescending { it.golos }
             .take(6)
-            .ifEmpty { listOf(Goleador("Sem golos registados", 0)) }
     }
 
     private suspend fun getArray(table: String, query: Map<String, String>): JSONArray = withContext(Dispatchers.IO) {

@@ -1,56 +1,133 @@
 package com.leaguematch.ui.admin
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SportsBasketball
 import androidx.compose.material.icons.filled.SportsHandball
 import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material.icons.filled.SportsTennis
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.leaguematch.ui.components.*
-import com.leaguematch.ui.theme.*
 import com.leaguematch.data.remote.model.ResumoModalidade
-
-data class ModalidadeUi(
-    val nome: String,
-    val torneios: String,
-    val icon: ImageVector
-)
+import com.leaguematch.data.remote.model.Torneio
+import com.leaguematch.ui.components.AdminBottomBar
+import com.leaguematch.ui.theme.*
 
 @Composable
 fun TorneiosScreen(
-    modalidades: List<ResumoModalidade> = listOf(
-        ResumoModalidade("Futebol", 5),
-        ResumoModalidade("Padel", 2),
-        ResumoModalidade("Ténis", 3),
-        ResumoModalidade("Basquetebol", 1),
-        ResumoModalidade("Andebol", 1)
-    ),
-    totalTorneios: Int = 12,
-    onHomeClick: () -> Unit = {},
-    onUtilizadoresClick: () -> Unit = {},
-    onGraficosClick: () -> Unit = {},
-    onDefinicoesClick: () -> Unit = {},
-    onModalidadeClick: (String) -> Unit = {}
+    modalidades: List<ResumoModalidade>,
+    torneios: List<Torneio>,
+    totalTorneios: Int,
+    onHomeClick: () -> Unit,
+    onUtilizadoresClick: () -> Unit,
+    onGraficosClick: () -> Unit,
+    onDefinicoesClick: () -> Unit,
+    onTorneioClick: (Int) -> Unit,
+    onRemoverTorneioClick: (Int) -> Unit
 ) {
+    var pesquisa by remember { mutableStateOf("") }
+    var modalidadeSelecionada by remember(torneios) { mutableStateOf("Todos") }
+    var torneioParaRemover by remember { mutableStateOf<Torneio?>(null) }
+
+    LaunchedEffect(torneios) {
+        if (modalidadeSelecionada != "Todos" &&
+            torneios.none { it.modalidade == modalidadeSelecionada }
+        ) {
+            modalidadeSelecionada = "Todos"
+        }
+    }
+
+    val modalidadesFiltro = listOf("Todos") + modalidades.map { it.nome }
+
+    val torneiosFiltrados = torneios.filter { torneio ->
+        val modalidadeOk =
+            modalidadeSelecionada == "Todos" || torneio.modalidade == modalidadeSelecionada
+
+        val pesquisaOk =
+            pesquisa.isBlank() ||
+                    torneio.nome.contains(pesquisa, ignoreCase = true) ||
+                    torneio.modalidade.contains(pesquisa, ignoreCase = true)
+
+        modalidadeOk && pesquisaOk
+    }
+
+    torneioParaRemover?.let { torneio ->
+        AlertDialog(
+            onDismissRequest = { torneioParaRemover = null },
+
+            shape = RoundedCornerShape(22.dp),
+
+            containerColor = LMWhite,
+
+            title = {
+                Text(
+                    text = "Remover torneio?",
+                    fontFamily = Geist,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = LMInk
+                )
+            },
+
+            text = {
+                Text(
+                    text = "Tens a certeza que queres remover \"${torneio.nome}\"?",
+                    fontFamily = Geist,
+                    color = LMGray500
+                )
+            },
+
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onRemoverTorneioClick(torneio.id)
+                        torneioParaRemover = null
+                    }
+                ) {
+                    Text(
+                        "Remover",
+                        color = LMRed,
+                        fontFamily = Geist,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            },
+
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        torneioParaRemover = null
+                    }
+                ) {
+                    Text(
+                        "Cancelar",
+                        color = LMGray500,
+                        fontFamily = Geist,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+        )
+    }
+
     Scaffold(
         bottomBar = {
             AdminBottomBar(
@@ -64,164 +141,55 @@ fun TorneiosScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(vertical = 12.dp)
+                .padding(horizontal = 18.dp, vertical = 14.dp)
         ) {
-            // Header TopBar
-            TopBar(
-                title = "Torneios",
-                big = true,
-                sub = "Moderação global por modalidade"
+            Spacer(modifier = Modifier.height(8.dp))
+
+            SearchHeader(
+                pesquisa = pesquisa,
+                onPesquisaChange = { pesquisa = it },
+                onSettingsClick = onDefinicoesClick
             )
 
-            // Total modalities premium gradient card
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 18.dp, vertical = 6.dp)
-                    .background(
-                        brush = Brush.linearGradient(
-                            colors = listOf(LMRed, LMRed700)
-                        ),
-                        shape = RoundedCornerShape(16.dp)
-                    )
-                    .padding(18.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column {
-                        Text(
-                            text = "TOTAL DE MODALIDADES",
-                            color = LMWhite.copy(alpha = 0.65f),
-                            fontFamily = Geist,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 11.sp,
-                            letterSpacing = 0.4.sp
-                        )
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Text(
-                            text = modalidades.size.toString(),
-                            color = LMWhite,
-                            fontFamily = Bricolage,
-                            fontSize = 32.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            letterSpacing = (-0.5).sp
-                        )
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = "$totalTorneios torneios registados",
-                            color = LMWhite.copy(alpha = 0.8f),
-                            fontFamily = Geist,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
+            Spacer(modifier = Modifier.height(18.dp))
 
-                    Icon(
-                        imageVector = Icons.Default.EmojiEvents,
-                        contentDescription = null,
-                        tint = LMWhite.copy(alpha = 0.25f),
-                        modifier = Modifier.size(54.dp)
-                    )
-                }
-            }
+            ModalidadeChips(
+                modalidades = modalidadesFiltro,
+                selecionada = modalidadeSelecionada,
+                onSelecionar = { modalidadeSelecionada = it }
+            )
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Section Title
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 18.dp, vertical = 4.dp)
-            ) {
-                Text(
-                    text = "SELECIONE UMA MODALIDADE",
-                    fontFamily = Geist,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = LMGray500,
-                    letterSpacing = 0.4.sp,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
+            Text(
+                text = "${torneiosFiltrados.size} de $totalTorneios torneios",
+                fontFamily = Geist,
+                fontSize = 12.sp,
+                color = LMGray500,
+                fontWeight = FontWeight.SemiBold
+            )
 
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    modalidades.forEach { modalidade ->
-                        val ui = modalidade.toUi()
-                        
-                        CardWrapper(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onModalidadeClick(modalidade.nome) },
-                            pad = 12.dp
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                // Mini Sport Crest
-                                Box(
-                                    modifier = Modifier
-                                        .size(42.dp)
-                                        .clip(CircleShape)
-                                        .background(
-                                            brush = Brush.linearGradient(
-                                                colors = when (modalidade.nome) {
-                                                    "Futebol" -> listOf(LMRed, LMRed700)
-                                                    "Ténis" -> listOf(LMInk, LMInk3)
-                                                    "Basquetebol" -> listOf(Color(0xFF2563EB), Color(0xFF1D4ED8))
-                                                    "Andebol" -> listOf(Color(0xFF16A34A), Color(0xFF15803D))
-                                                    else -> listOf(LMWarn, Color(0xFFD97706))
-                                                }
-                                            )
-                                        ),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = ui.icon,
-                                        contentDescription = null,
-                                        tint = LMWhite,
-                                        modifier = Modifier.size(22.dp)
-                                    )
-                                }
-                                
-                                Spacer(modifier = Modifier.width(12.dp))
-                                
-                                Column(
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Text(
-                                        text = ui.nome,
-                                        fontFamily = Geist,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 15.sp,
-                                        color = LMInk
-                                    )
-                                    Spacer(modifier = Modifier.height(1.dp))
-                                    Text(
-                                        text = ui.torneios,
-                                        fontFamily = Geist,
-                                        fontSize = 12.sp,
-                                        color = LMGray500
-                                    )
-                                }
-                                
-                                Text(
-                                    text = "Consultar ›",
-                                    fontFamily = Geist,
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = 12.sp,
-                                    color = LMRed
-                                )
-                            }
-                        }
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Column(
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                if (torneiosFiltrados.isEmpty()) {
+                    EmptyTorneiosMessage()
+                } else {
+                    torneiosFiltrados.forEachIndexed { index, torneio ->
+                        TorneioCard(
+                            torneio = torneio,
+                            index = index,
+                            onClick = { onTorneioClick(torneio.id) },
+                            onRemoverClick = { torneioParaRemover = torneio }
+                        )
                     }
                 }
             }
@@ -229,9 +197,223 @@ fun TorneiosScreen(
     }
 }
 
-private fun ResumoModalidade.toUi(): ModalidadeUi {
-    val textoTorneios = if (totalTorneios == 1) "1 torneio ativo" else "$totalTorneios torneios ativos"
-    return ModalidadeUi(nome, textoTorneios, iconForModalidade(nome))
+@Composable
+private fun SearchHeader(
+    pesquisa: String,
+    onPesquisaChange: (String) -> Unit,
+    onSettingsClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = Color(0xFFF3F3F5),
+                shape = RoundedCornerShape(14.dp)
+            )
+            .padding(horizontal = 12.dp, vertical = 2.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Default.Search,
+            contentDescription = null,
+            tint = LMGray500,
+            modifier = Modifier.size(20.dp)
+        )
+
+        TextField(
+            value = pesquisa,
+            onValueChange = onPesquisaChange,
+            placeholder = {
+                Text(
+                    text = "Pesquisar torneios...",
+                    fontFamily = Geist,
+                    fontSize = 13.sp,
+                    color = LMGray500
+                )
+            },
+            modifier = Modifier.weight(1f),
+            singleLine = true,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
+            )
+        )
+
+    }
+}
+
+@Composable
+private fun ModalidadeChips(
+    modalidades: List<String>,
+    selecionada: String,
+    onSelecionar: (String) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        modalidades.forEach { modalidade ->
+            val ativo = modalidade == selecionada
+
+            Surface(
+                modifier = Modifier.clickable { onSelecionar(modalidade) },
+                shape = RoundedCornerShape(22.dp),
+                color = if (ativo) LMInk else LMWhite,
+                border = BorderStroke(
+                    width = 1.dp,
+                    color = if (ativo) LMInk else Color(0xFFE2E2E7)
+                )
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 9.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = iconForModalidade(modalidade),
+                        contentDescription = null,
+                        tint = if (ativo) LMWhite else LMGray500,
+                        modifier = Modifier.size(16.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(6.dp))
+
+                    Text(
+                        text = modalidade,
+                        fontFamily = Geist,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 13.sp,
+                        color = if (ativo) LMWhite else LMInk
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TorneioCard(
+    torneio: Torneio,
+    index: Int,
+    onClick: () -> Unit,
+    onRemoverClick: () -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        shape = RoundedCornerShape(18.dp),
+        color = LMWhite,
+        border = BorderStroke(1.dp, Color(0xFFE5E5EA)),
+        tonalElevation = 1.dp,
+        shadowElevation = 1.dp
+    ) {
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(60.dp)
+                    .background(
+                        brush = Brush.linearGradient(
+                            colors = colorsForTorneio(torneio, index)
+                        ),
+                        shape = RoundedCornerShape(14.dp)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.EmojiEvents,
+                    contentDescription = null,
+                    tint = LMWhite,
+                    modifier = Modifier.size(30.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = torneio.modalidade.uppercase(),
+                    fontFamily = Geist,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 10.sp,
+                    color = LMGray500
+                )
+
+                Spacer(modifier = Modifier.height(3.dp))
+
+                Text(
+                    text = torneio.nome,
+                    fontFamily = Geist,
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 15.sp,
+                    color = LMInk
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = "${torneio.equipas} equipas • ${torneio.estado}",
+                    fontFamily = Geist,
+                    fontSize = 12.sp,
+                    color = LMGray500
+                )
+            }
+
+            Surface(
+                modifier = Modifier.clickable { onRemoverClick() },
+                shape = RoundedCornerShape(18.dp),
+                color = Color(0xFFFFEEF1)
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = null,
+                        tint = LMRed,
+                        modifier = Modifier.size(14.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(4.dp))
+
+                    Text(
+                        text = "Remover",
+                        fontFamily = Geist,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 11.sp,
+                        color = LMRed
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun EmptyTorneiosMessage() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 60.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "Nenhum torneio encontrado.",
+            fontFamily = Geist,
+            fontSize = 14.sp,
+            color = LMGray500
+        )
+    }
 }
 
 private fun iconForModalidade(modalidade: String): ImageVector {
@@ -243,10 +425,12 @@ private fun iconForModalidade(modalidade: String): ImageVector {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun TorneiosScreenPreview() {
-    LeagueMatchTheme {
-        TorneiosScreen()
+private fun colorsForTorneio(torneio: Torneio, index: Int): List<Color> {
+    return when {
+        torneio.modalidade == "Futebol" && index % 3 == 0 -> listOf(LMRed, LMRed700)
+        torneio.modalidade == "Basquetebol" -> listOf(Color(0xFF2563EB), Color(0xFF1D4ED8))
+        torneio.modalidade == "Andebol" -> listOf(Color(0xFF16A34A), Color(0xFF15803D))
+        torneio.modalidade == "Padel" -> listOf(Color(0xFF1F2937), Color(0xFF111827))
+        else -> listOf(Color(0xFFBE123C), Color(0xFF9F1239))
     }
 }

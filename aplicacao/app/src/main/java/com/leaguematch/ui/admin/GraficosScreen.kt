@@ -1,13 +1,10 @@
 package com.leaguematch.ui.admin
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -25,40 +22,22 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.leaguematch.ui.components.*
-import com.leaguematch.ui.theme.*
 import com.leaguematch.data.remote.model.EstatisticasAdmin
-import com.leaguematch.data.remote.model.ParGrafico
+import com.leaguematch.ui.components.AdminBottomBar
+import com.leaguematch.ui.components.CardWrapper
+import com.leaguematch.ui.components.Pill
+import com.leaguematch.ui.components.TopBar
+import com.leaguematch.ui.theme.*
 
 @Composable
 fun GraficosScreen(
-    estatisticas: EstatisticasAdmin = EstatisticasAdmin(
-        totalUtilizadores = 70,
-        totalTorneios = 5,
-        totalJogos = 30,
-        alertas = 0,
-        jogosPorPeriodo = listOf(0.12f, 0.18f, 0.14f, 0.22f, 0.26f, 0.30f, 0.28f, 0.38f, 0.42f, 0.36f, 0.48f, 0.56f, 0.52f, 0.62f),
-        torneiosPorEstado = listOf(
-            ParGrafico("Futebol", 38f),
-            ParGrafico("Ténis", 18f),
-            ParGrafico("Basquetebol", 9f),
-            ParGrafico("Andebol", 4f),
-            ParGrafico("Rugby", 1f)
-        ),
-        topTorneios = listOf(
-            ParGrafico("Participantes", 68f),
-            ParGrafico("Espectadores", 20f),
-            ParGrafico("Organizadores", 12f)
-        )
-    ),
-    onHomeClick: () -> Unit = {},
-    onUtilizadoresClick: () -> Unit = {},
-    onTorneiosClick: () -> Unit = {},
-    onDefinicoesClick: () -> Unit = {}
+    estatisticas: EstatisticasAdmin,
+    onHomeClick: () -> Unit,
+    onUtilizadoresClick: () -> Unit,
+    onTorneiosClick: () -> Unit,
+    onDefinicoesClick: () -> Unit
 ) {
     var selectedPeriod by remember { mutableStateOf("30d") }
 
@@ -75,6 +54,7 @@ fun GraficosScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -82,7 +62,6 @@ fun GraficosScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(vertical = 12.dp)
         ) {
-            // Header TopBar
             TopBar(
                 title = "Gráficos",
                 big = true,
@@ -91,13 +70,12 @@ fun GraficosScreen(
                     Box(
                         modifier = Modifier
                             .size(36.dp)
-                            .background(LMGray100, RoundedCornerShape(10.dp))
-                            .clickable {},
+                            .background(LMGray100, RoundedCornerShape(10.dp)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings",
+                            contentDescription = null,
                             tint = LMGray600,
                             modifier = Modifier.size(16.dp)
                         )
@@ -105,17 +83,15 @@ fun GraficosScreen(
                 }
             )
 
-            // Period Selector Tabs Row
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 18.dp, vertical = 6.dp),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                val periods = listOf("7d", "30d", "90d", "Ano")
-                
-                periods.forEach { period ->
+                listOf("7d", "30d", "90d", "Ano").forEach { period ->
                     val isSelected = selectedPeriod == period
+
                     Box(
                         modifier = Modifier
                             .weight(1f)
@@ -140,15 +116,12 @@ fun GraficosScreen(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Big Active Users Chart Card
             CardWrapper(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 18.dp, vertical = 6.dp)
             ) {
-                Column(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -156,66 +129,65 @@ fun GraficosScreen(
                     ) {
                         Column {
                             Text(
-                                text = "UTILIZADORES ATIVOS",
+                                text = "TOTAL DE UTILIZADORES",
                                 fontFamily = Geist,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = LMGray500,
                                 letterSpacing = 0.4.sp
                             )
+
                             Spacer(modifier = Modifier.height(2.dp))
+
                             Text(
-                                text = "1 248",
+                                text = estatisticas.totalUtilizadores.toString(),
                                 fontFamily = Bricolage,
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = LMInk,
                                 letterSpacing = (-0.5).sp
                             )
+
                             Spacer(modifier = Modifier.height(2.dp))
+
                             Text(
-                                text = "↑ 18% vs período anterior",
+                                text = "${estatisticas.totalTorneios} torneios • ${estatisticas.totalJogos} jogos",
                                 fontFamily = Geist,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = LMLive
                             )
                         }
-                        
+
                         Pill(
-                            text = "30 dias",
+                            text = selectedPeriod,
                             kind = "red"
                         )
                     }
-                    
+
                     Spacer(modifier = Modifier.height(18.dp))
 
-                    // Area Chart Drawing using Canvas
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(110.dp)
                     ) {
-                        val strokeColor = LMRed
-                        
-                        Canvas(
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            val rawData = estatisticas.jogosPorPeriodo
-                            val data = if (rawData.isEmpty()) listOf(0.1f) else rawData
+                        Canvas(modifier = Modifier.fillMaxSize()) {
+                            val data = estatisticas.jogosPorPeriodo.ifEmpty { listOf(0.05f) }
                             val w = size.width
                             val h = size.height
                             val maxVal = data.maxOrNull()?.coerceAtLeast(0.01f) ?: 1f
                             val step = if (data.size > 1) w / (data.size - 1) else w
-                            
+                            val strokeColor = LMRed
+
                             val path = Path()
                             val fillPath = Path()
-                            
-                            data.forEachIndexed { i, v ->
-                                val x = if (data.size > 1) i * step else w / 2f
-                                val y = h * 0.1f + (h * 0.8f) * (1f - (v / maxVal))
-                                
-                                if (i == 0) {
+
+                            data.forEachIndexed { index, value ->
+                                val x = if (data.size > 1) index * step else w / 2f
+                                val y = h * 0.1f + (h * 0.8f) * (1f - (value / maxVal))
+
+                                if (index == 0) {
                                     path.moveTo(x, y)
                                     fillPath.moveTo(x, y)
                                 } else {
@@ -223,44 +195,44 @@ fun GraficosScreen(
                                     fillPath.lineTo(x, y)
                                 }
                             }
-                            
+
                             if (data.size > 1) {
-                                // Close fill path
                                 fillPath.lineTo(w, h)
                                 fillPath.lineTo(0f, h)
                                 fillPath.close()
-                                
-                                // Draw filled area with linear gradient
+
                                 drawPath(
                                     path = fillPath,
                                     brush = Brush.verticalGradient(
-                                        colors = listOf(strokeColor.copy(alpha = 0.25f), Color.Transparent),
+                                        colors = listOf(
+                                            strokeColor.copy(alpha = 0.25f),
+                                            Color.Transparent
+                                        ),
                                         startY = 0f,
                                         endY = h
                                     )
                                 )
-                                
-                                // Draw line path
+
                                 drawPath(
                                     path = path,
                                     color = strokeColor,
                                     style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round)
                                 )
                             }
-                            
-                            // Draw endpoint circles
-                            val lastIdx = data.size - 1
-                            val endX = if (data.size > 1) lastIdx * step else w / 2f
-                            val endY = h * 0.1f + (h * 0.8f) * (1f - (data[lastIdx] / maxVal))
-                            
+
+                            val lastIndex = data.lastIndex
+                            val endX = if (data.size > 1) lastIndex * step else w / 2f
+                            val endY = h * 0.1f + (h * 0.8f) * (1f - (data[lastIndex] / maxVal))
+
                             drawCircle(
                                 color = strokeColor.copy(alpha = 0.2f),
                                 radius = 6.dp.toPx(),
                                 center = Offset(endX, endY)
                             )
+
                             drawCircle(
                                 color = strokeColor,
-                                radius = 3.5f.dp.toPx(),
+                                radius = 3.5.dp.toPx(),
                                 center = Offset(endX, endY)
                             )
                         }
@@ -270,15 +242,12 @@ fun GraficosScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Sport Breakdown Progress Bars Card
             CardWrapper(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 18.dp, vertical = 6.dp)
             ) {
-                Column(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
                         text = "Torneios por modalidade",
                         fontFamily = Geist,
@@ -287,70 +256,79 @@ fun GraficosScreen(
                         color = LMInk,
                         modifier = Modifier.padding(bottom = 12.dp)
                     )
-                    
+
                     val colors = listOf(
-                        LMRed, 
-                        LMInk, 
-                        Color(0xFF2563EB), 
-                        Color(0xFF16A34A), 
-                        Color(0xFFCA8A04),
-                        Color(0xFF7C3AED),
-                        Color(0xFFDB2777)
+                        LMRed,
+                        LMInk,
+                        Color(0xFF2563EB),
+                        Color(0xFF16A34A),
+                        Color(0xFFCA8A04)
                     )
-                    
+
                     val breakdown = estatisticas.torneiosPorEstado.mapIndexed { index, item ->
-                        val color = colors.getOrElse(index) { LMGray500 }
-                        Triple(item.legenda, item.valorNormalizado.toInt(), color)
-                    }.ifEmpty {
-                        listOf(
-                            Triple("Sem torneios", 0, LMGray300)
+                        Triple(
+                            item.legenda,
+                            item.valorNormalizado.toInt(),
+                            colors.getOrElse(index) { LMGray500 }
                         )
                     }
-                    
-                    val maxVal = breakdown.maxOfOrNull { it.second.toFloat() }?.coerceAtLeast(1f) ?: 1f
-                    
-                    breakdown.forEachIndexed { index, (sport, value, color) ->
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = if (index < breakdown.size - 1) 8.dp else 0.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = sport,
-                                    fontFamily = Geist,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = LMGray700
-                                )
-                                Text(
-                                    text = value.toString(),
-                                    fontFamily = GeistMono,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = LMInk
-                                )
-                            }
-                            
-                            Spacer(modifier = Modifier.height(4.dp))
-                            
-                            // Custom progress bar
-                            Box(
+
+                    if (breakdown.isEmpty()) {
+                        Text(
+                            text = "Sem torneios registados.",
+                            fontFamily = Geist,
+                            fontSize = 13.sp,
+                            color = LMGray500
+                        )
+                    } else {
+                        val maxValue = breakdown.maxOf { it.second }.coerceAtLeast(1)
+
+                        breakdown.forEachIndexed { index, (modalidade, value, color) ->
+                            Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(6.dp)
-                                    .background(LMGray100, RoundedCornerShape(99.dp))
+                                    .padding(bottom = if (index < breakdown.size - 1) 8.dp else 0.dp)
                             ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = modalidade,
+                                        fontFamily = Geist,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        color = LMGray700
+                                    )
+
+                                    Text(
+                                        text = value.toString(),
+                                        fontFamily = GeistMono,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = LMInk
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.height(4.dp))
+
                                 Box(
                                     modifier = Modifier
-                                        .fillMaxWidth(fraction = (value.toFloat() / maxVal).coerceIn(0f, 1f))
-                                        .fillMaxHeight()
-                                        .background(color, RoundedCornerShape(99.dp))
-                                )
+                                        .fillMaxWidth()
+                                        .height(6.dp)
+                                        .background(LMGray100, RoundedCornerShape(99.dp))
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth(
+                                                fraction = (value.toFloat() / maxValue.toFloat())
+                                                    .coerceIn(0f, 1f)
+                                            )
+                                            .fillMaxHeight()
+                                            .background(color, RoundedCornerShape(99.dp))
+                                    )
+                                }
                             }
                         }
                     }
@@ -359,7 +337,6 @@ fun GraficosScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Profiles Donut and Info Card
             CardWrapper(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -381,14 +358,10 @@ fun GraficosScreen(
                                 else -> LMGray300
                             }
                         }
+
                         Triple(item.legenda, "${item.valorNormalizado.toInt()}%", color)
-                    }.ifEmpty {
-                        listOf(
-                            Triple("Sem utilizadores", "0%", LMGray300)
-                        )
                     }
 
-                    // Donut Chart Graphic using Canvas drawing arcs
                     Box(
                         modifier = Modifier.size(76.dp),
                         contentAlignment = Alignment.Center
@@ -398,79 +371,55 @@ fun GraficosScreen(
                             val sizeOffset = strokeWidth
                             val innerSize = Size(size.width - sizeOffset, size.height - sizeOffset)
                             val centerOffset = Offset(sizeOffset / 2, sizeOffset / 2)
-                            
-                            // Draw base grey background circle
+
                             drawCircle(
                                 color = LMGray100,
                                 radius = (size.width - strokeWidth) / 2,
                                 style = Stroke(width = strokeWidth)
                             )
-                            
-                            val slice1 = estatisticas.topTorneios.getOrNull(0)?.valorNormalizado ?: 0f
-                            val slice2 = estatisticas.topTorneios.getOrNull(1)?.valorNormalizado ?: 0f
-                            val slice3 = estatisticas.topTorneios.getOrNull(2)?.valorNormalizado ?: 0f
-                            
-                            val totalPct = (slice1 + slice2 + slice3).coerceAtLeast(1f)
-                            
-                            val sweep1 = (slice1 / totalPct) * 360f
-                            val sweep2 = (slice2 / totalPct) * 360f
-                            val sweep3 = (slice3 / totalPct) * 360f
-                            
-                            if (slice1 > 0f) {
-                                drawArc(
-                                    color = LMRed,
-                                    startAngle = -90f,
-                                    sweepAngle = sweep1,
-                                    useCenter = false,
-                                    topLeft = centerOffset,
-                                    size = innerSize,
-                                    style = Stroke(width = strokeWidth)
-                                )
-                            }
-                            
-                            if (slice2 > 0f) {
-                                drawArc(
-                                    color = LMInk,
-                                    startAngle = -90f + sweep1,
-                                    sweepAngle = sweep2,
-                                    useCenter = false,
-                                    topLeft = centerOffset,
-                                    size = innerSize,
-                                    style = Stroke(width = strokeWidth)
-                                )
-                            }
-                            
-                            if (slice3 > 0f) {
-                                drawArc(
-                                    color = LMGray300,
-                                    startAngle = -90f + sweep1 + sweep2,
-                                    sweepAngle = sweep3,
-                                    useCenter = false,
-                                    topLeft = centerOffset,
-                                    size = innerSize,
-                                    style = Stroke(width = strokeWidth)
-                                )
+
+                            val values = estatisticas.topTorneios.map { it.valorNormalizado }
+                            val total = values.sum().coerceAtLeast(1f)
+
+                            var startAngle = -90f
+
+                            values.forEachIndexed { index, value ->
+                                if (value > 0f) {
+                                    val color = when (index) {
+                                        0 -> LMRed
+                                        1 -> LMInk
+                                        else -> LMGray300
+                                    }
+
+                                    val sweep = (value / total) * 360f
+
+                                    drawArc(
+                                        color = color,
+                                        startAngle = startAngle,
+                                        sweepAngle = sweep,
+                                        useCenter = false,
+                                        topLeft = centerOffset,
+                                        size = innerSize,
+                                        style = Stroke(width = strokeWidth)
+                                    )
+
+                                    startAngle += sweep
+                                }
                             }
                         }
-                        
+
                         Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            val totalUsers = estatisticas.totalUtilizadores
-                            val userText = if (totalUsers >= 1000) {
-                                "%.1fk".format(totalUsers / 1000f)
-                            } else {
-                                totalUsers.toString()
-                            }
                             Text(
-                                text = userText,
+                                text = estatisticas.totalUtilizadores.toString(),
                                 fontFamily = Bricolage,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = LMInk,
                                 lineHeight = 14.sp
                             )
+
                             Text(
                                 text = "USERS",
                                 fontFamily = Geist,
@@ -481,11 +430,8 @@ fun GraficosScreen(
                             )
                         }
                     }
-                    
-                    // Donut breakdown list
-                    Column(
-                        modifier = Modifier.weight(1f)
-                    ) {
+
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = "Perfis",
                             fontFamily = Geist,
@@ -494,48 +440,53 @@ fun GraficosScreen(
                             color = LMInk,
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
-                        
-                        profiles.forEach { (label, value, color) ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 2.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(6.dp)
-                            ) {
-                                Box(
+
+                        if (profiles.isEmpty()) {
+                            Text(
+                                text = "Sem utilizadores registados.",
+                                fontFamily = Geist,
+                                fontSize = 13.sp,
+                                color = LMGray500
+                            )
+                        } else {
+                            profiles.forEach { (label, value, color) ->
+                                Row(
                                     modifier = Modifier
-                                        .size(8.dp)
-                                        .clip(RoundedCornerShape(2.dp))
-                                        .background(color)
-                                )
-                                Text(
-                                    text = label,
-                                    fontFamily = Geist,
-                                    fontSize = 11.sp,
-                                    color = LMGray600,
-                                    modifier = Modifier.weight(1f)
-                                )
-                                Text(
-                                    text = value,
-                                    fontFamily = GeistMono,
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = LMInk
-                                )
+                                        .fillMaxWidth()
+                                        .padding(vertical = 2.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(8.dp)
+                                            .clip(RoundedCornerShape(2.dp))
+                                            .background(color)
+                                    )
+
+                                    Text(
+                                        text = label,
+                                        fontFamily = Geist,
+                                        fontSize = 11.sp,
+                                        color = LMGray600,
+                                        modifier = Modifier.weight(1f)
+                                    )
+
+                                    Text(
+                                        text = value,
+                                        fontFamily = GeistMono,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = LMInk
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
-        }
-    }
-}
 
-@Preview(showBackground = true)
-@Composable
-fun GraficosScreenPreview() {
-    LeagueMatchTheme {
-        GraficosScreen()
+            Spacer(modifier = Modifier.height(24.dp))
+        }
     }
 }
