@@ -39,6 +39,8 @@ import com.leaguematch.ui.components.OrganizerBottomBar
 import com.leaguematch.ui.organizer.OrgTournamentsScreen
 import com.leaguematch.ui.theme.LeagueMatchTheme
 import com.leaguematch.viewmodel.*
+import com.leaguematch.ui.organizer.CreateTournamentScreen
+import com.leaguematch.ui.organizer.CreateTournamentStep2Screen
 
 sealed interface AdminRoute {
     data object Home : AdminRoute
@@ -54,6 +56,8 @@ sealed interface AdminRoute {
 
 sealed interface OrganizerRoute {
     data object MeusTorneios : OrganizerRoute
+    data object CriarTorneio : OrganizerRoute
+    data object ConfirmarTorneio : OrganizerRoute
     data object Perfil : OrganizerRoute
 }
 
@@ -98,6 +102,7 @@ class MainActivity : ComponentActivity() {
                 var currentOrgRoute by remember { mutableStateOf<OrganizerRoute>(OrganizerRoute.MeusTorneios) }
                 var currentSpectatorRoute by remember { mutableStateOf<SpectatorRoute>(SpectatorRoute.EscolherTorneio) }
                 var torneioSelecionado by remember { mutableStateOf<Torneio?>(null) }
+                var dadosCriarTorneio by remember { mutableStateOf<List<String>?>(null) }
                 fun navigate(route: AdminRoute) {
                     currentRoute = route
                 }
@@ -143,19 +148,120 @@ class MainActivity : ComponentActivity() {
 
                             when (currentOrgRoute) {
                                 OrganizerRoute.MeusTorneios -> {
-                                    OrgTournamentsScreen(
-                                        onNavigateToCreate = {
-                                            Toast.makeText(
-                                                context,
-                                                "Criação de torneios brevemente disponível!",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
+                                    val dadosModalidades by torneiosViewModel.modalidadesState.collectAsState()
+                                    val dadosTorneios by torneiosViewModel.todosTorneiosState.collectAsState()
+
+                                    LaunchedEffect(Unit) {
+                                        torneiosViewModel.carregarTorneios()
+                                        torneiosViewModel.carregarTodosTorneios()
+                                    }
+
+                                    when {
+                                        dadosModalidades == null || dadosTorneios == null -> {
+                                            LoadingScreen()
+                                        }
+
+                                        dadosModalidades!!.isFailure -> {
+                                            ErrorScreen(
+                                                dadosModalidades!!.exceptionOrNull()?.message
+                                                    ?: "Erro ao carregar modalidades."
+                                            )
+                                        }
+
+                                        dadosTorneios!!.isFailure -> {
+                                            ErrorScreen(
+                                                dadosTorneios!!.exceptionOrNull()?.message
+                                                    ?: "Erro ao carregar torneios."
+                                            )
+                                        }
+
+                                        else -> {
+
+                                            val (modalidades, totalTorneios) =
+                                                dadosModalidades!!.getOrThrow()
+
+                                            val torneios =
+                                                dadosTorneios!!.getOrThrow()
+
+                                            OrgTournamentsScreen(
+                                                modalidades = modalidades,
+                                                torneios = torneios,
+                                                totalTorneios = totalTorneios,
+
+                                                onNavigateToCreate = {
+                                                    currentOrgRoute = OrganizerRoute.CriarTorneio
+                                                },
+
+                                                onNavigateToActions = { torneioId: Int ->
+                                                    // abrir detalhe do torneio
+                                                },
+
+                                                onPerfilClick = goPerfil
+                                            )
+                                        }
+                                    }
+                                }
+
+                                OrganizerRoute.CriarTorneio -> {
+                                    CreateTournamentScreen(
+                                        onBackClick = {
+                                            currentOrgRoute = OrganizerRoute.MeusTorneios
                                         },
-                                        onNavigateToActions = {
-                                            // Ação de clique nos cartões temporariamente inativa
+                                        onCancelClick = {
+                                            dadosCriarTorneio = null
+                                            currentOrgRoute = OrganizerRoute.MeusTorneios
                                         },
-                                        onPerfilClick = goPerfil
+                                        onContinueClick = { nome, modalidade, formato, dataInicio, dataFim, maxEquipas, descricao, regras ->
+                                            dadosCriarTorneio = listOf(
+                                                nome,
+                                                modalidade,
+                                                formato,
+                                                dataInicio,
+                                                dataFim,
+                                                maxEquipas,
+                                                descricao,
+                                                regras
+                                            )
+
+                                            currentOrgRoute = OrganizerRoute.ConfirmarTorneio
+                                        }
                                     )
+                                }
+
+                                OrganizerRoute.ConfirmarTorneio -> {
+                                    val dados = dadosCriarTorneio
+
+                                    if (dados == null) {
+                                        currentOrgRoute = OrganizerRoute.CriarTorneio
+                                    } else {
+                                        CreateTournamentStep2Screen(
+                                            nome = dados[0],
+                                            modalidade = dados[1],
+                                            formato = dados[2],
+                                            dataInicio = dados[3],
+                                            dataFim = dados[4],
+                                            maxEquipas = dados[5],
+                                            descricao = dados[6],
+                                            regras = dados[7],
+                                            onBackClick = {
+                                                currentOrgRoute = OrganizerRoute.CriarTorneio
+                                            },
+                                            onCancelClick = {
+                                                dadosCriarTorneio = null
+                                                currentOrgRoute = OrganizerRoute.MeusTorneios
+                                            },
+                                            onCreateClick = { publico, inscricoesAutomaticas, jogosIdaVolta, pontosVitoria ->
+                                                Toast.makeText(
+                                                    context,
+                                                    "Aqui depois ligamos ao Supabase.",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+
+                                                dadosCriarTorneio = null
+                                                currentOrgRoute = OrganizerRoute.MeusTorneios
+                                            }
+                                        )
+                                    }
                                 }
 
                                 OrganizerRoute.Perfil -> {
