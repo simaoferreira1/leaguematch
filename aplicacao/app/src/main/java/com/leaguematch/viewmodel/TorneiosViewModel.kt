@@ -87,4 +87,29 @@ class TorneiosViewModel(private val repository: LeagueMatchRepository) : ViewMod
             }
         }
     }
+
+    fun criarTorneio(
+        nome: String,
+        modalidade: String,
+        regras: String,
+        formato: String,
+        organizadorId: Int,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val result = repository.criarTorneio(nome, modalidade, regras, formato, organizadorId)
+                if (result != null) {
+                    carregarTorneios()
+                    carregarTodosTorneios()
+                    onSuccess()
+                } else {
+                    onError("Não foi possível criar o torneio.")
+                }
+            } catch (e: Exception) {
+                onError(e.message ?: "Erro ao criar torneio")
+            }
+        }
+    }
 }

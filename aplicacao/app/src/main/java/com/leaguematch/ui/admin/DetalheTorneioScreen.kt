@@ -35,25 +35,12 @@ import com.leaguematch.ui.theme.*
 fun DetalheTorneioScreen(
     detalhe: DetalheTorneio?,
     onBackClick: () -> Unit,
-    onHomeClick: () -> Unit,
-    onUtilizadoresClick: () -> Unit,
-    onTorneiosClick: () -> Unit,
-    onGraficosClick: () -> Unit,
-    onDefinicoesClick: () -> Unit
+    bottomBar: @Composable () -> Unit
 ) {
     val torneio = detalhe?.torneio
 
     Scaffold(
-        bottomBar = {
-            AdminBottomBar(
-                selectedItem = "torneios",
-                onHomeClick = onHomeClick,
-                onUtilizadoresClick = onUtilizadoresClick,
-                onTorneiosClick = onTorneiosClick,
-                onGraficosClick = onGraficosClick,
-                onDefinicoesClick = onDefinicoesClick
-            )
-        },
+        bottomBar = bottomBar,
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
 

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -35,7 +36,11 @@ import com.leaguematch.ui.admin.TorneiosScreen
 import com.leaguematch.ui.admin.UtilizadoresScreen
 import com.leaguematch.ui.auth.LoginScreen
 import com.leaguematch.ui.auth.RegisterScreen
+import com.leaguematch.ui.components.AdminBottomBar
 import com.leaguematch.ui.components.OrganizerBottomBar
+import com.leaguematch.ui.components.SpectatorBottomBar
+import com.leaguematch.ui.spectator.EscolherTorneioScreen
+import com.leaguematch.ui.spectator.ExplorarScreen
 import com.leaguematch.ui.organizer.OrgTournamentsScreen
 import com.leaguematch.ui.theme.LeagueMatchTheme
 import com.leaguematch.viewmodel.*
@@ -59,9 +64,11 @@ sealed interface OrganizerRoute {
     data object CriarTorneio : OrganizerRoute
     data object ConfirmarTorneio : OrganizerRoute
     data object Perfil : OrganizerRoute
+    data class DetalheTorneio(val id: Int) : OrganizerRoute
 }
 
 sealed interface SpectatorRoute {
+    data object Explorar : SpectatorRoute
     data object EscolherTorneio : SpectatorRoute
     data object Classificacao : SpectatorRoute
     data object Jogos : SpectatorRoute
@@ -100,7 +107,7 @@ class MainActivity : ComponentActivity() {
                 var showRegisterScreen by remember { mutableStateOf(false) }
                 var currentRoute by remember { mutableStateOf<AdminRoute>(AdminRoute.Home) }
                 var currentOrgRoute by remember { mutableStateOf<OrganizerRoute>(OrganizerRoute.MeusTorneios) }
-                var currentSpectatorRoute by remember { mutableStateOf<SpectatorRoute>(SpectatorRoute.EscolherTorneio) }
+                var currentSpectatorRoute by remember { mutableStateOf<SpectatorRoute>(SpectatorRoute.Explorar) }
                 var torneioSelecionado by remember { mutableStateOf<Torneio?>(null) }
                 var dadosCriarTorneio by remember { mutableStateOf<List<String>?>(null) }
                 fun navigate(route: AdminRoute) {
@@ -193,7 +200,7 @@ class MainActivity : ComponentActivity() {
                                                 },
 
                                                 onNavigateToActions = { torneioId: Int ->
-                                                    // abrir detalhe do torneio
+                                                    currentOrgRoute = OrganizerRoute.DetalheTorneio(torneioId)
                                                 },
 
                                                 onPerfilClick = goPerfil
@@ -251,14 +258,30 @@ class MainActivity : ComponentActivity() {
                                                 currentOrgRoute = OrganizerRoute.MeusTorneios
                                             },
                                             onCreateClick = { publico, inscricoesAutomaticas, jogosIdaVolta, pontosVitoria ->
-                                                Toast.makeText(
-                                                    context,
-                                                    "Aqui depois ligamos ao Supabase.",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-
-                                                dadosCriarTorneio = null
-                                                currentOrgRoute = OrganizerRoute.MeusTorneios
+                                                val orgId = usuarioLogado?.id ?: 0
+                                                torneiosViewModel.criarTorneio(
+                                                    nome = dados[0],
+                                                    modalidade = dados[1],
+                                                    regras = dados[7],
+                                                    formato = dados[2],
+                                                    organizadorId = orgId,
+                                                    onSuccess = {
+                                                        Toast.makeText(
+                                                            context,
+                                                            "Torneio criado com sucesso!",
+                                                            Toast.LENGTH_SHORT
+                                                        ).show()
+                                                        dadosCriarTorneio = null
+                                                        currentOrgRoute = OrganizerRoute.MeusTorneios
+                                                    },
+                                                    onError = { erro ->
+                                                        Toast.makeText(
+                                                            context,
+                                                            erro,
+                                                            Toast.LENGTH_LONG
+                                                        ).show()
+                                                    }
+                                                )
                                             }
                                         )
                                     }
@@ -285,54 +308,145 @@ class MainActivity : ComponentActivity() {
                                         }
                                     )
                                 }
+
+                                is OrganizerRoute.DetalheTorneio -> {
+                                    val route = currentOrgRoute as OrganizerRoute.DetalheTorneio
+                                    val detalhe by torneiosViewModel.detalheTorneioState.collectAsState()
+                                    LaunchedEffect(route.id) {
+                                        torneiosViewModel.carregarDetalheTorneio(route.id)
+                                    }
+                                    RemoteContent(detalhe) {
+                                        DetalheTorneioScreen(
+                                            detalhe = it,
+                                            onBackClick = goMeusTorneios,
+                                            bottomBar = {
+                                                OrganizerBottomBar(
+                                                    selectedItem = "torneios",
+                                                    onTorneiosClick = goMeusTorneios,
+                                                    onEquipasClick = {},
+                                                    onJogosClick = {},
+                                                    onPerfilClick = goPerfil
+                                                )
+                                            }
+                                        )
+                                    }
+                                }
                             }
                         }
 
                         TipoUtilizador.ESPECTADOR -> {
-                            when (currentSpectatorRoute) {
-
-                                SpectatorRoute.EscolherTorneio -> {
-                                    Box(
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text("Escolher torneio")
-                                    }
+                            val selected = torneioSelecionado
+                            if (selected != null) {
+                                val detalhe by torneiosViewModel.detalheTorneioState.collectAsState()
+                                LaunchedEffect(selected.id) {
+                                    torneiosViewModel.carregarDetalheTorneio(selected.id)
                                 }
-
-                                SpectatorRoute.Classificacao -> {
-                                    Box(
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text("Classificação")
-                                    }
+                                RemoteContent(detalhe) {
+                                    DetalheTorneioScreen(
+                                        detalhe = it,
+                                        onBackClick = { torneioSelecionado = null },
+                                        bottomBar = {}
+                                    )
                                 }
-
-                                SpectatorRoute.Jogos -> {
-                                    Box(
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text("Jogos")
+                            } else {
+                                when (currentSpectatorRoute) {
+                                    SpectatorRoute.Explorar -> {
+                                        val dadosTorneios by torneiosViewModel.todosTorneiosState.collectAsState()
+                                        LaunchedEffect(Unit) {
+                                            torneiosViewModel.carregarTodosTorneios()
+                                        }
+                                        Scaffold(
+                                            bottomBar = {
+                                                SpectatorBottomBar(
+                                                    selectedItem = "torneios",
+                                                    onTorneiosClick = {
+                                                        currentSpectatorRoute = SpectatorRoute.Explorar
+                                                    },
+                                                    onPerfilClick = {
+                                                        currentSpectatorRoute = SpectatorRoute.Perfil
+                                                    }
+                                                )
+                                            }
+                                        ) { innerPadding ->
+                                            Box(
+                                                modifier = Modifier
+                                                    .fillMaxSize()
+                                                    .padding(innerPadding)
+                                            ) {
+                                                RemoteContent(dadosTorneios) { list: List<Torneio> ->
+                                                    ExplorarScreen(
+                                                        liveMatches = emptyList(),
+                                                        trendingTournaments = list,
+                                                        onTorneioClick = { torneio ->
+                                                            torneioSelecionado = torneio
+                                                        }
+                                                    )
+                                                }
+                                            }
+                                        }
                                     }
-                                }
 
-                                SpectatorRoute.Equipas -> {
-                                    Box(
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text("Equipas")
+                                    SpectatorRoute.EscolherTorneio -> {
+                                        val dadosTorneios by torneiosViewModel.todosTorneiosState.collectAsState()
+                                        LaunchedEffect(Unit) {
+                                            torneiosViewModel.carregarTodosTorneios()
+                                        }
+                                        Scaffold(
+                                            bottomBar = {
+                                                SpectatorBottomBar(
+                                                    selectedItem = "torneios",
+                                                    onTorneiosClick = {
+                                                        currentSpectatorRoute = SpectatorRoute.Explorar
+                                                    },
+                                                    onPerfilClick = {
+                                                        currentSpectatorRoute = SpectatorRoute.Perfil
+                                                    }
+                                                )
+                                            }
+                                        ) { innerPadding ->
+                                            Box(
+                                                modifier = Modifier
+                                                    .fillMaxSize()
+                                                    .padding(innerPadding)
+                                            ) {
+                                                RemoteContent(dadosTorneios) { list: List<Torneio> ->
+                                                    EscolherTorneioScreen(
+                                                        torneios = list,
+                                                        onTorneioClick = {
+                                                            torneioSelecionado = it
+                                                        }
+                                                    )
+                                                }
+                                            }
+                                        }
                                     }
-                                }
 
-                                SpectatorRoute.Perfil -> {
-                                    Box(
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text("Perfil")
+                                    SpectatorRoute.Perfil -> {
+                                        DefinicoesScreen(
+                                            utilizadorLogado = usuarioLogado,
+                                            onTerminarSessaoClick = {
+                                                authViewModel.terminarSessao()
+                                                currentSpectatorRoute = SpectatorRoute.Explorar
+                                            },
+                                            onEditarPerfilClick = { nome, password ->
+                                                authViewModel.atualizarUtilizador(nome, password)
+                                            },
+                                            bottomBar = {
+                                                SpectatorBottomBar(
+                                                    selectedItem = "perfil",
+                                                    onTorneiosClick = {
+                                                        currentSpectatorRoute = SpectatorRoute.Explorar
+                                                    },
+                                                    onPerfilClick = {
+                                                        currentSpectatorRoute = SpectatorRoute.Perfil
+                                                    }
+                                                )
+                                            }
+                                        )
+                                    }
+
+                                    else -> {
+                                        currentSpectatorRoute = SpectatorRoute.Explorar
                                     }
                                 }
                             }
@@ -500,11 +614,16 @@ class MainActivity : ComponentActivity() {
                                         DetalheTorneioScreen(
                                             detalhe = it,
                                             onBackClick = goTournaments,
-                                            onHomeClick = goHome,
-                                            onUtilizadoresClick = goUsers,
-                                            onTorneiosClick = goTournaments,
-                                            onGraficosClick = goCharts,
-                                            onDefinicoesClick = goSettings
+                                            bottomBar = {
+                                                AdminBottomBar(
+                                                    selectedItem = "torneios",
+                                                    onHomeClick = goHome,
+                                                    onUtilizadoresClick = goUsers,
+                                                    onTorneiosClick = goTournaments,
+                                                    onGraficosClick = goCharts,
+                                                    onDefinicoesClick = goSettings
+                                                )
+                                            }
                                         )
                                     }
                                 }

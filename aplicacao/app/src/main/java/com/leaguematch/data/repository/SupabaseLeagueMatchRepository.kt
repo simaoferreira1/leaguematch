@@ -189,6 +189,33 @@ class SupabaseLeagueMatchRepository(
         return true
     }
 
+    override suspend fun criarTorneio(
+        nome: String,
+        modalidade: String,
+        regras: String,
+        formato: String,
+        organizadorId: Int
+    ): Torneio? {
+        val json = JSONObject().apply {
+            put("nome", nome.trim())
+            put("modalidade", modalidade.trim())
+            put("regras", regras.trim())
+            put("formato", formato.trim())
+            put("organizador_id", organizadorId)
+        }
+        val response = postObject("torneio", json) ?: return null
+        return Torneio(
+            id = response.optInt("id"),
+            nome = response.optString("nome"),
+            modalidade = response.optString("modalidade"),
+            regras = response.optString("regras"),
+            formato = response.optString("formato"),
+            estado = "Por Iniciar",
+            equipas = 0,
+            active = true
+        )
+    }
+
     private suspend fun deleteObject(table: String, id: Int): Unit = withContext(Dispatchers.IO) {
         if (supabaseUrl.isBlank() || anonKey.isBlank()) {
             error("Configura SUPABASE_URL e SUPABASE_ANON_KEY no local.properties.")

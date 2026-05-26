@@ -726,7 +726,7 @@ fun OrganizerBottomBar(
             NavigationBarItem(
                 selected = selectedItem == "equipas",
                 onClick = onEquipasClick,
-                icon = { Icon(Icons.Rounded.Shield, contentDescription = "Equipas") },
+                icon = { Icon(painter = painterResource(id = R.drawable.ic_team), contentDescription = "Equipas") },
                 label = { 
                     Text(
                         text = "Equipas", 
@@ -752,6 +752,71 @@ fun OrganizerBottomBar(
                 label = { 
                     Text(
                         text = "Jogos", 
+                        fontSize = 9.5.sp, 
+                        fontFamily = Geist, 
+                        maxLines = 1, 
+                        softWrap = false,
+                        overflow = TextOverflow.Clip
+                    ) 
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = LMRed,
+                    selectedTextColor = LMRed,
+                    unselectedIconColor = LMGray500,
+                    unselectedTextColor = LMGray500,
+                    indicatorColor = Color.Transparent
+                )
+            )
+            NavigationBarItem(
+                selected = selectedItem == "perfil",
+                onClick = onPerfilClick,
+                icon = { Icon(Icons.Rounded.Person, contentDescription = "Perfil") },
+                label = { 
+                    Text(
+                        text = "Perfil", 
+                        fontSize = 9.5.sp, 
+                        fontFamily = Geist, 
+                        maxLines = 1, 
+                        softWrap = false,
+                        overflow = TextOverflow.Clip
+                    ) 
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = LMRed,
+                    selectedTextColor = LMRed,
+                    unselectedIconColor = LMGray500,
+                    unselectedTextColor = LMGray500,
+                    indicatorColor = Color.Transparent
+                )
+            )
+        }
+    }
+}
+
+// ─── Spectator Bottom Bar ────────────────────────────────────────
+@Composable
+fun SpectatorBottomBar(
+    selectedItem: String,
+    onTorneiosClick: () -> Unit,
+    onPerfilClick: () -> Unit
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = LMSurface,
+        border = BorderStroke(1.dp, LMBorder)
+    ) {
+        NavigationBar(
+            containerColor = LMSurface,
+            contentColor = LMInk,
+            tonalElevation = 0.dp
+        ) {
+            NavigationBarItem(
+                selected = selectedItem == "torneios",
+                onClick = onTorneiosClick,
+                icon = { Icon(Icons.Rounded.EmojiEvents, contentDescription = "Torneios") },
+                label = { 
+                    Text(
+                        text = "Torneios", 
                         fontSize = 9.5.sp, 
                         fontFamily = Geist, 
                         maxLines = 1, 

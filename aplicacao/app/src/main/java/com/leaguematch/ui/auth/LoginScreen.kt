@@ -80,7 +80,7 @@ fun LoginScreen(
                 value = email,
                 onValueChange = { email = it },
                 label = "Email",
-                placeholder = "simao@leaguematch.com",
+                placeholder = "exemplo@leaguematch.com",
                 icon = Icons.Default.Person
             )
 
