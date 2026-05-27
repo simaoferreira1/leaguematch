@@ -28,11 +28,10 @@ fun OrgVerJogosScreen(
     isLoading: Boolean,
     onBackClick: () -> Unit,
     onCriarJogoClick: () -> Unit,
-    onEditarJogo: (Jogo, Int, Int, String, String) -> Unit,
+    onEditarJogo: (Jogo) -> Unit,
     onRemoverJogo: (Jogo) -> Unit
 ) {
     var jogoParaRemover by remember { mutableStateOf<Jogo?>(null) }
-    var jogoParaEditar by remember { mutableStateOf<Jogo?>(null) }
 
     if (jogoParaRemover != null) {
         AlertDialog(
@@ -56,152 +55,6 @@ fun OrgVerJogosScreen(
             },
             dismissButton = {
                 TextButton(onClick = { jogoParaRemover = null }) {
-                    Text("Cancelar", fontFamily = Geist, color = LMGray500)
-                }
-            },
-            shape = RoundedCornerShape(18.dp)
-        )
-    }
-
-    if (jogoParaEditar != null) {
-        val jogo = jogoParaEditar!!
-        var golosCasa by remember { mutableStateOf(jogo.resultadoCasa) }
-        var golosFora by remember { mutableStateOf(jogo.resultadoFora) }
-        var estado by remember { mutableStateOf(jogo.estado) }
-        var local by remember { mutableStateOf("") } // default blank, repository will handle/update
-
-        AlertDialog(
-            onDismissRequest = { jogoParaEditar = null },
-            title = {
-                Text("Editar Jogo", fontFamily = Geist, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    // Estado selection Row
-                    Column {
-                        Text("Estado do Jogo", fontFamily = Geist, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = LMGray500, modifier = Modifier.padding(bottom = 6.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            listOf("Agendado", "A Decorrer", "Finalizado").forEach { est ->
-                                val selected = estado.equals(est, ignoreCase = true)
-                                val bg = if (selected) LMInk else LMGray50
-                                val fg = if (selected) LMWhite else LMGray600
-                                val border = if (selected) BorderStroke(0.dp, Color.Transparent) else BorderStroke(1.dp, LMBorder)
-                                
-                                Surface(
-                                    onClick = { estado = est },
-                                    shape = RoundedCornerShape(10.dp),
-                                    color = bg,
-                                    border = border,
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Box(modifier = Modifier.padding(vertical = 10.dp), contentAlignment = Alignment.Center) {
-                                        Text(est, fontFamily = Geist, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = fg)
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // Score Counters
-                    Column {
-                        Text("Resultado / Golos", fontFamily = Geist, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = LMGray500, modifier = Modifier.padding(bottom = 6.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            // Casa counter
-                            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
-                                Text(jogo.casa, fontFamily = Geist, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = LMInk, maxLines = 1)
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    IconButton(
-                                        onClick = { if (golosCasa > 0) golosCasa-- },
-                                        modifier = Modifier.size(32.dp)
-                                    ) {
-                                        Icon(Icons.Default.Remove, contentDescription = null, tint = LMGray600, modifier = Modifier.size(16.dp))
-                                    }
-                                    Text(
-                                        golosCasa.toString(),
-                                        fontFamily = Bricolage,
-                                        fontWeight = FontWeight.ExtraBold,
-                                        fontSize = 18.sp,
-                                        color = LMInk,
-                                        modifier = Modifier.padding(horizontal = 8.dp)
-                                    )
-                                    IconButton(
-                                        onClick = { golosCasa++ },
-                                        modifier = Modifier.size(32.dp)
-                                    ) {
-                                        Icon(Icons.Default.Add, contentDescription = null, tint = LMGray600, modifier = Modifier.size(16.dp))
-                                    }
-                                }
-                            }
-
-                            Text("-", fontFamily = Bricolage, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = LMGray400, modifier = Modifier.padding(horizontal = 8.dp))
-
-                            // Fora counter
-                            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
-                                Text(jogo.fora, fontFamily = Geist, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = LMInk, maxLines = 1, textAlign = androidx.compose.ui.text.style.TextAlign.End)
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    IconButton(
-                                        onClick = { if (golosFora > 0) golosFora-- },
-                                        modifier = Modifier.size(32.dp)
-                                    ) {
-                                        Icon(Icons.Default.Remove, contentDescription = null, tint = LMGray600, modifier = Modifier.size(16.dp))
-                                    }
-                                    Text(
-                                        golosFora.toString(),
-                                        fontFamily = Bricolage,
-                                        fontWeight = FontWeight.ExtraBold,
-                                        fontSize = 18.sp,
-                                        color = LMInk,
-                                        modifier = Modifier.padding(horizontal = 8.dp)
-                                    )
-                                    IconButton(
-                                        onClick = { golosFora++ },
-                                        modifier = Modifier.size(32.dp)
-                                    ) {
-                                        Icon(Icons.Default.Add, contentDescription = null, tint = LMGray600, modifier = Modifier.size(16.dp))
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // Local text field
-                    Column {
-                        Text("Local", fontFamily = Geist, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = LMGray500, modifier = Modifier.padding(bottom = 6.dp))
-                        OutlinedTextField(
-                            value = local,
-                            onValueChange = { local = it },
-                            placeholder = { Text("Ex: Pavilhão Principal, Campo Sintético", fontFamily = Geist, fontSize = 13.sp) },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(10.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = LMInk,
-                                unfocusedBorderColor = LMBorder
-                            ),
-                            singleLine = true
-                        )
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    val localEnv = local.ifBlank { "A definir" }
-                    onEditarJogo(jogo, golosCasa, golosFora, estado, localEnv)
-                    jogoParaEditar = null
-                }) {
-                    Text("Guardar", color = LMInk, fontFamily = Geist, fontWeight = FontWeight.Bold)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { jogoParaEditar = null }) {
                     Text("Cancelar", fontFamily = Geist, color = LMGray500)
                 }
             },
@@ -278,7 +131,7 @@ fun OrgVerJogosScreen(
                     jogos.forEach { jogo ->
                         JogoOrgCard(
                             jogo = jogo,
-                            onEditar = { jogoParaEditar = jogo },
+                            onEditar = { onEditarJogo(jogo) },
                             onRemover = { jogoParaRemover = jogo }
                         )
                     }
@@ -295,7 +148,7 @@ fun OrgVerJogosScreen(
             ) {
                 Icon(Icons.Default.Add, contentDescription = null, tint = LMWhite, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Criar nova jogo", fontFamily = Geist, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = LMWhite)
+                Text("Criar novo jogo", fontFamily = Geist, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = LMWhite)
             }
         }
     }

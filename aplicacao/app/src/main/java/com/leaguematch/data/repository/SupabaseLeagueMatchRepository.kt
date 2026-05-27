@@ -12,6 +12,7 @@ import com.leaguematch.data.remote.model.TipoUtilizador
 import com.leaguematch.data.remote.model.Torneio
 import com.leaguematch.data.remote.model.Utilizador
 import com.leaguematch.data.remote.model.Classificacao
+import com.leaguematch.data.remote.model.EstatisticaJogo
 import com.leaguematch.ui.spectator.JogoResumoItem
 import com.leaguematch.ui.spectator.MelhorMarcadorItem
 import kotlinx.coroutines.Dispatchers
@@ -32,7 +33,11 @@ class SupabaseLeagueMatchRepository(
         val trimmedEmail = email.trim()
 
         // Developer bypass for testing / sandbox verification
-        if (trimmedEmail.equals("simao@leaguematch.com", ignoreCase = true) && password == "password") {
+        if (trimmedEmail.equals(
+                "simao@leaguematch.com",
+                ignoreCase = true
+            ) && password == "password"
+        ) {
             return Utilizador(
                 id = 999,
                 nome = "Simão Ferreira (Bypass Dev)",
@@ -45,7 +50,11 @@ class SupabaseLeagueMatchRepository(
             )
         }
 
-        if (trimmedEmail.equals("organizador@leaguematch.com", ignoreCase = true) && password == "password") {
+        if (trimmedEmail.equals(
+                "organizador@leaguematch.com",
+                ignoreCase = true
+            ) && password == "password"
+        ) {
             return Utilizador(
                 id = 888,
                 nome = "Organizador (Bypass Dev)",
@@ -70,7 +79,12 @@ class SupabaseLeagueMatchRepository(
         return users.optJSONObject(0)?.toUtilizador()
     }
 
-    override suspend fun registar(nome: String, email: String, password: String, tipo: String): Utilizador? {
+    override suspend fun registar(
+        nome: String,
+        email: String,
+        password: String,
+        tipo: String
+    ): Utilizador? {
         val trimmedEmail = email.trim()
         val json = JSONObject().apply {
             put("nome", nome.trim())
@@ -82,7 +96,11 @@ class SupabaseLeagueMatchRepository(
         return response?.toUtilizador()
     }
 
-    override suspend fun atualizarUtilizador(id: Int, nome: String, password: String?): Utilizador? {
+    override suspend fun atualizarUtilizador(
+        id: Int,
+        nome: String,
+        password: String?
+    ): Utilizador? {
         val json = JSONObject().apply {
             put("nome", nome.trim())
             if (!password.isNullOrBlank()) {
@@ -127,44 +145,58 @@ class SupabaseLeagueMatchRepository(
     override suspend fun obterMelhoresMarcadores(torneioId: Int): List<MelhorMarcadorItem> {
         return withContext(Dispatchers.IO) {
             runCatching {
-                val partidas = getArray("partida", mapOf("select" to "id", "torneio_id" to "eq.$torneioId")).toObjectList()
+                val partidas = getArray(
+                    "partida",
+                    mapOf("select" to "id", "torneio_id" to "eq.$torneioId")
+                ).toObjectList()
                 if (partidas.isEmpty()) return@runCatching emptyList<MelhorMarcadorItem>()
 
                 val matchIds = partidas.map { it.optInt("id") }
                 val idsFilter = matchIds.joinToString(",")
 
-                val eventos = getArray("evento_jogo", mapOf(
-                    "select" to "user_id,match_id",
-                    "tipo" to "eq.GOLO",
-                    "match_id" to "in.($idsFilter)"
-                )).toObjectList()
+                val eventos = getArray(
+                    "evento_jogo", mapOf(
+                        "select" to "user_id,match_id",
+                        "tipo" to "eq.GOLO",
+                        "match_id" to "in.($idsFilter)"
+                    )
+                ).toObjectList()
 
                 if (eventos.isEmpty()) return@runCatching emptyList<MelhorMarcadorItem>()
 
                 val golosPorUser = eventos.groupingBy { it.optInt("user_id") }.eachCount()
 
-                val equipas = getArray("equipa", mapOf("select" to "id,nome", "torneio_id" to "eq.$torneioId")).toObjectList()
+                val equipas = getArray(
+                    "equipa",
+                    mapOf("select" to "id,nome", "torneio_id" to "eq.$torneioId")
+                ).toObjectList()
                 val equipasMap = equipas.associate { it.optInt("id") to it.optString("nome") }
 
                 val teamIds = equipas.map { it.optInt("id") }
                 val teamIdsFilter = teamIds.joinToString(",")
-                
+
                 val userTeamMap = if (teamIds.isNotEmpty()) {
-                    val members = getArray("team_member", mapOf(
-                        "select" to "user_id,team_id",
-                        "team_id" to "in.($teamIdsFilter)"
-                    )).toObjectList()
-                    members.associate { it.optInt("user_id") to (equipasMap[it.optInt("team_id")] ?: "Equipa") }
+                    val members = getArray(
+                        "team_member", mapOf(
+                            "select" to "user_id,team_id",
+                            "team_id" to "in.($teamIdsFilter)"
+                        )
+                    ).toObjectList()
+                    members.associate {
+                        it.optInt("user_id") to (equipasMap[it.optInt("team_id")] ?: "Equipa")
+                    }
                 } else {
                     emptyMap()
                 }
 
                 val userIds = golosPorUser.keys.joinToString(",")
                 val users = if (userIds.isNotEmpty()) {
-                    getArray("utilizador", mapOf(
-                        "select" to "id,nome",
-                        "id" to "in.($userIds)"
-                    )).toObjectList().associate { it.optInt("id") to it.optString("nome") }
+                    getArray(
+                        "utilizador", mapOf(
+                            "select" to "id,nome",
+                            "id" to "in.($userIds)"
+                        )
+                    ).toObjectList().associate { it.optInt("id") to it.optString("nome") }
                 } else {
                     emptyMap()
                 }
@@ -176,7 +208,7 @@ class SupabaseLeagueMatchRepository(
                         equipa = userTeamMap[userId] ?: "Sem Equipa"
                     )
                 }.sortedByDescending { it.golos }
-            }.getOrElse { 
+            }.getOrElse {
                 it.printStackTrace()
                 emptyList()
             }
@@ -186,19 +218,28 @@ class SupabaseLeagueMatchRepository(
     override suspend fun obterJogosDoTorneio(torneioId: Int): List<JogoResumoItem> {
         return withContext(Dispatchers.IO) {
             runCatching {
-                val equipas = getArray("equipa", mapOf("select" to "id,nome", "torneio_id" to "eq.$torneioId")).toObjectList()
+                val equipas = getArray(
+                    "equipa",
+                    mapOf("select" to "id,nome", "torneio_id" to "eq.$torneioId")
+                ).toObjectList()
                 val equipasMap = equipas.associate { it.optInt("id") to it.optString("nome") }
 
-                val partidas = getArray("partida", mapOf(
-                    "select" to "team_a_id,team_b_id,resultado_a,resultado_b,estado",
-                    "torneio_id" to "eq.$torneioId"
-                )).toObjectList()
+                val partidas = getArray(
+                    "partida", mapOf(
+                        "select" to "team_a_id,team_b_id,resultado_a,resultado_b,estado",
+                        "torneio_id" to "eq.$torneioId"
+                    )
+                ).toObjectList()
 
                 partidas.map { json ->
                     val teamAId = json.optInt("team_a_id")
                     val teamBId = json.optInt("team_b_id")
                     val estado = json.optString("estado")
-                    val finalizado = estado.equals("FINALIZADO", ignoreCase = true) || estado.equals("EM_CURSO", ignoreCase = true)
+                    val finalizado =
+                        estado.equals("FINALIZADO", ignoreCase = true) || estado.equals(
+                            "EM_CURSO",
+                            ignoreCase = true
+                        )
                     JogoResumoItem(
                         equipaCasa = equipasMap[teamAId] ?: "Equipa $teamAId",
                         equipaFora = equipasMap[teamBId] ?: "Equipa $teamBId",
@@ -216,20 +257,26 @@ class SupabaseLeagueMatchRepository(
     override suspend fun listarJogosAoVivo(): List<Jogo> {
         return withContext(Dispatchers.IO) {
             runCatching {
-                val matchesJson = getArray("partida", mapOf(
-                    "select" to "id,torneio_id,team_a_id,team_b_id,resultado_a,resultado_b,estado",
-                    "estado" to "eq.EM_CURSO"
-                )).toObjectList()
+                val matchesJson = getArray(
+                    "partida", mapOf(
+                        "select" to "id,torneio_id,team_a_id,team_b_id,resultado_a,resultado_b,estado",
+                        "estado" to "eq.EM_CURSO"
+                    )
+                ).toObjectList()
 
                 if (matchesJson.isEmpty()) return@runCatching emptyList<Jogo>()
 
-                val teamIds = matchesJson.flatMap { listOf(it.optInt("team_a_id"), it.optInt("team_b_id")) }.distinct()
+                val teamIds =
+                    matchesJson.flatMap { listOf(it.optInt("team_a_id"), it.optInt("team_b_id")) }
+                        .distinct()
                 val equipasMap = if (teamIds.isNotEmpty()) {
                     val teamIdsFilter = teamIds.joinToString(",")
-                    getArray("equipa", mapOf(
-                        "select" to "id,nome",
-                        "id" to "in.($teamIdsFilter)"
-                    )).toObjectList().associate { it.optInt("id") to it.optString("nome") }
+                    getArray(
+                        "equipa", mapOf(
+                            "select" to "id,nome",
+                            "id" to "in.($teamIdsFilter)"
+                        )
+                    ).toObjectList().associate { it.optInt("id") to it.optString("nome") }
                 } else {
                     emptyMap()
                 }
@@ -257,19 +304,25 @@ class SupabaseLeagueMatchRepository(
     override suspend fun listarTodosJogos(): List<Jogo> {
         return withContext(Dispatchers.IO) {
             runCatching {
-                val matchesJson = getArray("partida", mapOf(
-                    "select" to "id,torneio_id,team_a_id,team_b_id,resultado_a,resultado_b,estado"
-                )).toObjectList()
+                val matchesJson = getArray(
+                    "partida", mapOf(
+                        "select" to "id,torneio_id,team_a_id,team_b_id,resultado_a,resultado_b,estado"
+                    )
+                ).toObjectList()
 
                 if (matchesJson.isEmpty()) return@runCatching emptyList<Jogo>()
 
-                val teamIds = matchesJson.flatMap { listOf(it.optInt("team_a_id"), it.optInt("team_b_id")) }.distinct()
+                val teamIds =
+                    matchesJson.flatMap { listOf(it.optInt("team_a_id"), it.optInt("team_b_id")) }
+                        .distinct()
                 val equipasMap = if (teamIds.isNotEmpty()) {
                     val teamIdsFilter = teamIds.joinToString(",")
-                    getArray("equipa", mapOf(
-                        "select" to "id,nome",
-                        "id" to "in.($teamIdsFilter)"
-                    )).toObjectList().associate { it.optInt("id") to it.optString("nome") }
+                    getArray(
+                        "equipa", mapOf(
+                            "select" to "id,nome",
+                            "id" to "in.($teamIdsFilter)"
+                        )
+                    ).toObjectList().associate { it.optInt("id") to it.optString("nome") }
                 } else {
                     emptyMap()
                 }
@@ -328,9 +381,15 @@ class SupabaseLeagueMatchRepository(
 
         // Dynamic user profile breakdown
         val perfilBreakdown = listOf(
-            ParGrafico("Participantes", (utilizadores.count { it.tipo == TipoUtilizador.PARTICIPANTE } / totalUsers) * 100f),
-            ParGrafico("Espectadores", (utilizadores.count { it.tipo == TipoUtilizador.ESPECTADOR } / totalUsers) * 100f),
-            ParGrafico("Organizadores", (utilizadores.count { it.tipo == TipoUtilizador.ORGANIZADOR } / totalUsers) * 100f)
+            ParGrafico(
+                "Participantes",
+                (utilizadores.count { it.tipo == TipoUtilizador.PARTICIPANTE } / totalUsers) * 100f),
+            ParGrafico(
+                "Espectadores",
+                (utilizadores.count { it.tipo == TipoUtilizador.ESPECTADOR } / totalUsers) * 100f),
+            ParGrafico(
+                "Organizadores",
+                (utilizadores.count { it.tipo == TipoUtilizador.ORGANIZADOR } / totalUsers) * 100f)
         )
 
         return EstatisticasAdmin(
@@ -565,7 +624,8 @@ class SupabaseLeagueMatchRepository(
     }
 
     private suspend fun listarJogos(torneioId: Int? = null): List<Jogo> {
-        val query = mutableMapOf("select" to "id,torneio_id,team_a_id,team_b_id,estado,resultado_a,resultado_b")
+        val query =
+            mutableMapOf("select" to "id,torneio_id,team_a_id,team_b_id,estado,resultado_a,resultado_b")
         if (torneioId != null) query["torneio_id"] = "eq.$torneioId"
         return getArray("partida", query)
             .toObjectList()
@@ -601,6 +661,7 @@ class SupabaseLeagueMatchRepository(
             .sortedByDescending { it.golos }
             .take(6)
     }
+
     override suspend fun obterClassificacao(torneioId: Int): List<Classificacao> {
         val equipas = getArray(
             table = "equipa",
@@ -634,107 +695,110 @@ class SupabaseLeagueMatchRepository(
         }
     }
 
-    private suspend fun getArray(table: String, query: Map<String, String>): JSONArray = withContext(Dispatchers.IO) {
-        if (supabaseUrl.isBlank() || anonKey.isBlank()) {
-            error("Configura SUPABASE_URL e SUPABASE_ANON_KEY no aplicacao/local.properties.")
+    private suspend fun getArray(table: String, query: Map<String, String>): JSONArray =
+        withContext(Dispatchers.IO) {
+            if (supabaseUrl.isBlank() || anonKey.isBlank()) {
+                error("Configura SUPABASE_URL e SUPABASE_ANON_KEY no aplicacao/local.properties.")
+            }
+
+            val queryString = query.entries.joinToString("&") { (key, value) ->
+                "${encode(key)}=${encode(value)}"
+            }
+            val url = URL("${supabaseUrl.trimEnd('/')}/rest/v1/$table?$queryString")
+            val connection = (url.openConnection() as HttpURLConnection).apply {
+                requestMethod = "GET"
+                connectTimeout = 10_000
+                readTimeout = 10_000
+                setRequestProperty("apikey", anonKey)
+                setRequestProperty("Authorization", "Bearer $anonKey")
+                setRequestProperty("Accept", "application/json")
+            }
+
+            val code = connection.responseCode
+            val body = if (code in 200..299) {
+                connection.inputStream.bufferedReader().use { it.readText() }
+            } else {
+                connection.errorStream?.bufferedReader()?.use { it.readText() }.orEmpty()
+            }
+            connection.disconnect()
+
+            if (code !in 200..299) {
+                error("Erro Supabase ($code): $body")
+            }
+            JSONArray(body)
         }
 
-        val queryString = query.entries.joinToString("&") { (key, value) ->
-            "${encode(key)}=${encode(value)}"
-        }
-        val url = URL("${supabaseUrl.trimEnd('/')}/rest/v1/$table?$queryString")
-        val connection = (url.openConnection() as HttpURLConnection).apply {
-            requestMethod = "GET"
-            connectTimeout = 10_000
-            readTimeout = 10_000
-            setRequestProperty("apikey", anonKey)
-            setRequestProperty("Authorization", "Bearer $anonKey")
-            setRequestProperty("Accept", "application/json")
-        }
+    private suspend fun postObject(table: String, bodyJson: JSONObject): JSONObject? =
+        withContext(Dispatchers.IO) {
+            if (supabaseUrl.isBlank() || anonKey.isBlank()) {
+                error("Configura SUPABASE_URL e SUPABASE_ANON_KEY no aplicacao/local.properties.")
+            }
 
-        val code = connection.responseCode
-        val body = if (code in 200..299) {
-            connection.inputStream.bufferedReader().use { it.readText() }
-        } else {
-            connection.errorStream?.bufferedReader()?.use { it.readText() }.orEmpty()
-        }
-        connection.disconnect()
+            val url = URL("${supabaseUrl.trimEnd('/')}/rest/v1/$table")
+            val connection = (url.openConnection() as HttpURLConnection).apply {
+                requestMethod = "POST"
+                connectTimeout = 10_000
+                readTimeout = 10_000
+                setRequestProperty("apikey", anonKey)
+                setRequestProperty("Authorization", "Bearer $anonKey")
+                setRequestProperty("Content-Type", "application/json")
+                setRequestProperty("Prefer", "return=representation")
+                doOutput = true
+            }
 
-        if (code !in 200..299) {
-            error("Erro Supabase ($code): $body")
-        }
-        JSONArray(body)
-    }
+            connection.outputStream.bufferedWriter().use { it.write(bodyJson.toString()) }
 
-    private suspend fun postObject(table: String, bodyJson: JSONObject): JSONObject? = withContext(Dispatchers.IO) {
-        if (supabaseUrl.isBlank() || anonKey.isBlank()) {
-            error("Configura SUPABASE_URL e SUPABASE_ANON_KEY no aplicacao/local.properties.")
-        }
+            val code = connection.responseCode
+            val responseBody = if (code in 200..299) {
+                connection.inputStream.bufferedReader().use { it.readText() }
+            } else {
+                connection.errorStream?.bufferedReader()?.use { it.readText() }.orEmpty()
+            }
+            connection.disconnect()
 
-        val url = URL("${supabaseUrl.trimEnd('/')}/rest/v1/$table")
-        val connection = (url.openConnection() as HttpURLConnection).apply {
-            requestMethod = "POST"
-            connectTimeout = 10_000
-            readTimeout = 10_000
-            setRequestProperty("apikey", anonKey)
-            setRequestProperty("Authorization", "Bearer $anonKey")
-            setRequestProperty("Content-Type", "application/json")
-            setRequestProperty("Prefer", "return=representation")
-            doOutput = true
+            if (code !in 200..299) {
+                error("Erro Supabase ($code): $responseBody")
+            }
+
+            val array = JSONArray(responseBody)
+            if (array.length() > 0) array.getJSONObject(0) else null
         }
 
-        connection.outputStream.bufferedWriter().use { it.write(bodyJson.toString()) }
+    private suspend fun patchObject(table: String, id: Int, bodyJson: JSONObject): JSONObject? =
+        withContext(Dispatchers.IO) {
+            if (supabaseUrl.isBlank() || anonKey.isBlank()) {
+                error("Configura SUPABASE_URL e SUPABASE_ANON_KEY no aplicacao/local.properties.")
+            }
 
-        val code = connection.responseCode
-        val responseBody = if (code in 200..299) {
-            connection.inputStream.bufferedReader().use { it.readText() }
-        } else {
-            connection.errorStream?.bufferedReader()?.use { it.readText() }.orEmpty()
+            val url = URL("${supabaseUrl.trimEnd('/')}/rest/v1/$table?id=eq.$id")
+            val connection = (url.openConnection() as HttpURLConnection).apply {
+                requestMethod = "PATCH"
+                connectTimeout = 10_000
+                readTimeout = 10_000
+                setRequestProperty("apikey", anonKey)
+                setRequestProperty("Authorization", "Bearer $anonKey")
+                setRequestProperty("Content-Type", "application/json")
+                setRequestProperty("Prefer", "return=representation")
+                doOutput = true
+            }
+
+            connection.outputStream.bufferedWriter().use { it.write(bodyJson.toString()) }
+
+            val code = connection.responseCode
+            val responseBody = if (code in 200..299) {
+                connection.inputStream.bufferedReader().use { it.readText() }
+            } else {
+                connection.errorStream?.bufferedReader()?.use { it.readText() }.orEmpty()
+            }
+            connection.disconnect()
+
+            if (code !in 200..299) {
+                error("Erro Supabase ($code): $responseBody")
+            }
+
+            val array = JSONArray(responseBody)
+            if (array.length() > 0) array.getJSONObject(0) else null
         }
-        connection.disconnect()
-
-        if (code !in 200..299) {
-            error("Erro Supabase ($code): $responseBody")
-        }
-        
-        val array = JSONArray(responseBody)
-        if (array.length() > 0) array.getJSONObject(0) else null
-    }
-
-    private suspend fun patchObject(table: String, id: Int, bodyJson: JSONObject): JSONObject? = withContext(Dispatchers.IO) {
-        if (supabaseUrl.isBlank() || anonKey.isBlank()) {
-            error("Configura SUPABASE_URL e SUPABASE_ANON_KEY no aplicacao/local.properties.")
-        }
-
-        val url = URL("${supabaseUrl.trimEnd('/')}/rest/v1/$table?id=eq.$id")
-        val connection = (url.openConnection() as HttpURLConnection).apply {
-            requestMethod = "PATCH"
-            connectTimeout = 10_000
-            readTimeout = 10_000
-            setRequestProperty("apikey", anonKey)
-            setRequestProperty("Authorization", "Bearer $anonKey")
-            setRequestProperty("Content-Type", "application/json")
-            setRequestProperty("Prefer", "return=representation")
-            doOutput = true
-        }
-
-        connection.outputStream.bufferedWriter().use { it.write(bodyJson.toString()) }
-
-        val code = connection.responseCode
-        val responseBody = if (code in 200..299) {
-            connection.inputStream.bufferedReader().use { it.readText() }
-        } else {
-            connection.errorStream?.bufferedReader()?.use { it.readText() }.orEmpty()
-        }
-        connection.disconnect()
-
-        if (code !in 200..299) {
-            error("Erro Supabase ($code): $responseBody")
-        }
-        
-        val array = JSONArray(responseBody)
-        if (array.length() > 0) array.getJSONObject(0) else null
-    }
 
     private fun String.toSha256(): String {
         val bytes = MessageDigest.getInstance("SHA-256").digest(this.toByteArray())
@@ -766,7 +830,12 @@ class SupabaseLeagueMatchRepository(
 
     private fun calcularSerieJogos(total: Int): List<Float> {
         if (total <= 0) return List(7) { 0.05f }
-        return List(7) { index -> ((index + 1).coerceAtMost(total) / total.toFloat()).coerceIn(0.1f, 1f) }
+        return List(7) { index ->
+            ((index + 1).coerceAtMost(total) / total.toFloat()).coerceIn(
+                0.1f,
+                1f
+            )
+        }
     }
 
     private fun String.toTipoUtilizador(): TipoUtilizador {
@@ -783,5 +852,39 @@ class SupabaseLeagueMatchRepository(
         }
     }
 
-    private fun encode(value: String): String = URLEncoder.encode(value, "UTF-8")
+    private fun encode(value: String): String =
+        URLEncoder.encode(value, "UTF-8")
+
+    suspend fun guardarEstatisticasJogo(
+        partidaId: Int,
+        estatisticas: List<EstatisticaJogo>
+    ): Boolean {
+
+        return withContext(Dispatchers.IO) {
+
+            runCatching {
+
+                estatisticas.forEach { estatistica ->
+
+                    val json = JSONObject().apply {
+                        put("partida_id", partidaId)
+                        put("tipo", estatistica.tipo)
+                        put("equipa", estatistica.equipa)
+                        put("valor", estatistica.valor)
+                    }
+
+                    postObject(
+                        table = "estatistica_jogo",
+                        bodyJson = json
+                    )
+                }
+
+                true
+
+            }.getOrElse {
+                it.printStackTrace()
+                false
+            }
+        }
+    }
 }

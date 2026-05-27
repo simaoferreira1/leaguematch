@@ -58,6 +58,7 @@ import com.leaguematch.ui.spectator.MelhorMarcadorItem
 import com.leaguematch.ui.spectator.EquipasScreen
 import com.leaguematch.ui.spectator.JogosScreen
 import com.leaguematch.ui.spectator.TorneioDetalheScreen
+import com.leaguematch.ui.organizer.OrgEditarEstatisticasJogoScreen
 
 sealed interface AdminRoute {
     data object Home : AdminRoute
@@ -81,6 +82,7 @@ sealed interface OrganizerRoute {
     data class GerirEquipas(val torneioId: Int) : OrganizerRoute
     data class CriarEquipa(val torneioId: Int) : OrganizerRoute
     data class VerJogos(val torneioId: Int) : OrganizerRoute
+    data class EditarEstatisticas(val torneioId: Int, val jogoId: Int) : OrganizerRoute
 }
 
 sealed interface SpectatorRoute {
@@ -529,18 +531,10 @@ class MainActivity : ComponentActivity() {
                                             onCriarJogoClick = {
                                                 currentOrgRoute = OrganizerRoute.CriarJogo(route.torneioId)
                                             },
-                                            onEditarJogo = { jogo, resCasa, resFora, estado, local ->
-                                                torneiosViewModel.editarJogo(
-                                                    jogoId = jogo.id,
+                                            onEditarJogo = { jogo ->
+                                                currentOrgRoute = OrganizerRoute.EditarEstatisticas(
                                                     torneioId = route.torneioId,
-                                                    resultadoCasa = resCasa,
-                                                    resultadoFora = resFora,
-                                                    estado = estado,
-                                                    local = local,
-                                                    onSuccess = {},
-                                                    onError = { erro ->
-                                                        Toast.makeText(context, erro, Toast.LENGTH_LONG).show()
-                                                    }
+                                                    jogoId = jogo.id
                                                 )
                                             },
                                             onRemoverJogo = { jogo ->
@@ -556,6 +550,38 @@ class MainActivity : ComponentActivity() {
                                         )
                                     } else {
                                         currentOrgRoute = OrganizerRoute.DetalheTorneio(route.torneioId)
+                                    }
+                                }
+                                is OrganizerRoute.EditarEstatisticas -> {
+
+                                    val route = currentOrgRoute as OrganizerRoute.EditarEstatisticas
+
+                                    val detalhe by torneiosViewModel.detalheTorneioState.collectAsState()
+
+                                    LaunchedEffect(route.torneioId) {
+                                        torneiosViewModel.carregarDetalheTorneio(route.torneioId)
+                                    }
+
+                                    val torneio = detalhe?.getOrNull()?.torneio
+                                    val jogos = detalhe?.getOrNull()?.jogos ?: emptyList()
+
+                                    val jogo = jogos.firstOrNull { it.id == route.jogoId }
+
+                                    if (torneio != null && jogo != null) {
+
+                                        OrgEditarEstatisticasJogoScreen(
+                                            jogo = jogo,
+                                            modalidade = torneio.modalidade,
+                                            onBackClick = {
+                                                currentOrgRoute = OrganizerRoute.VerJogos(route.torneioId)
+                                            },
+                                            onGuardarClick = {
+                                                currentOrgRoute = OrganizerRoute.VerJogos(route.torneioId)
+                                            }
+                                        )
+
+                                    } else {
+                                        LoadingScreen()
                                     }
                                 }
                             }
