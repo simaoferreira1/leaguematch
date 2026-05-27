@@ -40,6 +40,11 @@ import com.leaguematch.ui.components.AdminBottomBar
 import com.leaguematch.ui.components.OrganizerBottomBar
 import com.leaguematch.ui.components.SpectatorBottomBar
 import com.leaguematch.ui.spectator.ExplorarScreen
+import com.leaguematch.ui.organizer.OrgCriarEquipaScreen
+import com.leaguematch.ui.organizer.OrgCriarJogoScreen
+import com.leaguematch.ui.organizer.OrgGerirEquipasScreen
+import com.leaguematch.ui.organizer.OrgVerJogosScreen
+import com.leaguematch.ui.organizer.OrgTorneioActionsScreen
 import com.leaguematch.ui.organizer.OrgTournamentsScreen
 import com.leaguematch.ui.theme.LeagueMatchTheme
 import com.leaguematch.viewmodel.*
@@ -50,6 +55,8 @@ import com.leaguematch.ui.spectator.ClassificacaoScreen
 import com.leaguematch.data.remote.model.Classificacao
 import com.leaguematch.ui.spectator.JogoResumoItem
 import com.leaguematch.ui.spectator.MelhorMarcadorItem
+import com.leaguematch.ui.spectator.EquipasScreen
+import com.leaguematch.ui.spectator.JogosScreen
 import com.leaguematch.ui.spectator.TorneioDetalheScreen
 
 sealed interface AdminRoute {
@@ -70,6 +77,10 @@ sealed interface OrganizerRoute {
     data object ConfirmarTorneio : OrganizerRoute
     data object Perfil : OrganizerRoute
     data class DetalheTorneio(val id: Int) : OrganizerRoute
+    data class CriarJogo(val torneioId: Int) : OrganizerRoute
+    data class GerirEquipas(val torneioId: Int) : OrganizerRoute
+    data class CriarEquipa(val torneioId: Int) : OrganizerRoute
+    data class VerJogos(val torneioId: Int) : OrganizerRoute
 }
 
 sealed interface SpectatorRoute {
@@ -113,6 +124,7 @@ class MainActivity : ComponentActivity() {
                 var showRegisterScreen by remember { mutableStateOf(false) }
                 var currentRoute by remember { mutableStateOf<AdminRoute>(AdminRoute.Home) }
                 var currentOrgRoute by remember { mutableStateOf<OrganizerRoute>(OrganizerRoute.MeusTorneios) }
+                var currentOrgTorneioId by remember { mutableStateOf<Int?>(null) }
                 var currentSpectatorRoute by remember { mutableStateOf<SpectatorRoute>(SpectatorRoute.Explorar) }
                 var torneioSelecionado by remember { mutableStateOf<Torneio?>(null) }
                 var dadosCriarTorneio by remember { mutableStateOf<List<String>?>(null) }
@@ -206,9 +218,18 @@ class MainActivity : ComponentActivity() {
                                                 },
 
                                                 onNavigateToActions = { torneioId: Int ->
+                                                    currentOrgTorneioId = torneioId
                                                     currentOrgRoute = OrganizerRoute.DetalheTorneio(torneioId)
                                                 },
 
+                                                onEquipasClick = {
+                                                    val tid = currentOrgTorneioId
+                                                    if (tid != null) currentOrgRoute = OrganizerRoute.GerirEquipas(tid)
+                                                },
+                                                onJogosClick = {
+                                                    val tid = currentOrgTorneioId
+                                                    if (tid != null) currentOrgRoute = OrganizerRoute.VerJogos(tid)
+                                                },
                                                 onPerfilClick = goPerfil
                                             )
                                         }
@@ -307,8 +328,6 @@ class MainActivity : ComponentActivity() {
                                             OrganizerBottomBar(
                                                 selectedItem = "perfil",
                                                 onTorneiosClick = goMeusTorneios,
-                                                onEquipasClick = {},
-                                                onJogosClick = {},
                                                 onPerfilClick = goPerfil
                                             )
                                         }
@@ -320,21 +339,223 @@ class MainActivity : ComponentActivity() {
                                     val detalhe by torneiosViewModel.detalheTorneioState.collectAsState()
                                     LaunchedEffect(route.id) {
                                         torneiosViewModel.carregarDetalheTorneio(route.id)
+                                        currentOrgTorneioId = route.id
                                     }
                                     RemoteContent(detalhe) {
-                                        DetalheTorneioScreen(
+                                        OrgTorneioActionsScreen(
                                             detalhe = it,
                                             onBackClick = goMeusTorneios,
+                                            onCriarJogoClick = {
+                                                currentOrgRoute = OrganizerRoute.CriarJogo(route.id)
+                                            },
+                                            onVerJogosClick = {
+                                                currentOrgRoute = OrganizerRoute.VerJogos(route.id)
+                                            },
+                                            onVerClassificacaoClick = {},
+                                            onEditarTorneio = { nome, regras, formato ->
+                                                torneiosViewModel.editarTorneio(
+                                                    id = route.id,
+                                                    nome = nome,
+                                                    regras = regras,
+                                                    formato = formato,
+                                                    onSuccess = {
+                                                        Toast.makeText(context, "Torneio atualizado com sucesso!", Toast.LENGTH_SHORT).show()
+                                                    },
+                                                    onError = { erro ->
+                                                        Toast.makeText(context, erro, Toast.LENGTH_LONG).show()
+                                                    }
+                                                )
+                                            },
+                                            onRemoverTorneio = { id ->
+                                                torneiosViewModel.removerTorneio(id)
+                                                currentOrgRoute = OrganizerRoute.MeusTorneios
+                                                Toast.makeText(context, "Torneio removido com sucesso!", Toast.LENGTH_SHORT).show()
+                                            },
+                                            onGerirEquipasClick = {
+                                                currentOrgRoute = OrganizerRoute.GerirEquipas(route.id)
+                                            },
                                             bottomBar = {
                                                 OrganizerBottomBar(
                                                     selectedItem = "torneios",
                                                     onTorneiosClick = goMeusTorneios,
-                                                    onEquipasClick = {},
-                                                    onJogosClick = {},
                                                     onPerfilClick = goPerfil
                                                 )
                                             }
                                         )
+                                    }
+                                }
+
+                                is OrganizerRoute.CriarJogo -> {
+                                    val route = currentOrgRoute as OrganizerRoute.CriarJogo
+                                    val equipasResult by torneiosViewModel.equipasState.collectAsState()
+                                    val isLoading by torneiosViewModel.criarJogoLoading.collectAsState()
+                                    LaunchedEffect(route.torneioId) {
+                                        torneiosViewModel.carregarEquipas(route.torneioId)
+                                    }
+                                    val torneio = (torneiosViewModel.detalheTorneioState.value
+                                        ?.getOrNull()?.torneio)
+                                    val equipas = equipasResult?.getOrNull() ?: emptyList()
+                                    if (torneio != null) {
+                                        OrgCriarJogoScreen(
+                                            torneio = torneio,
+                                            equipas = equipas,
+                                            isLoading = isLoading,
+                                            onBackClick = {
+                                                currentOrgRoute = OrganizerRoute.DetalheTorneio(route.torneioId)
+                                            },
+                                            onCriarClick = { casaId, foraId, data, hora, local ->
+                                                torneiosViewModel.criarJogo(
+                                                    torneioId = route.torneioId,
+                                                    equipaCasaId = casaId,
+                                                    equipaForaId = foraId,
+                                                    data = data,
+                                                    hora = hora,
+                                                    local = local,
+                                                    onSuccess = {
+                                                        currentOrgRoute = OrganizerRoute.DetalheTorneio(route.torneioId)
+                                                    },
+                                                    onError = { erro ->
+                                                        Toast.makeText(
+                                                            context,
+                                                            erro,
+                                                            Toast.LENGTH_LONG
+                                                        ).show()
+                                                    }
+                                                )
+                                            }
+                                        )
+                                    } else {
+                                        currentOrgRoute = OrganizerRoute.MeusTorneios
+                                    }
+                                }
+
+                                is OrganizerRoute.GerirEquipas -> {
+                                    val route = currentOrgRoute as OrganizerRoute.GerirEquipas
+                                    val equipasResult by torneiosViewModel.equipasState.collectAsState()
+                                    LaunchedEffect(route.torneioId) {
+                                        torneiosViewModel.carregarEquipas(route.torneioId)
+                                    }
+                                    val torneio = torneiosViewModel.detalheTorneioState.value
+                                        ?.getOrNull()?.torneio
+                                    val equipas = equipasResult?.getOrNull() ?: emptyList()
+                                    val isLoading = equipasResult == null
+                                    if (torneio != null) {
+                                        OrgGerirEquipasScreen(
+                                            torneio = torneio,
+                                            equipas = equipas,
+                                            isLoading = isLoading,
+                                            onBackClick = {
+                                                currentOrgRoute = OrganizerRoute.DetalheTorneio(route.torneioId)
+                                            },
+                                            onCriarEquipaClick = {
+                                                currentOrgRoute = OrganizerRoute.CriarEquipa(route.torneioId)
+                                            },
+                                            onRemoverEquipa = { equipa ->
+                                                torneiosViewModel.removerEquipa(
+                                                    equipaId = equipa.id,
+                                                    torneioId = route.torneioId,
+                                                    onSuccess = {},
+                                                    onError = { erro ->
+                                                        Toast.makeText(context, erro, Toast.LENGTH_LONG).show()
+                                                    }
+                                                )
+                                            },
+                                            onEditarEquipa = { equipa, novoNome ->
+                                                torneiosViewModel.editarEquipa(
+                                                    equipaId = equipa.id,
+                                                    nome = novoNome,
+                                                    torneioId = route.torneioId,
+                                                    onSuccess = {},
+                                                    onError = { erro ->
+                                                        Toast.makeText(context, erro, Toast.LENGTH_LONG).show()
+                                                    }
+                                                )
+                                            }
+                                        )
+                                    } else {
+                                        currentOrgRoute = OrganizerRoute.DetalheTorneio(route.torneioId)
+                                    }
+                                }
+
+                                is OrganizerRoute.CriarEquipa -> {
+                                    val route = currentOrgRoute as OrganizerRoute.CriarEquipa
+                                    val isLoading by torneiosViewModel.criarJogoLoading.collectAsState()
+                                    val torneio = torneiosViewModel.detalheTorneioState.value
+                                        ?.getOrNull()?.torneio
+                                    if (torneio != null) {
+                                        OrgCriarEquipaScreen(
+                                            torneio = torneio,
+                                            isLoading = isLoading,
+                                            onBackClick = {
+                                                currentOrgRoute = OrganizerRoute.GerirEquipas(route.torneioId)
+                                            },
+                                            onCriarClick = { nome ->
+                                                torneiosViewModel.criarEquipa(
+                                                    nome = nome,
+                                                    torneioId = route.torneioId,
+                                                    onSuccess = {
+                                                        currentOrgRoute = OrganizerRoute.GerirEquipas(route.torneioId)
+                                                    },
+                                                    onError = { erro ->
+                                                        Toast.makeText(context, erro, Toast.LENGTH_LONG).show()
+                                                    }
+                                                )
+                                            }
+                                        )
+                                    } else {
+                                        currentOrgRoute = OrganizerRoute.GerirEquipas(route.torneioId)
+                                    }
+                                }
+                                is OrganizerRoute.VerJogos -> {
+                                    val route = currentOrgRoute as OrganizerRoute.VerJogos
+                                    val detalhe by torneiosViewModel.detalheTorneioState.collectAsState()
+                                    LaunchedEffect(route.torneioId) {
+                                        torneiosViewModel.carregarDetalheTorneio(route.torneioId)
+                                    }
+                                    val torneio = detalhe?.getOrNull()?.torneio
+                                    val jogos = detalhe?.getOrNull()?.jogos ?: emptyList()
+                                    val isLoading = detalhe == null
+                                    if (torneio != null || isLoading) {
+                                        OrgVerJogosScreen(
+                                            torneio = torneio ?: com.leaguematch.data.remote.model.Torneio(
+                                                id = route.torneioId, nome = "Torneio",
+                                                modalidade = "", regras = "", formato = "", estado = ""
+                                            ),
+                                            jogos = jogos,
+                                            isLoading = isLoading,
+                                            onBackClick = {
+                                                currentOrgRoute = OrganizerRoute.DetalheTorneio(route.torneioId)
+                                            },
+                                            onCriarJogoClick = {
+                                                currentOrgRoute = OrganizerRoute.CriarJogo(route.torneioId)
+                                            },
+                                            onEditarJogo = { jogo, resCasa, resFora, estado, local ->
+                                                torneiosViewModel.editarJogo(
+                                                    jogoId = jogo.id,
+                                                    torneioId = route.torneioId,
+                                                    resultadoCasa = resCasa,
+                                                    resultadoFora = resFora,
+                                                    estado = estado,
+                                                    local = local,
+                                                    onSuccess = {},
+                                                    onError = { erro ->
+                                                        Toast.makeText(context, erro, Toast.LENGTH_LONG).show()
+                                                    }
+                                                )
+                                            },
+                                            onRemoverJogo = { jogo ->
+                                                torneiosViewModel.removerJogo(
+                                                    jogoId = jogo.id,
+                                                    torneioId = route.torneioId,
+                                                    onSuccess = {},
+                                                    onError = { erro ->
+                                                        Toast.makeText(context, erro, Toast.LENGTH_LONG).show()
+                                                    }
+                                                )
+                                            }
+                                        )
+                                    } else {
+                                        currentOrgRoute = OrganizerRoute.DetalheTorneio(route.torneioId)
                                     }
                                 }
                             }
@@ -489,6 +710,48 @@ class MainActivity : ComponentActivity() {
                                             )
                                         }
                                     )
+                                }
+
+                                SpectatorRoute.Jogos -> {
+                                    val torneio = torneioSelecionado
+                                    if (torneio == null) {
+                                        currentSpectatorRoute = SpectatorRoute.Explorar
+                                    } else {
+                                        val jogosResult by produceState<Result<List<com.leaguematch.data.remote.model.Jogo>>?>(null, torneio.id) {
+                                            value = runCatching { repository.obterDetalheTorneio(torneio.id)?.jogos ?: emptyList() }
+                                        }
+                                        val jogos = jogosResult?.getOrNull() ?: emptyList()
+                                        JogosScreen(
+                                            torneio = torneio,
+                                            jogos = jogos,
+                                            onHomeClick = { currentSpectatorRoute = SpectatorRoute.Explorar },
+                                            onClassificacaoClick = { currentSpectatorRoute = SpectatorRoute.Classificacao },
+                                            onJogosClick = {},
+                                            onEquipasClick = { currentSpectatorRoute = SpectatorRoute.Equipas },
+                                            onPerfilClick = { currentSpectatorRoute = SpectatorRoute.Perfil }
+                                        )
+                                    }
+                                }
+
+                                SpectatorRoute.Equipas -> {
+                                    val torneio = torneioSelecionado
+                                    if (torneio == null) {
+                                        currentSpectatorRoute = SpectatorRoute.Explorar
+                                    } else {
+                                        val equipasResult by produceState<Result<List<com.leaguematch.data.remote.model.Equipa>>?>(null, torneio.id) {
+                                            value = runCatching { repository.listarEquipasTorneio(torneio.id) }
+                                        }
+                                        val equipas = equipasResult?.getOrNull() ?: emptyList()
+                                        EquipasScreen(
+                                            torneio = torneio,
+                                            equipas = equipas,
+                                            onHomeClick = { currentSpectatorRoute = SpectatorRoute.Explorar },
+                                            onClassificacaoClick = { currentSpectatorRoute = SpectatorRoute.Classificacao },
+                                            onJogosClick = { currentSpectatorRoute = SpectatorRoute.Jogos },
+                                            onEquipasClick = {},
+                                            onPerfilClick = { currentSpectatorRoute = SpectatorRoute.Perfil }
+                                        )
+                                    }
                                 }
 
                                 else -> {

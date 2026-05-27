@@ -1,6 +1,7 @@
 package com.leaguematch.data.repository
 
 import com.leaguematch.data.remote.model.DetalheTorneio
+import com.leaguematch.data.remote.model.Equipa
 import com.leaguematch.data.remote.model.EstatisticasAdmin
 import com.leaguematch.data.remote.model.Goleador
 import com.leaguematch.data.remote.model.Jogo
@@ -124,11 +125,179 @@ class SupabaseLeagueMatchRepository(
     }
 
     override suspend fun obterMelhoresMarcadores(torneioId: Int): List<MelhorMarcadorItem> {
-        return emptyList()
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val partidas = getArray("partida", mapOf("select" to "id", "torneio_id" to "eq.$torneioId")).toObjectList()
+                if (partidas.isEmpty()) return@runCatching emptyList<MelhorMarcadorItem>()
+
+                val matchIds = partidas.map { it.optInt("id") }
+                val idsFilter = matchIds.joinToString(",")
+
+                val eventos = getArray("evento_jogo", mapOf(
+                    "select" to "user_id,match_id",
+                    "tipo" to "eq.GOLO",
+                    "match_id" to "in.($idsFilter)"
+                )).toObjectList()
+
+                if (eventos.isEmpty()) return@runCatching emptyList<MelhorMarcadorItem>()
+
+                val golosPorUser = eventos.groupingBy { it.optInt("user_id") }.eachCount()
+
+                val equipas = getArray("equipa", mapOf("select" to "id,nome", "torneio_id" to "eq.$torneioId")).toObjectList()
+                val equipasMap = equipas.associate { it.optInt("id") to it.optString("nome") }
+
+                val teamIds = equipas.map { it.optInt("id") }
+                val teamIdsFilter = teamIds.joinToString(",")
+                
+                val userTeamMap = if (teamIds.isNotEmpty()) {
+                    val members = getArray("team_member", mapOf(
+                        "select" to "user_id,team_id",
+                        "team_id" to "in.($teamIdsFilter)"
+                    )).toObjectList()
+                    members.associate { it.optInt("user_id") to (equipasMap[it.optInt("team_id")] ?: "Equipa") }
+                } else {
+                    emptyMap()
+                }
+
+                val userIds = golosPorUser.keys.joinToString(",")
+                val users = if (userIds.isNotEmpty()) {
+                    getArray("utilizador", mapOf(
+                        "select" to "id,nome",
+                        "id" to "in.($userIds)"
+                    )).toObjectList().associate { it.optInt("id") to it.optString("nome") }
+                } else {
+                    emptyMap()
+                }
+
+                golosPorUser.map { (userId, golos) ->
+                    MelhorMarcadorItem(
+                        nome = users[userId] ?: "Jogador $userId",
+                        golos = golos,
+                        equipa = userTeamMap[userId] ?: "Sem Equipa"
+                    )
+                }.sortedByDescending { it.golos }
+            }.getOrElse { 
+                it.printStackTrace()
+                emptyList()
+            }
+        }
     }
 
     override suspend fun obterJogosDoTorneio(torneioId: Int): List<JogoResumoItem> {
-        return emptyList()
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val equipas = getArray("equipa", mapOf("select" to "id,nome", "torneio_id" to "eq.$torneioId")).toObjectList()
+                val equipasMap = equipas.associate { it.optInt("id") to it.optString("nome") }
+
+                val partidas = getArray("partida", mapOf(
+                    "select" to "team_a_id,team_b_id,resultado_a,resultado_b,estado",
+                    "torneio_id" to "eq.$torneioId"
+                )).toObjectList()
+
+                partidas.map { json ->
+                    val teamAId = json.optInt("team_a_id")
+                    val teamBId = json.optInt("team_b_id")
+                    val estado = json.optString("estado")
+                    val finalizado = estado.equals("FINALIZADO", ignoreCase = true) || estado.equals("EM_CURSO", ignoreCase = true)
+                    JogoResumoItem(
+                        equipaCasa = equipasMap[teamAId] ?: "Equipa $teamAId",
+                        equipaFora = equipasMap[teamBId] ?: "Equipa $teamBId",
+                        golosCasa = if (finalizado) json.optInt("resultado_a") else null,
+                        golosFora = if (finalizado) json.optInt("resultado_b") else null
+                    )
+                }
+            }.getOrElse {
+                it.printStackTrace()
+                emptyList()
+            }
+        }
+    }
+
+    override suspend fun listarJogosAoVivo(): List<Jogo> {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val matchesJson = getArray("partida", mapOf(
+                    "select" to "id,torneio_id,team_a_id,team_b_id,resultado_a,resultado_b,estado",
+                    "estado" to "eq.EM_CURSO"
+                )).toObjectList()
+
+                if (matchesJson.isEmpty()) return@runCatching emptyList<Jogo>()
+
+                val teamIds = matchesJson.flatMap { listOf(it.optInt("team_a_id"), it.optInt("team_b_id")) }.distinct()
+                val equipasMap = if (teamIds.isNotEmpty()) {
+                    val teamIdsFilter = teamIds.joinToString(",")
+                    getArray("equipa", mapOf(
+                        "select" to "id,nome",
+                        "id" to "in.($teamIdsFilter)"
+                    )).toObjectList().associate { it.optInt("id") to it.optString("nome") }
+                } else {
+                    emptyMap()
+                }
+
+                matchesJson.map { json ->
+                    val teamAId = json.optInt("team_a_id")
+                    val teamBId = json.optInt("team_b_id")
+                    Jogo(
+                        id = json.optInt("id"),
+                        torneioId = json.optInt("torneio_id"),
+                        casa = equipasMap[teamAId] ?: "Equipa $teamAId",
+                        fora = equipasMap[teamBId] ?: "Equipa $teamBId",
+                        resultadoCasa = json.optInt("resultado_a"),
+                        resultadoFora = json.optInt("resultado_b"),
+                        estado = "A Decorrer"
+                    )
+                }
+            }.getOrElse {
+                it.printStackTrace()
+                emptyList()
+            }
+        }
+    }
+
+    override suspend fun listarTodosJogos(): List<Jogo> {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val matchesJson = getArray("partida", mapOf(
+                    "select" to "id,torneio_id,team_a_id,team_b_id,resultado_a,resultado_b,estado"
+                )).toObjectList()
+
+                if (matchesJson.isEmpty()) return@runCatching emptyList<Jogo>()
+
+                val teamIds = matchesJson.flatMap { listOf(it.optInt("team_a_id"), it.optInt("team_b_id")) }.distinct()
+                val equipasMap = if (teamIds.isNotEmpty()) {
+                    val teamIdsFilter = teamIds.joinToString(",")
+                    getArray("equipa", mapOf(
+                        "select" to "id,nome",
+                        "id" to "in.($teamIdsFilter)"
+                    )).toObjectList().associate { it.optInt("id") to it.optString("nome") }
+                } else {
+                    emptyMap()
+                }
+
+                matchesJson.map { json ->
+                    val teamAId = json.optInt("team_a_id")
+                    val teamBId = json.optInt("team_b_id")
+                    val estadoRaw = json.optString("estado", "AGENDADO")
+                    val estado = when (estadoRaw.uppercase()) {
+                        "FINALIZADO" -> "Finalizado"
+                        "EM_CURSO" -> "A Decorrer"
+                        else -> "Agendado"
+                    }
+                    Jogo(
+                        id = json.optInt("id"),
+                        torneioId = json.optInt("torneio_id"),
+                        casa = equipasMap[teamAId] ?: "Equipa $teamAId",
+                        fora = equipasMap[teamBId] ?: "Equipa $teamBId",
+                        resultadoCasa = json.optInt("resultado_a"),
+                        resultadoFora = json.optInt("resultado_b"),
+                        estado = estado
+                    )
+                }
+            }.getOrElse {
+                it.printStackTrace()
+                emptyList()
+            }
+        }
     }
 
     override suspend fun listarTorneiosPorModalidade(modalidade: String): List<Torneio> {
@@ -195,9 +364,147 @@ class SupabaseLeagueMatchRepository(
             }
     }
 
+    override suspend fun listarEquipasTorneio(torneioId: Int): List<Equipa> {
+        return getArray(
+            "equipa",
+            mapOf("select" to "id,nome,torneio_id", "torneio_id" to "eq.$torneioId")
+        ).toObjectList().map { json ->
+            Equipa(
+                id = json.optInt("id"),
+                nome = json.optString("nome"),
+                torneioId = json.optInt("torneio_id")
+            )
+        }
+    }
+
+    override suspend fun criarEquipa(nome: String, torneioId: Int): Equipa? {
+        val json = JSONObject().apply {
+            put("nome", nome.trim())
+            put("torneio_id", torneioId)
+        }
+        val response = postObject("equipa", json) ?: return null
+        return Equipa(
+            id = response.optInt("id"),
+            nome = response.optString("nome"),
+            torneioId = torneioId
+        )
+    }
+
+    override suspend fun removerEquipa(equipaId: Int): Boolean {
+        deleteObject("equipa", equipaId)
+        return true
+    }
+
+    override suspend fun atualizarEquipa(id: Int, nome: String): Equipa? {
+        val json = JSONObject().apply {
+            put("nome", nome.trim())
+        }
+        val response = patchObject("equipa", id, json) ?: return null
+        return Equipa(
+            id = response.optInt("id"),
+            nome = response.optString("nome"),
+            torneioId = response.optInt("torneio_id")
+        )
+    }
+
+    override suspend fun removerJogo(id: Int): Boolean {
+        deleteObject("partida", id)
+        return true
+    }
+
+    override suspend fun atualizarJogo(
+        id: Int,
+        resultadoCasa: Int,
+        resultadoFora: Int,
+        estado: String,
+        local: String
+    ): Jogo? {
+        val estadoRaw = when (estado) {
+            "Finalizado" -> "FINALIZADO"
+            "A Decorrer" -> "EM_CURSO"
+            else -> "AGENDADO"
+        }
+        val json = JSONObject().apply {
+            put("resultado_a", resultadoCasa)
+            put("resultado_b", resultadoFora)
+            put("estado", estadoRaw)
+            put("local", local.trim())
+        }
+        val response = patchObject("partida", id, json) ?: return null
+        return Jogo(
+            id = response.optInt("id"),
+            torneioId = response.optInt("torneio_id"),
+            casa = "Equipa ${response.optInt("team_a_id")}",
+            fora = "Equipa ${response.optInt("team_b_id")}",
+            resultadoCasa = response.optInt("resultado_a"),
+            resultadoFora = response.optInt("resultado_b"),
+            estado = response.optString("estado").toEstadoLegivel()
+        )
+    }
+
+    override suspend fun criarJogo(
+        torneioId: Int,
+        equipaCasaId: Int,
+        equipaForaId: Int,
+        data: String,
+        hora: String,
+        local: String
+    ): Jogo? {
+        val dataHora = if (data.isNotBlank() && hora.isNotBlank()) {
+            val partes = data.split("/")
+            if (partes.size == 3) "${partes[2]}-${partes[1]}-${partes[0]}T${hora}:00" else "2026-01-01T00:00:00"
+        } else "2026-01-01T00:00:00"
+        val localFinal = local.ifBlank { "A definir" }
+
+        val json = JSONObject().apply {
+            put("torneio_id", torneioId)
+            put("team_a_id", equipaCasaId)
+            put("team_b_id", equipaForaId)
+            put("estado", "AGENDADO")
+            put("resultado_a", 0)
+            put("resultado_b", 0)
+            put("data_hora", dataHora)
+            put("local", localFinal)
+        }
+        val response = postObject("partida", json) ?: return null
+        return Jogo(
+            id = response.optInt("id"),
+            torneioId = torneioId,
+            casa = "Equipa $equipaCasaId",
+            fora = "Equipa $equipaForaId",
+            resultadoCasa = 0,
+            resultadoFora = 0,
+            estado = "Agendado"
+        )
+    }
+
     override suspend fun removerTorneio(id: Int): Boolean {
         deleteObject("torneio", id)
         return true
+    }
+
+    override suspend fun atualizarTorneio(
+        id: Int,
+        nome: String,
+        regras: String,
+        formato: String
+    ): Torneio? {
+        val json = JSONObject().apply {
+            put("nome", nome.trim())
+            put("regras", regras.trim())
+            put("formato", formato.trim())
+        }
+        val response = patchObject("torneio", id, json) ?: return null
+        return Torneio(
+            id = response.optInt("id"),
+            nome = response.optString("nome"),
+            modalidade = response.optString("modalidade"),
+            regras = response.optString("regras"),
+            formato = response.optString("formato"),
+            estado = "Por Iniciar",
+            equipas = 0,
+            active = true
+        )
     }
 
     override suspend fun criarTorneio(

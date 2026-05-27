@@ -97,6 +97,12 @@ data class ParGrafico(
     val valorNormalizado: Float
 )
 
+data class Equipa(
+    val id: Int,
+    val nome: String,
+    val torneioId: Int
+)
+
 data class DetalheTorneio(
     val torneio: Torneio,
     val goleadores: List<Goleador>,

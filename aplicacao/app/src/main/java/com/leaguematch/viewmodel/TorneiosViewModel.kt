@@ -3,6 +3,8 @@ package com.leaguematch.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.leaguematch.data.remote.model.DetalheTorneio
+import com.leaguematch.data.remote.model.Equipa
+import com.leaguematch.data.remote.model.Jogo
 import com.leaguematch.data.remote.model.ResumoModalidade
 import com.leaguematch.data.remote.model.Torneio
 import com.leaguematch.data.repository.LeagueMatchRepository
@@ -23,6 +25,12 @@ class TorneiosViewModel(private val repository: LeagueMatchRepository) : ViewMod
 
     private val _detalheTorneioState = MutableStateFlow<Result<DetalheTorneio?>?>(null)
     val detalheTorneioState: StateFlow<Result<DetalheTorneio?>?> = _detalheTorneioState
+
+    private val _equipasState = MutableStateFlow<Result<List<Equipa>>?>(null)
+    val equipasState: StateFlow<Result<List<Equipa>>?> = _equipasState
+
+    private val _criarJogoLoading = MutableStateFlow(false)
+    val criarJogoLoading: StateFlow<Boolean> = _criarJogoLoading
 
     fun carregarTorneios() {
         viewModelScope.launch {
@@ -88,6 +96,149 @@ class TorneiosViewModel(private val repository: LeagueMatchRepository) : ViewMod
         }
     }
 
+    fun carregarEquipas(torneioId: Int) {
+        viewModelScope.launch {
+            _equipasState.value = null
+            try {
+                val data = repository.listarEquipasTorneio(torneioId)
+                _equipasState.value = Result.success(data)
+            } catch (e: Exception) {
+                _equipasState.value = Result.failure(e)
+            }
+        }
+    }
+
+    fun criarEquipa(
+        nome: String,
+        torneioId: Int,
+        onSuccess: (Equipa) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val equipa = repository.criarEquipa(nome, torneioId)
+                if (equipa != null) {
+                    carregarEquipas(torneioId)
+                    onSuccess(equipa)
+                } else {
+                    onError("Não foi possível criar a equipa.")
+                }
+            } catch (e: Exception) {
+                onError(e.message ?: "Erro ao criar equipa.")
+            }
+        }
+    }
+
+    fun removerEquipa(
+        equipaId: Int,
+        torneioId: Int,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                repository.removerEquipa(equipaId)
+                carregarEquipas(torneioId)
+                onSuccess()
+            } catch (e: Exception) {
+                onError(e.message ?: "Erro ao remover equipa.")
+            }
+        }
+    }
+
+    fun editarEquipa(
+        equipaId: Int,
+        nome: String,
+        torneioId: Int,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val result = repository.atualizarEquipa(equipaId, nome)
+                if (result != null) {
+                    carregarEquipas(torneioId)
+                    onSuccess()
+                } else {
+                    onError("Não foi possível atualizar a equipa.")
+                }
+            } catch (e: Exception) {
+                onError(e.message ?: "Erro ao atualizar equipa.")
+            }
+        }
+    }
+
+    fun removerJogo(
+        jogoId: Int,
+        torneioId: Int,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                repository.removerJogo(jogoId)
+                carregarDetalheTorneio(torneioId)
+                onSuccess()
+            } catch (e: Exception) {
+                onError(e.message ?: "Erro ao remover jogo.")
+            }
+        }
+    }
+
+    fun editarJogo(
+        jogoId: Int,
+        torneioId: Int,
+        resultadoCasa: Int,
+        resultadoFora: Int,
+        estado: String,
+        local: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val result = repository.atualizarJogo(jogoId, resultadoCasa, resultadoFora, estado, local)
+                if (result != null) {
+                    carregarDetalheTorneio(torneioId)
+                    onSuccess()
+                } else {
+                    onError("Não foi possível atualizar o jogo.")
+                }
+            } catch (e: Exception) {
+                onError(e.message ?: "Erro ao atualizar jogo.")
+            }
+        }
+    }
+
+
+    fun criarJogo(
+        torneioId: Int,
+        equipaCasaId: Int,
+        equipaForaId: Int,
+        data: String,
+        hora: String,
+        local: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            _criarJogoLoading.value = true
+            try {
+                val jogo = repository.criarJogo(torneioId, equipaCasaId, equipaForaId, data, hora, local)
+                if (jogo != null) {
+                    carregarDetalheTorneio(torneioId)
+                    onSuccess()
+                } else {
+                    onError("Não foi possível criar o jogo.")
+                }
+            } catch (e: Exception) {
+                onError(e.message ?: "Erro ao criar jogo.")
+            } finally {
+                _criarJogoLoading.value = false
+            }
+        }
+    }
+
     fun criarTorneio(
         nome: String,
         modalidade: String,
@@ -109,6 +260,31 @@ class TorneiosViewModel(private val repository: LeagueMatchRepository) : ViewMod
                 }
             } catch (e: Exception) {
                 onError(e.message ?: "Erro ao criar torneio")
+            }
+        }
+    }
+
+    fun editarTorneio(
+        id: Int,
+        nome: String,
+        regras: String,
+        formato: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val result = repository.atualizarTorneio(id, nome, regras, formato)
+                if (result != null) {
+                    carregarDetalheTorneio(id)
+                    carregarTorneios()
+                    carregarTodosTorneios()
+                    onSuccess()
+                } else {
+                    onError("Não foi possível editar o torneio.")
+                }
+            } catch (e: Exception) {
+                onError(e.message ?: "Erro ao editar torneio.")
             }
         }
     }

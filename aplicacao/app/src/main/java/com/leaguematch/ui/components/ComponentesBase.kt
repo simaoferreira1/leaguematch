@@ -687,8 +687,6 @@ fun AdminBottomBar(
 fun OrganizerBottomBar(
     selectedItem: String,
     onTorneiosClick: () -> Unit,
-    onEquipasClick: () -> Unit,
-    onJogosClick: () -> Unit,
     onPerfilClick: () -> Unit
 ) {
     Surface(
@@ -708,50 +706,6 @@ fun OrganizerBottomBar(
                 label = { 
                     Text(
                         text = "Torneios", 
-                        fontSize = 9.5.sp, 
-                        fontFamily = Geist, 
-                        maxLines = 1, 
-                        softWrap = false,
-                        overflow = TextOverflow.Clip
-                    ) 
-                },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = LMRed,
-                    selectedTextColor = LMRed,
-                    unselectedIconColor = LMGray500,
-                    unselectedTextColor = LMGray500,
-                    indicatorColor = Color.Transparent
-                )
-            )
-            NavigationBarItem(
-                selected = selectedItem == "equipas",
-                onClick = onEquipasClick,
-                icon = { Icon(painter = painterResource(id = R.drawable.ic_team), contentDescription = "Equipas") },
-                label = { 
-                    Text(
-                        text = "Equipas", 
-                        fontSize = 9.5.sp, 
-                        fontFamily = Geist, 
-                        maxLines = 1, 
-                        softWrap = false,
-                        overflow = TextOverflow.Clip
-                    ) 
-                },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = LMRed,
-                    selectedTextColor = LMRed,
-                    unselectedIconColor = LMGray500,
-                    unselectedTextColor = LMGray500,
-                    indicatorColor = Color.Transparent
-                )
-            )
-            NavigationBarItem(
-                selected = selectedItem == "jogos",
-                onClick = onJogosClick,
-                icon = { Icon(Icons.Rounded.SportsSoccer, contentDescription = "Jogos") },
-                label = { 
-                    Text(
-                        text = "Jogos", 
                         fontSize = 9.5.sp, 
                         fontFamily = Geist, 
                         maxLines = 1, 

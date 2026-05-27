@@ -75,8 +75,6 @@ fun OrgTournamentsScreen(
             OrganizerBottomBar(
                 selectedItem = "torneios",
                 onTorneiosClick = {},
-                onEquipasClick = onEquipasClick,
-                onJogosClick = onJogosClick,
                 onPerfilClick = onPerfilClick
             )
         },
