@@ -10,6 +10,9 @@ import com.leaguematch.data.remote.model.ResumoModalidade
 import com.leaguematch.data.remote.model.TipoUtilizador
 import com.leaguematch.data.remote.model.Torneio
 import com.leaguematch.data.remote.model.Utilizador
+import com.leaguematch.data.remote.model.Classificacao
+import com.leaguematch.ui.spectator.JogoResumoItem
+import com.leaguematch.ui.spectator.MelhorMarcadorItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -118,6 +121,14 @@ class SupabaseLeagueMatchRepository(
             .groupBy { it.modalidade }
             .map { (modalidade, torneios) -> ResumoModalidade(modalidade, torneios.size) }
             .sortedBy { it.nome }
+    }
+
+    override suspend fun obterMelhoresMarcadores(torneioId: Int): List<MelhorMarcadorItem> {
+        return emptyList()
+    }
+
+    override suspend fun obterJogosDoTorneio(torneioId: Int): List<JogoResumoItem> {
+        return emptyList()
     }
 
     override suspend fun listarTorneiosPorModalidade(modalidade: String): List<Torneio> {
@@ -282,6 +293,38 @@ class SupabaseLeagueMatchRepository(
             .map { (nome, golos) -> Goleador(nome, golos) }
             .sortedByDescending { it.golos }
             .take(6)
+    }
+    override suspend fun obterClassificacao(torneioId: Int): List<Classificacao> {
+        val equipas = getArray(
+            table = "equipa",
+            query = mapOf(
+                "select" to "id,nome",
+                "torneio_id" to "eq.$torneioId"
+            )
+        ).toObjectList().associateBy { it.optInt("id") }
+
+        return getArray(
+            table = "classificacao",
+            query = mapOf(
+                "select" to "team_id,torneio_id,pontos,jogos,vitorias,empates,derrotas,golos_marcados,golos_sofridos",
+                "torneio_id" to "eq.$torneioId",
+                "order" to "pontos.desc"
+            )
+        ).toObjectList().map { json ->
+            val equipaId = json.optInt("team_id")
+
+            Classificacao(
+                equipaId = equipaId,
+                nomeEquipa = equipas[equipaId]?.optString("nome") ?: "Equipa $equipaId",
+                pontos = json.optInt("pontos"),
+                jogos = json.optInt("jogos"),
+                vitorias = json.optInt("vitorias"),
+                empates = json.optInt("empates"),
+                derrotas = json.optInt("derrotas"),
+                golosMarcados = json.optInt("golos_marcados"),
+                golosSofridos = json.optInt("golos_sofridos")
+            )
+        }
     }
 
     private suspend fun getArray(table: String, query: Map<String, String>): JSONArray = withContext(Dispatchers.IO) {

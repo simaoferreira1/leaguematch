@@ -53,6 +53,18 @@ data class Jogo(
     val active: Boolean = true
 )
 
+data class Classificacao(
+    val equipaId: Int,
+    val nomeEquipa: String,
+    val pontos: Int,
+    val jogos: Int,
+    val vitorias: Int,
+    val empates: Int,
+    val derrotas: Int,
+    val golosMarcados: Int,
+    val golosSofridos: Int
+)
+
 data class Goleador(
     val nome: String,
     val golos: Int
