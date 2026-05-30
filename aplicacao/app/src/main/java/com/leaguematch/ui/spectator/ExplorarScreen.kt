@@ -72,7 +72,7 @@ fun ExplorarScreen(
                     letterSpacing = (-0.8).sp
                 )
                 Text(
-                    text = "Descobre torneios e jogos ao vivo",
+                    text = "Descobre torneios e jogos em direto",
                     fontFamily = Geist,
                     fontSize = 13.sp,
                     color = LMGray500,
@@ -299,7 +299,7 @@ private fun LiveMatchCard(
                     color = Color(0xFF15803D).copy(alpha = 0.18f)
                 ) {
                     Text(
-                        text = "AO VIVO",
+                        text = "EM DIRETO",
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         fontFamily = Geist,
                         fontWeight = FontWeight.Bold,

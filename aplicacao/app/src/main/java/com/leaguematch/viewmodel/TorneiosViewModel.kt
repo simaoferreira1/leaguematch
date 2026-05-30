@@ -7,6 +7,8 @@ import com.leaguematch.data.remote.model.Equipa
 import com.leaguematch.data.remote.model.Jogo
 import com.leaguematch.data.remote.model.ResumoModalidade
 import com.leaguematch.data.remote.model.Torneio
+import com.leaguematch.data.remote.model.EstatisticaJogo
+import com.leaguematch.data.remote.model.EventoJogo
 import com.leaguematch.data.repository.LeagueMatchRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,6 +33,51 @@ class TorneiosViewModel(private val repository: LeagueMatchRepository) : ViewMod
 
     private val _criarJogoLoading = MutableStateFlow(false)
     val criarJogoLoading: StateFlow<Boolean> = _criarJogoLoading
+
+    private val _jogosAoVivoState = MutableStateFlow<Result<List<Jogo>>?>(null)
+    val jogosAoVivoState: StateFlow<Result<List<Jogo>>?> = _jogosAoVivoState
+
+    private val _estatisticasJogoState = MutableStateFlow<Result<List<EstatisticaJogo>>?>(null)
+    val estatisticasJogoState: StateFlow<Result<List<EstatisticaJogo>>?> = _estatisticasJogoState
+
+    private val _eventosJogoState = MutableStateFlow<Result<List<EventoJogo>>?>(null)
+    val eventosJogoState: StateFlow<Result<List<EventoJogo>>?> = _eventosJogoState
+
+    fun carregarJogosAoVivo() {
+        viewModelScope.launch {
+            _jogosAoVivoState.value = null
+            try {
+                val data = repository.listarJogosAoVivo()
+                _jogosAoVivoState.value = Result.success(data)
+            } catch (e: Exception) {
+                _jogosAoVivoState.value = Result.failure(e)
+            }
+        }
+    }
+
+    fun carregarEstatisticasJogo(partidaId: Int) {
+        viewModelScope.launch {
+            _estatisticasJogoState.value = null
+            try {
+                val data = repository.obterEstatisticasJogo(partidaId)
+                _estatisticasJogoState.value = Result.success(data)
+            } catch (e: Exception) {
+                _estatisticasJogoState.value = Result.failure(e)
+            }
+        }
+    }
+
+    fun carregarEventosJogo(partidaId: Int) {
+        viewModelScope.launch {
+            _eventosJogoState.value = null
+            try {
+                val data = repository.obterEventosJogo(partidaId)
+                _eventosJogoState.value = Result.success(data)
+            } catch (e: Exception) {
+                _eventosJogoState.value = Result.failure(e)
+            }
+        }
+    }
 
     fun carregarTorneios() {
         viewModelScope.launch {

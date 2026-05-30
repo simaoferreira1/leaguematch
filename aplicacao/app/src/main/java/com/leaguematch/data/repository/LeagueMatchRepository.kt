@@ -9,6 +9,8 @@ import com.leaguematch.data.remote.model.ResumoModalidade
 import com.leaguematch.data.remote.model.Torneio
 import com.leaguematch.data.remote.model.Utilizador
 import com.leaguematch.data.remote.model.Classificacao
+import com.leaguematch.data.remote.model.EstatisticaJogo
+import com.leaguematch.data.remote.model.EventoJogo
 import com.leaguematch.ui.spectator.JogoResumoItem
 import com.leaguematch.ui.spectator.MelhorMarcadorItem
 
@@ -35,6 +37,8 @@ interface LeagueMatchRepository {
     suspend fun obterJogosDoTorneio(torneioId: Int): List<JogoResumoItem>
     suspend fun listarJogosAoVivo(): List<Jogo>
     suspend fun listarTodosJogos(): List<Jogo>
+    suspend fun obterEstatisticasJogo(partidaId: Int): List<EstatisticaJogo>
+    suspend fun obterEventosJogo(partidaId: Int): List<EventoJogo>
     suspend fun criarTorneio(
         nome: String,
         modalidade: String,

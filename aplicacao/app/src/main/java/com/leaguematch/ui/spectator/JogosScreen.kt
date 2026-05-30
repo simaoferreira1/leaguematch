@@ -1,6 +1,7 @@
 package com.leaguematch.ui.spectator
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -32,7 +33,8 @@ fun JogosScreen(
     onClassificacaoClick: () -> Unit,
     onJogosClick: () -> Unit,
     onEquipasClick: () -> Unit,
-    onPerfilClick: () -> Unit
+    onPerfilClick: () -> Unit,
+    onJogoClick: (Jogo) -> Unit = {}
 ) {
     Scaffold(
         bottomBar = {
@@ -96,7 +98,7 @@ fun JogosScreen(
                     contentPadding = PaddingValues(bottom = 12.dp)
                 ) {
                     items(jogos) { jogo ->
-                        JogoCard(jogo)
+                        JogoCard(jogo, onClick = { onJogoClick(jogo) })
                     }
                 }
             }
@@ -105,12 +107,14 @@ fun JogosScreen(
 }
 
 @Composable
-private fun JogoCard(jogo: Jogo) {
+private fun JogoCard(jogo: Jogo, onClick: () -> Unit) {
     val isFinished = jogo.estado.equals("Finalizado", ignoreCase = true)
     val isOngoing = jogo.estado.equals("A Decorrer", ignoreCase = true)
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1B1B20)),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)

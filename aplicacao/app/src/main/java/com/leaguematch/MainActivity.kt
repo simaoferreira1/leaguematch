@@ -39,7 +39,7 @@ import com.leaguematch.ui.auth.RegisterScreen
 import com.leaguematch.ui.components.AdminBottomBar
 import com.leaguematch.ui.components.OrganizerBottomBar
 import com.leaguematch.ui.components.SpectatorBottomBar
-import com.leaguematch.ui.spectator.ExplorarScreen
+import com.leaguematch.ui.spectator.SpectatorFlowContainer
 import com.leaguematch.ui.organizer.OrgCriarEquipaScreen
 import com.leaguematch.ui.organizer.OrgCriarJogoScreen
 import com.leaguematch.ui.organizer.OrgGerirEquipasScreen
@@ -50,16 +50,7 @@ import com.leaguematch.ui.theme.LeagueMatchTheme
 import com.leaguematch.viewmodel.*
 import com.leaguematch.ui.organizer.CreateTournamentScreen
 import com.leaguematch.ui.organizer.CreateTournamentStep2Screen
-import com.leaguematch.ui.spectator.ClassificacaoItem
-import com.leaguematch.ui.spectator.ClassificacaoScreen
-import com.leaguematch.data.remote.model.Classificacao
-import com.leaguematch.ui.spectator.JogoResumoItem
-import com.leaguematch.ui.spectator.MelhorMarcadorItem
-import com.leaguematch.ui.spectator.EquipasScreen
-import com.leaguematch.ui.spectator.JogosScreen
-import com.leaguematch.ui.spectator.TorneioDetalheScreen
 import com.leaguematch.ui.organizer.OrgEditarEstatisticasJogoScreen
-import com.leaguematch.ui.spectator.NotificacoesScreen
 
 sealed interface AdminRoute {
     data object Home : AdminRoute
@@ -86,16 +77,7 @@ sealed interface OrganizerRoute {
     data class EditarEstatisticas(val torneioId: Int, val jogoId: Int) : OrganizerRoute
 }
 
-sealed interface SpectatorRoute {
-    data object Explorar : SpectatorRoute
-    data object EscolherTorneio : SpectatorRoute
-    data object TorneioDetalhe : SpectatorRoute
-    data object Classificacao : SpectatorRoute
-    data object Jogos : SpectatorRoute
-    data object Equipas : SpectatorRoute
-    data object Perfil : SpectatorRoute
-    data object Notificacoes : SpectatorRoute
-}
+
 
 class MainActivity : ComponentActivity() {
     private lateinit var authViewModel: AuthViewModel
@@ -129,8 +111,7 @@ class MainActivity : ComponentActivity() {
                 var currentRoute by remember { mutableStateOf<AdminRoute>(AdminRoute.Home) }
                 var currentOrgRoute by remember { mutableStateOf<OrganizerRoute>(OrganizerRoute.MeusTorneios) }
                 var currentOrgTorneioId by remember { mutableStateOf<Int?>(null) }
-                var currentSpectatorRoute by remember { mutableStateOf<SpectatorRoute>(SpectatorRoute.Explorar) }
-                var torneioSelecionado by remember { mutableStateOf<Torneio?>(null) }
+
                 var dadosCriarTorneio by remember { mutableStateOf<List<String>?>(null) }
                 fun navigate(route: AdminRoute) {
                     currentRoute = route
@@ -590,255 +571,15 @@ class MainActivity : ComponentActivity() {
                         }
 
                         TipoUtilizador.ESPECTADOR -> {
-
-                            when (currentSpectatorRoute) {
-
-                                SpectatorRoute.Explorar -> {
-                                    val dadosTorneios by torneiosViewModel.todosTorneiosState.collectAsState()
-
-                                    LaunchedEffect(Unit) {
-                                        torneiosViewModel.carregarTodosTorneios()
-                                    }
-
-                                    RemoteContent(dadosTorneios) { list: List<Torneio> ->
-                                        ExplorarScreen(
-                                            liveMatches = emptyList(),
-                                            trendingTournaments = list,
-                                            onTorneioClick = { torneio ->
-                                                torneioSelecionado = torneio
-                                                currentSpectatorRoute = SpectatorRoute.TorneioDetalhe
-                                            }
-                                        )
-                                    }
+                            SpectatorFlowContainer(
+                                torneiosViewModel = torneiosViewModel,
+                                authViewModel = authViewModel,
+                                repository = repository,
+                                usuarioLogado = usuarioLogado,
+                                onTerminarSessao = {
+                                    authViewModel.terminarSessao()
                                 }
-
-                                SpectatorRoute.TorneioDetalhe -> {
-                                    val torneio = torneioSelecionado
-
-                                    if (torneio == null) {
-                                        currentSpectatorRoute = SpectatorRoute.Explorar
-                                    } else {
-                                        val marcadoresResult by produceState<Result<List<MelhorMarcadorItem>>?>(null, torneio.id) {
-                                            value = runCatching {
-                                                repository.obterMelhoresMarcadores(torneio.id)
-                                            }
-                                        }
-
-                                        val jogosResult by produceState<Result<List<JogoResumoItem>>?>(null, torneio.id) {
-                                            value = runCatching {
-                                                repository.obterJogosDoTorneio(torneio.id)
-                                            }
-                                        }
-
-                                        RemoteContent(marcadoresResult) { marcadores ->
-                                            RemoteContent(jogosResult) { jogos ->
-                                                TorneioDetalheScreen(
-                                                    torneio = torneio,
-                                                    melhoresMarcadores = marcadores,
-                                                    jogos = jogos,
-                                                    onBackClick = {
-                                                        currentSpectatorRoute = SpectatorRoute.Explorar
-                                                    },
-                                                    onVerJogosClick = {
-                                                        currentSpectatorRoute = SpectatorRoute.Jogos
-                                                    },
-                                                    onHomeClick = {
-                                                        currentSpectatorRoute = SpectatorRoute.Explorar
-                                                    },
-                                                    onClassificacaoClick = {
-                                                        currentSpectatorRoute = SpectatorRoute.Classificacao
-                                                    },
-                                                    onJogosClick = {
-                                                        currentSpectatorRoute = SpectatorRoute.Jogos
-                                                    },
-                                                    onEquipasClick = {
-                                                        currentSpectatorRoute = SpectatorRoute.Equipas
-                                                    },
-                                                    onPerfilClick = {
-                                                        currentSpectatorRoute = SpectatorRoute.Perfil
-                                                    }
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-
-                                SpectatorRoute.Classificacao -> {
-                                    val torneio = torneioSelecionado
-
-                                    if (torneio == null) {
-                                        currentSpectatorRoute = SpectatorRoute.Explorar
-                                    } else {
-                                        val classificacaoResult by produceState<Result<List<Classificacao>>?>(null, torneio.id) {
-                                            value = runCatching {
-                                                repository.obterClassificacao(torneio.id)
-                                            }
-                                        }
-
-                                        RemoteContent(classificacaoResult) { classificacao ->
-                                            ClassificacaoScreen(
-                                                torneio = torneio,
-                                                classificacao = classificacao.map {
-                                                    ClassificacaoItem(
-                                                        nomeEquipa = it.nomeEquipa,
-                                                        pontos = it.pontos,
-                                                        jogos = it.jogos,
-                                                        vitorias = it.vitorias,
-                                                        empates = it.empates,
-                                                        derrotas = it.derrotas,
-                                                        golosMarcados = it.golosMarcados,
-                                                        golosSofridos = it.golosSofridos
-                                                    )
-                                                },
-                                                onHomeClick = {
-                                                    currentSpectatorRoute = SpectatorRoute.Explorar
-                                                },
-                                                onClassificacaoClick = {},
-                                                onJogosClick = {
-                                                    currentSpectatorRoute = SpectatorRoute.Jogos
-                                                },
-                                                onEquipasClick = {
-                                                    currentSpectatorRoute = SpectatorRoute.Equipas
-                                                },
-                                                onPerfilClick = {
-                                                    currentSpectatorRoute = SpectatorRoute.Perfil
-                                                }
-                                            )
-                                        }
-                                    }
-                                }
-
-                                SpectatorRoute.Jogos -> {
-                                    val torneio = torneioSelecionado
-
-                                    if (torneio == null) {
-                                        currentSpectatorRoute = SpectatorRoute.Explorar
-                                    } else {
-                                        val jogosResult by produceState<Result<List<com.leaguematch.data.remote.model.Jogo>>?>(null, torneio.id) {
-                                            value = runCatching {
-                                                repository.obterDetalheTorneio(torneio.id)?.jogos ?: emptyList()
-                                            }
-                                        }
-
-                                        val jogos = jogosResult?.getOrNull() ?: emptyList()
-
-                                        JogosScreen(
-                                            torneio = torneio,
-                                            jogos = jogos,
-                                            onHomeClick = {
-                                                currentSpectatorRoute = SpectatorRoute.Explorar
-                                            },
-                                            onClassificacaoClick = {
-                                                currentSpectatorRoute = SpectatorRoute.Classificacao
-                                            },
-                                            onJogosClick = {},
-                                            onEquipasClick = {
-                                                currentSpectatorRoute = SpectatorRoute.Equipas
-                                            },
-                                            onPerfilClick = {
-                                                currentSpectatorRoute = SpectatorRoute.Perfil
-                                            }
-                                        )
-                                    }
-                                }
-
-                                SpectatorRoute.Equipas -> {
-                                    val torneio = torneioSelecionado
-
-                                    if (torneio == null) {
-                                        currentSpectatorRoute = SpectatorRoute.Explorar
-                                    } else {
-                                        val equipasResult by produceState<Result<List<com.leaguematch.data.remote.model.Equipa>>?>(null, torneio.id) {
-                                            value = runCatching {
-                                                repository.listarEquipasTorneio(torneio.id)
-                                            }
-                                        }
-
-                                        val equipas = equipasResult?.getOrNull() ?: emptyList()
-
-                                        EquipasScreen(
-                                            torneio = torneio,
-                                            equipas = equipas,
-                                            onHomeClick = {
-                                                currentSpectatorRoute = SpectatorRoute.Explorar
-                                            },
-                                            onClassificacaoClick = {
-                                                currentSpectatorRoute = SpectatorRoute.Classificacao
-                                            },
-                                            onJogosClick = {
-                                                currentSpectatorRoute = SpectatorRoute.Jogos
-                                            },
-                                            onEquipasClick = {},
-                                            onPerfilClick = {
-                                                currentSpectatorRoute = SpectatorRoute.Perfil
-                                            }
-                                        )
-                                    }
-                                }
-
-                                SpectatorRoute.Notificacoes -> {
-                                    NotificacoesScreen(
-                                        onHomeClick = {
-                                            currentSpectatorRoute = SpectatorRoute.Explorar
-                                        },
-                                        onClassificacaoClick = {
-                                            currentSpectatorRoute = SpectatorRoute.Classificacao
-                                        },
-                                        onJogosClick = {
-                                            currentSpectatorRoute = SpectatorRoute.Jogos
-                                        },
-                                        onEquipasClick = {
-                                            currentSpectatorRoute = SpectatorRoute.Equipas
-                                        },
-                                        onPerfilClick = {
-                                            currentSpectatorRoute = SpectatorRoute.Perfil
-                                        }
-                                    )
-                                }
-
-                                SpectatorRoute.Perfil -> {
-                                    DefinicoesScreen(
-                                        utilizadorLogado = usuarioLogado,
-
-                                        onTerminarSessaoClick = {
-                                            authViewModel.terminarSessao()
-                                            currentSpectatorRoute = SpectatorRoute.Explorar
-                                            torneioSelecionado = null
-                                        },
-
-                                        onEditarPerfilClick = { nome, password ->
-                                            authViewModel.atualizarUtilizador(nome, password)
-                                        },
-
-                                        onGerirNotificacoesClick = {
-                                            currentSpectatorRoute = SpectatorRoute.Notificacoes
-                                        },
-
-                                        bottomBar = {
-                                            SpectatorBottomBar(
-                                                selectedItem = "perfil",
-                                                onHomeClick = {
-                                                    currentSpectatorRoute = SpectatorRoute.Explorar
-                                                },
-                                                onClassificacaoClick = {
-                                                    currentSpectatorRoute = SpectatorRoute.Classificacao
-                                                },
-                                                onJogosClick = {
-                                                    currentSpectatorRoute = SpectatorRoute.Jogos
-                                                },
-                                                onEquipasClick = {
-                                                    currentSpectatorRoute = SpectatorRoute.Equipas
-                                                },
-                                                onPerfilClick = {}
-                                            )
-                                        }
-                                    )
-                                }
-
-                                else -> {
-                                    currentSpectatorRoute = SpectatorRoute.Explorar
-                                }
-                            }
+                            )
                         }
                         else -> {
                             val goHome = { navigate(AdminRoute.Home) }

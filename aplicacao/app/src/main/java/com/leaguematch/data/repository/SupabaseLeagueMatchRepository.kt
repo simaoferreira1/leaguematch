@@ -13,6 +13,7 @@ import com.leaguematch.data.remote.model.Torneio
 import com.leaguematch.data.remote.model.Utilizador
 import com.leaguematch.data.remote.model.Classificacao
 import com.leaguematch.data.remote.model.EstatisticaJogo
+import com.leaguematch.data.remote.model.EventoJogo
 import com.leaguematch.ui.spectator.JogoResumoItem
 import com.leaguematch.ui.spectator.MelhorMarcadorItem
 import kotlinx.coroutines.Dispatchers
@@ -884,6 +885,92 @@ class SupabaseLeagueMatchRepository(
             }.getOrElse {
                 it.printStackTrace()
                 false
+            }
+        }
+    }
+
+    override suspend fun obterEstatisticasJogo(partidaId: Int): List<EstatisticaJogo> {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val array = getArray(
+                    "estatistica_jogo",
+                    mapOf("select" to "tipo,equipa,valor", "partida_id" to "eq.$partidaId")
+                ).toObjectList()
+                array.map { json ->
+                    EstatisticaJogo(
+                        tipo = json.optString("tipo"),
+                        equipa = json.optString("equipa"),
+                        valor = json.optInt("valor")
+                    )
+                }
+            }.getOrElse {
+                it.printStackTrace()
+                emptyList()
+            }
+        }
+    }
+
+    override suspend fun obterEventosJogo(partidaId: Int): List<EventoJogo> {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val array = getArray(
+                    "evento_jogo",
+                    mapOf("select" to "id,tipo,user_id,tempo", "match_id" to "eq.$partidaId")
+                ).toObjectList()
+                if (array.isEmpty()) return@runCatching emptyList<EventoJogo>()
+
+                val userIds = array.map { it.optInt("user_id") }.distinct().joinToString(",")
+                val usersMap = if (userIds.isNotEmpty()) {
+                    getArray(
+                        "utilizador",
+                        mapOf("select" to "id,nome", "id" to "in.($userIds)")
+                    ).toObjectList().associate { it.optInt("id") to it.optString("nome") }
+                } else {
+                    emptyMap()
+                }
+
+                val partidaJson = getArray(
+                    "partida",
+                    mapOf("select" to "team_a_id,team_b_id", "id" to "eq.$partidaId", "limit" to "1")
+                ).optJSONObject(0)
+
+                val teamAId = partidaJson?.optInt("team_a_id") ?: -1
+                val teamBId = partidaJson?.optInt("team_b_id") ?: -1
+
+                val membersMap = if (userIds.isNotEmpty()) {
+                    getArray(
+                        "team_member",
+                        mapOf("select" to "user_id,team_id", "user_id" to "in.($userIds)")
+                    ).toObjectList().associate { it.optInt("user_id") to it.optInt("team_id") }
+                } else {
+                    emptyMap()
+                }
+
+                array.map { json ->
+                    val id = json.optInt("id")
+                    val tipo = json.optString("tipo")
+                    val userId = json.optInt("user_id")
+                    val tempo = json.optInt("tempo")
+                    val userName = usersMap[userId] ?: "Jogador $userId"
+                    val userTeamId = membersMap[userId] ?: -1
+                    val equipa = when (userTeamId) {
+                        teamAId -> "casa"
+                        teamBId -> "fora"
+                        else -> "center"
+                    }
+                    EventoJogo(
+                        id = id,
+                        matchId = partidaId,
+                        tipo = tipo,
+                        userId = userId,
+                        userName = userName,
+                        tempo = tempo,
+                        equipa = equipa
+                    )
+                }.sortedBy { it.tempo }
+            }.getOrElse {
+                it.printStackTrace()
+                emptyList()
             }
         }
     }
