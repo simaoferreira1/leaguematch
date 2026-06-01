@@ -50,7 +50,9 @@ data class Jogo(
     val resultadoCasa: Int = 0,
     val resultadoFora: Int = 0,
     val estado: String,
-    val active: Boolean = true
+    val active: Boolean = true,
+    val data: String = "",
+    val hora: String = ""
 )
 
 data class Classificacao(

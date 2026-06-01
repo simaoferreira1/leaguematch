@@ -812,3 +812,53 @@ fun SpectatorBottomBar(
     }
 }
 
+// ─── Loading and Error Screens ─────────────────────────────────────
+@Composable
+fun <T> RemoteContent(
+    result: Result<T>?,
+    content: @Composable (T) -> Unit
+) {
+    when {
+        result == null -> LoadingScreen()
+        result.isSuccess -> content(result.getOrThrow())
+        else -> ErrorScreen(result.exceptionOrNull()?.message ?: "Erro ao carregar dados.")
+    }
+}
+
+@Composable
+fun LoadingScreen() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator(color = LMRed)
+    }
+}
+
+@Composable
+fun ErrorScreen(message: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = "Erro ao ligar ao Supabase",
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.error,
+                fontFamily = Geist
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = message,
+                color = MaterialTheme.colorScheme.onBackground,
+                fontFamily = Geist,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+

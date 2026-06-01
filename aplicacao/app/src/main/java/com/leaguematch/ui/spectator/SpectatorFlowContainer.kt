@@ -21,6 +21,9 @@ import com.leaguematch.data.remote.model.Utilizador
 import com.leaguematch.data.repository.LeagueMatchRepository
 import com.leaguematch.ui.admin.DefinicoesScreen
 import com.leaguematch.ui.components.SpectatorBottomBar
+import com.leaguematch.ui.components.RemoteContent
+import com.leaguematch.ui.components.LoadingScreen
+import com.leaguematch.ui.components.ErrorScreen
 import com.leaguematch.viewmodel.AuthViewModel
 import com.leaguematch.viewmodel.TorneiosViewModel
 
@@ -152,18 +155,23 @@ fun SpectatorFlowContainer(
                                 golosSofridos = it.golosSofridos
                             )
                         },
-                        onHomeClick = {
-                            currentSpectatorRoute = SpectatorRoute.Explorar
-                        },
-                        onClassificacaoClick = {},
-                        onJogosClick = {
-                            currentSpectatorRoute = SpectatorRoute.Jogos
-                        },
-                        onEquipasClick = {
-                            currentSpectatorRoute = SpectatorRoute.Equipas
-                        },
-                        onPerfilClick = {
-                            currentSpectatorRoute = SpectatorRoute.Perfil
+                        bottomBar = {
+                            SpectatorBottomBar(
+                                selectedItem = "classificacao",
+                                onHomeClick = {
+                                    currentSpectatorRoute = SpectatorRoute.Explorar
+                                },
+                                onClassificacaoClick = {},
+                                onJogosClick = {
+                                    currentSpectatorRoute = SpectatorRoute.Jogos
+                                },
+                                onEquipasClick = {
+                                    currentSpectatorRoute = SpectatorRoute.Equipas
+                                },
+                                onPerfilClick = {
+                                    currentSpectatorRoute = SpectatorRoute.Perfil
+                                }
+                            )
                         }
                     )
                 }
@@ -327,46 +335,4 @@ fun SpectatorFlowContainer(
     }
 }
 
-@Composable
-private fun <T> RemoteContent(
-    result: Result<T>?,
-    content: @Composable (T) -> Unit
-) {
-    when {
-        result == null -> LoadingScreen()
-        result.isSuccess -> content(result.getOrThrow())
-        else -> ErrorScreen(result.exceptionOrNull()?.message ?: "Erro ao carregar dados.")
-    }
-}
 
-@Composable
-private fun LoadingScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        CircularProgressIndicator()
-    }
-}
-
-@Composable
-private fun ErrorScreen(message: String) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = "Erro ao ligar ao Supabase",
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.error
-            )
-            Text(
-                text = message,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-        }
-    }
-}

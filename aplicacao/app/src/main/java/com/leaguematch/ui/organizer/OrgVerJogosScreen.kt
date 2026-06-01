@@ -187,13 +187,25 @@ private fun JogoOrgCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Surface(shape = RoundedCornerShape(99.dp), color = estadoBg) {
-                    Text(
-                        text = jogo.estado,
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp),
-                        fontFamily = Geist, fontWeight = FontWeight.Bold,
-                        fontSize = 10.sp, color = estadoCor
-                    )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Surface(shape = RoundedCornerShape(99.dp), color = estadoBg) {
+                        Text(
+                            text = jogo.estado,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp),
+                            fontFamily = Geist, fontWeight = FontWeight.Bold,
+                            fontSize = 10.sp, color = estadoCor
+                        )
+                    }
+
+                    if (jogo.estado.equals("Agendado", ignoreCase = true) && jogo.data.isNotBlank()) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "${jogo.data} às ${jogo.hora}",
+                            fontFamily = Geist,
+                            fontSize = 11.sp,
+                            color = LMGray500
+                        )
+                    }
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -204,6 +216,91 @@ private fun JogoOrgCard(
                     IconButton(onClick = onRemover, modifier = Modifier.size(32.dp)) {
                         Icon(Icons.Default.DeleteOutline, contentDescription = "Remover", tint = LMGray400, modifier = Modifier.size(16.dp))
                     }
+                }
+            }
+
+            // Real-time ticking countdown in the list
+            if (jogo.estado.equals("Agendado", ignoreCase = true) && jogo.data.isNotBlank()) {
+                var listCountdownText by remember { mutableStateOf("") }
+                
+                LaunchedEffect(jogo.data, jogo.hora) {
+                    while (true) {
+                        val now = java.util.Calendar.getInstance()
+                        val matchCal = java.util.Calendar.getInstance()
+                        try {
+                            val dateSplit = jogo.data.split("/")
+                            val timeSplit = jogo.hora.split(":")
+                            if (dateSplit.size == 3 && timeSplit.size == 2) {
+                                matchCal.set(
+                                    dateSplit[2].toInt(),
+                                    dateSplit[1].toInt() - 1,
+                                    dateSplit[0].toInt(),
+                                    timeSplit[0].toInt(),
+                                    timeSplit[1].toInt(),
+                                    0
+                                )
+                                val diff = matchCal.timeInMillis - now.timeInMillis
+                                if (diff > 0) {
+                                    val days = diff / (24 * 60 * 60 * 1000)
+                                    val hours = (diff / (60 * 60 * 1000)) % 24
+                                    val minutes = (diff / (60 * 1000)) % 60
+                                    val seconds = (diff / 1000) % 60
+                                    
+                                    listCountdownText = if (days > 0) {
+                                        "Começa em: ${days}d ${hours}h ${minutes}m"
+                                    } else if (hours > 0) {
+                                        "Começa em: ${hours}h ${minutes}m ${seconds}s"
+                                    } else {
+                                        "Começa em: ${minutes}m ${seconds}s"
+                                    }
+                                } else {
+                                    listCountdownText = "Hora do jogo atingida"
+                                }
+                            }
+                        } catch (e: Exception) {}
+                        kotlinx.coroutines.delay(1000)
+                    }
+                }
+                
+                if (listCountdownText.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = listCountdownText,
+                        fontFamily = Geist,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 11.sp,
+                        color = Color(0xFFEF4444)
+                    )
+                }
+            } else if (isOngoing) {
+                // Pulses green and counts elapsed seconds
+                var elapsedSeconds by remember { mutableStateOf(0) }
+                
+                LaunchedEffect(Unit) {
+                    while (true) {
+                        kotlinx.coroutines.delay(1000)
+                        elapsedSeconds++
+                    }
+                }
+                
+                val min = elapsedSeconds / 60
+                val sec = elapsedSeconds % 60
+                
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(6.dp)
+                            .background(Color(0xFF22C55E), shape = androidx.compose.foundation.shape.CircleShape)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = String.format("Tempo decorrido: %02d:%02d", min, sec),
+                        fontFamily = Geist,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 11.sp,
+                        color = Color(0xFF16A34A)
+                    )
                 }
             }
 

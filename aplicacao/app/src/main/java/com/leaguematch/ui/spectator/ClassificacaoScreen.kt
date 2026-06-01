@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -18,7 +19,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.leaguematch.data.remote.model.Torneio
-import com.leaguematch.ui.components.SpectatorBottomBar
 import com.leaguematch.ui.theme.RedDark
 import com.leaguematch.ui.theme.RedPrimary
 
@@ -40,23 +40,11 @@ data class ClassificacaoItem(
 fun ClassificacaoScreen(
     torneio: Torneio,
     classificacao: List<ClassificacaoItem>,
-    onHomeClick: () -> Unit,
-    onClassificacaoClick: () -> Unit,
-    onJogosClick: () -> Unit,
-    onEquipasClick: () -> Unit,
-    onPerfilClick: () -> Unit
+    onBackClick: (() -> Unit)? = null,
+    bottomBar: @Composable () -> Unit = {}
 ) {
     Scaffold(
-        bottomBar = {
-            SpectatorBottomBar(
-                selectedItem = "classificacao",
-                onHomeClick = onHomeClick,
-                onClassificacaoClick = onClassificacaoClick,
-                onJogosClick = onJogosClick,
-                onEquipasClick = onEquipasClick,
-                onPerfilClick = onPerfilClick
-            )
-        },
+        bottomBar = bottomBar,
         containerColor = Color(0xFFF6F6F8)
     ) { innerPadding ->
 
@@ -66,7 +54,7 @@ fun ClassificacaoScreen(
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
-            TorneioHeader(torneio)
+            TorneioHeader(torneio, onBackClick)
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -106,7 +94,10 @@ fun ClassificacaoScreen(
 }
 
 @Composable
-private fun TorneioHeader(torneio: Torneio) {
+private fun TorneioHeader(
+    torneio: Torneio,
+    onBackClick: (() -> Unit)? = null
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(22.dp),
@@ -123,6 +114,19 @@ private fun TorneioHeader(torneio: Torneio) {
                 .padding(18.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            if (onBackClick != null) {
+                IconButton(
+                    onClick = onBackClick,
+                    modifier = Modifier.padding(end = 8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Voltar",
+                        tint = Color.White
+                    )
+                }
+            }
+
             Box(
                 modifier = Modifier
                     .size(48.dp)

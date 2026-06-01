@@ -25,6 +25,9 @@ import androidx.compose.ui.unit.sp
 import com.leaguematch.BuildConfig
 import com.leaguematch.data.remote.model.EstatisticaJogo
 import com.leaguematch.data.remote.model.Jogo
+import android.widget.Toast
+import androidx.compose.material.icons.filled.*
+import com.leaguematch.data.repository.LeagueMatchRepository
 import com.leaguematch.data.repository.SupabaseLeagueMatchRepository
 import com.leaguematch.ui.theme.*
 import kotlinx.coroutines.launch
@@ -33,10 +36,21 @@ import kotlinx.coroutines.launch
 fun OrgEditarEstatisticasJogoScreen(
     jogo: Jogo,
     modalidade: String,
+    repository: LeagueMatchRepository,
     onBackClick: () -> Unit,
     onGuardarClick: () -> Unit
 ) {
     var tabSelecionada by remember { mutableStateOf("Eventos") }
+
+    var scoreCasa by remember { mutableStateOf(jogo.resultadoCasa) }
+    var scoreFora by remember { mutableStateOf(jogo.resultadoFora) }
+    var estadoJogo by remember { mutableStateOf(jogo.estado) }
+    var dataText by remember { mutableStateOf(jogo.data) }
+    var horaText by remember { mutableStateOf(jogo.hora) }
+    var isSavingScore by remember { mutableStateOf(false) }
+
+    val scope = rememberCoroutineScope()
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     Scaffold(containerColor = Color(0xFFF7F7F7)) { innerPadding ->
         Column(
@@ -46,7 +60,81 @@ fun OrgEditarEstatisticasJogoScreen(
                 .background(Color(0xFFF7F7F7))
         ) {
             TopBarEditarEstatisticas(onBackClick)
-            JogoHeaderCard(jogo)
+            JogoHeaderCard(
+                jogo = jogo,
+                modalidade = modalidade,
+                scoreCasa = scoreCasa,
+                scoreFora = scoreFora,
+                estadoJogo = estadoJogo,
+                onCasaChange = { scoreCasa = it },
+                onForaChange = { scoreFora = it },
+                dataText = dataText,
+                onDataChange = { dataText = it },
+                horaText = horaText,
+                onHoraChange = { horaText = it },
+                onSaveScoreClick = {
+                    scope.launch {
+                        isSavingScore = true
+                        val result = repository.atualizarJogo(
+                            id = jogo.id,
+                            resultadoCasa = scoreCasa,
+                            resultadoFora = scoreFora,
+                            estado = estadoJogo,
+                            data = dataText,
+                            hora = horaText
+                        )
+                        isSavingScore = false
+                        if (result != null) {
+                            Toast.makeText(context, "Jogo guardado com sucesso!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(context, "Erro ao guardar alterações.", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                },
+                onStartGameClick = {
+                    scope.launch {
+                        isSavingScore = true
+                        val result = repository.atualizarJogo(
+                            id = jogo.id,
+                            resultadoCasa = 0,
+                            resultadoFora = 0,
+                            estado = "A Decorrer",
+                            data = dataText,
+                            hora = horaText
+                        )
+                        isSavingScore = false
+                        if (result != null) {
+                            scoreCasa = 0
+                            scoreFora = 0
+                            estadoJogo = "A Decorrer"
+                            Toast.makeText(context, "O jogo começou a zeros!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(context, "Erro ao começar o jogo.", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                },
+                onFinishGameClick = {
+                    scope.launch {
+                        isSavingScore = true
+                        val result = repository.atualizarJogo(
+                            id = jogo.id,
+                            resultadoCasa = scoreCasa,
+                            resultadoFora = scoreFora,
+                            estado = "Finalizado",
+                            data = dataText,
+                            hora = horaText
+                        )
+                        isSavingScore = false
+                        if (result != null) {
+                            estadoJogo = "Finalizado"
+                            Toast.makeText(context, "Jogo finalizado com sucesso!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(context, "Erro ao finalizar o jogo.", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                },
+                isSavingScore = isSavingScore
+            )
 
             TabEventosEstatisticas(
                 selected = tabSelecionada,
@@ -56,12 +144,30 @@ fun OrgEditarEstatisticasJogoScreen(
             if (tabSelecionada == "Eventos") {
                 EventosJogoContent(
                     jogo = jogo,
-                    modalidade = modalidade
+                    modalidade = modalidade,
+                    repository = repository,
+                    onEventRegistered = { tipo, equipa ->
+                        val tipoUpper = tipo.uppercase()
+                        val incremento = when (tipoUpper) {
+                            "GOLO", "ACE", "LANCE_LIVRE" -> 1
+                            "DOIS_PONTOS" -> 2
+                            "TRES_PONTOS" -> 3
+                            else -> 0
+                        }
+                        if (incremento > 0) {
+                            if (equipa == "casa") {
+                                scoreCasa += incremento
+                            } else {
+                                scoreFora += incremento
+                            }
+                        }
+                    }
                 )
             } else {
                 EstatisticasJogoContent(
                     jogo = jogo,
                     modalidade = modalidade,
+                    repository = repository,
                     onGuardarClick = onGuardarClick
                 )
             }
@@ -112,60 +218,408 @@ private fun TopBarEditarEstatisticas(onBackClick: () -> Unit) {
 }
 
 @Composable
-private fun JogoHeaderCard(jogo: Jogo) {
+private fun JogoHeaderCard(
+    jogo: Jogo,
+    modalidade: String,
+    scoreCasa: Int,
+    scoreFora: Int,
+    estadoJogo: String,
+    onCasaChange: (Int) -> Unit,
+    onForaChange: (Int) -> Unit,
+    dataText: String,
+    onDataChange: (String) -> Unit,
+    horaText: String,
+    onHoraChange: (String) -> Unit,
+    onSaveScoreClick: () -> Unit,
+    onStartGameClick: () -> Unit,
+    onFinishGameClick: () -> Unit,
+    isSavingScore: Boolean
+) {
+    val isAgendado = estadoJogo.uppercase() == "AGENDADO" || estadoJogo.uppercase() == "AGENDADO"
+    val isLive = estadoJogo.uppercase() == "EM_CURSO" || estadoJogo.uppercase() == "A DECORRER" || estadoJogo.uppercase() == "EM DIRETO"
+    val isFinalizado = estadoJogo.uppercase() == "FINALIZADO"
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 18.dp, vertical = 12.dp)
-            .height(150.dp)
             .background(
                 color = Color(0xFF111111),
                 shape = RoundedCornerShape(18.dp)
-            ),
+            )
+            .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Surface(
-                shape = RoundedCornerShape(50),
-                color = Color.White.copy(alpha = 0.12f),
-                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.25f))
+            // Live / Estado header
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
             ) {
-                Text(
-                    text = "60:23",
-                    color = Color.White,
-                    fontFamily = Geist,
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 18.sp,
-                    modifier = Modifier.padding(horizontal = 34.dp, vertical = 4.dp)
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .background(
+                            if (isLive) Color(0xFF22C55E) else if (isFinalizado) Color(0xFF9CA3AF) else Color(0xFFEF4444),
+                            shape = androidx.compose.foundation.shape.CircleShape
+                        )
                 )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = when {
+                        isLive -> "A DECORRER"
+                        isFinalizado -> "FINALIZADO"
+                        else -> "AGENDADO"
+                    },
+                    color = Color.White.copy(alpha = 0.8f),
+                    fontFamily = Geist,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 11.sp
+                )
+            }
+
+            // Dynamic ticking clock for active match (Football / Handball / Basketball)
+            if (isLive) {
+                val isBasquetebol = modalidade.lowercase() == "basquetebol"
+                var elapsedSeconds by remember { mutableStateOf(if (isBasquetebol) 2400 else 0) }
+                
+                LaunchedEffect(Unit) {
+                    while (true) {
+                        kotlinx.coroutines.delay(1000)
+                        if (isBasquetebol) {
+                            elapsedSeconds = (elapsedSeconds - 1).coerceAtLeast(0)
+                        } else {
+                            elapsedSeconds++
+                        }
+                    }
+                }
+                
+                val min = elapsedSeconds / 60
+                val sec = elapsedSeconds % 60
+                val clockText = String.format("%02d:%02d", min, sec)
+                
+                Spacer(modifier = Modifier.height(6.dp))
+                Surface(
+                    shape = RoundedCornerShape(50),
+                    color = Color.White.copy(alpha = 0.12f),
+                    border = BorderStroke(1.dp, Color.White.copy(alpha = 0.25f))
+                ) {
+                    Text(
+                        text = clockText,
+                        color = Color.White,
+                        fontFamily = Geist,
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 3.dp)
+                    )
+                }
+            }
+
+            // Realtime Countdown (if state is AGENDADO)
+            if (isAgendado) {
+                var countdownText by remember { mutableStateOf("") }
+                
+                LaunchedEffect(jogo.data, jogo.hora, dataText, horaText) {
+                    while (true) {
+                        val now = java.util.Calendar.getInstance()
+                        val matchCal = java.util.Calendar.getInstance()
+                        
+                        try {
+                            val activeData = dataText.ifBlank { jogo.data }
+                            val activeHora = horaText.ifBlank { jogo.hora }
+                            val dateSplit = activeData.split("/")
+                            val timeSplit = activeHora.split(":")
+                            if (dateSplit.size == 3 && timeSplit.size == 2) {
+                                matchCal.set(
+                                    dateSplit[2].toInt(),
+                                    dateSplit[1].toInt() - 1,
+                                    dateSplit[0].toInt(),
+                                    timeSplit[0].toInt(),
+                                    timeSplit[1].toInt(),
+                                    0
+                                )
+                                
+                                val diff = matchCal.timeInMillis - now.timeInMillis
+                                if (diff > 0) {
+                                    val days = diff / (24 * 60 * 60 * 1000)
+                                    val hours = (diff / (60 * 60 * 1000)) % 24
+                                    val minutes = (diff / (60 * 1000)) % 60
+                                    val seconds = (diff / 1000) % 60
+                                    
+                                    countdownText = if (days > 0) {
+                                        "Começa em: ${days}d ${hours}h ${minutes}m"
+                                    } else if (hours > 0) {
+                                        "Começa em: ${hours}h ${minutes}m ${seconds}s"
+                                    } else {
+                                        "Começa em: ${minutes}m ${seconds}s"
+                                    }
+                                } else {
+                                    countdownText = "Hora do jogo atingida"
+                                }
+                            } else {
+                                countdownText = "Aguardando data/hora"
+                            }
+                        } catch (e: Exception) {
+                            countdownText = ""
+                        }
+                        
+                        kotlinx.coroutines.delay(1000)
+                    }
+                }
+                
+                if (countdownText.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = countdownText,
+                        color = Color(0xFFEF4444),
+                        fontFamily = Geist,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.sp
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            Text(
-                text = "${jogo.casa} VS ${jogo.fora}",
-                color = Color.White,
-                fontFamily = Geist,
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 18.sp,
-                maxLines = 1
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Surface(
-                shape = RoundedCornerShape(10.dp),
-                color = Color.White.copy(alpha = 0.10f),
-                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.20f))
+            // Score and team selector area
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                // Team Casa
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = jogo.casa,
+                        color = Color.White,
+                        fontFamily = Geist,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        maxLines = 1
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (isLive) {
+                            IconButton(
+                                onClick = { onCasaChange((scoreCasa - 1).coerceAtLeast(0)) },
+                                modifier = Modifier.size(28.dp).background(Color.White.copy(alpha = 0.1f), androidx.compose.foundation.shape.CircleShape)
+                            ) {
+                                Text("-", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                        }
+                        
+                        Text(
+                            text = if (isAgendado) "0" else scoreCasa.toString(),
+                            color = Color.White,
+                            fontFamily = Bricolage,
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 32.sp
+                        )
+                        
+                        if (isLive) {
+                            Spacer(modifier = Modifier.width(12.dp))
+                            IconButton(
+                                onClick = { onCasaChange(scoreCasa + 1) },
+                                modifier = Modifier.size(28.dp).background(Color.White.copy(alpha = 0.1f), androidx.compose.foundation.shape.CircleShape)
+                            ) {
+                                Text("+", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            }
+                        }
+                    }
+                }
+
+                // Separator
                 Text(
-                    text = "${jogo.resultadoCasa} - ${jogo.resultadoFora}",
-                    color = Color.White,
+                    text = "-",
+                    color = Color.White.copy(alpha = 0.4f),
                     fontFamily = Bricolage,
                     fontWeight = FontWeight.ExtraBold,
-                    fontSize = 34.sp,
-                    modifier = Modifier.padding(horizontal = 32.dp, vertical = 2.dp)
+                    fontSize = 24.sp,
+                    modifier = Modifier.padding(horizontal = 8.dp)
                 )
+
+                // Team Fora
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = jogo.fora,
+                        color = Color.White,
+                        fontFamily = Geist,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        maxLines = 1
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (isLive) {
+                            IconButton(
+                                onClick = { onForaChange((scoreFora - 1).coerceAtLeast(0)) },
+                                modifier = Modifier.size(28.dp).background(Color.White.copy(alpha = 0.1f), androidx.compose.foundation.shape.CircleShape)
+                            ) {
+                                Text("-", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                        }
+                        
+                        Text(
+                            text = if (isAgendado) "0" else scoreFora.toString(),
+                            color = Color.White,
+                            fontFamily = Bricolage,
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 32.sp
+                        )
+                        
+                        if (isLive) {
+                            Spacer(modifier = Modifier.width(12.dp))
+                            IconButton(
+                                onClick = { onForaChange(scoreFora + 1) },
+                                modifier = Modifier.size(28.dp).background(Color.White.copy(alpha = 0.1f), androidx.compose.foundation.shape.CircleShape)
+                            ) {
+                                Text("+", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // Schedule input fields (visible in all states, editable)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedTextField(
+                    value = dataText,
+                    onValueChange = onDataChange,
+                    label = { Text("Data (DD/MM/AAAA)", color = Color.White.copy(alpha = 0.6f), fontSize = 10.sp) },
+                    placeholder = { Text("01/01/2026", color = Color.White.copy(alpha = 0.3f)) },
+                    modifier = Modifier.weight(1f).height(50.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = LMRed,
+                        unfocusedBorderColor = Color.White.copy(alpha = 0.2f),
+                        focusedLabelColor = LMRed,
+                        unfocusedLabelColor = Color.White.copy(alpha = 0.6f),
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedContainerColor = Color.White.copy(alpha = 0.05f),
+                        unfocusedContainerColor = Color.White.copy(alpha = 0.05f)
+                    ),
+                    textStyle = androidx.compose.ui.text.TextStyle(fontSize = 12.sp)
+                )
+
+                OutlinedTextField(
+                    value = horaText,
+                    onValueChange = onHoraChange,
+                    label = { Text("Hora (HH:MM)", color = Color.White.copy(alpha = 0.6f), fontSize = 10.sp) },
+                    placeholder = { Text("12:00", color = Color.White.copy(alpha = 0.3f)) },
+                    modifier = Modifier.weight(1f).height(50.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = LMRed,
+                        unfocusedBorderColor = Color.White.copy(alpha = 0.2f),
+                        focusedLabelColor = LMRed,
+                        unfocusedLabelColor = Color.White.copy(alpha = 0.6f),
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedContainerColor = Color.White.copy(alpha = 0.05f),
+                        unfocusedContainerColor = Color.White.copy(alpha = 0.05f)
+                    ),
+                    textStyle = androidx.compose.ui.text.TextStyle(fontSize = 12.sp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // Action Buttons based on status
+            when {
+                isAgendado -> {
+                    Button(
+                        onClick = onStartGameClick,
+                        enabled = !isSavingScore,
+                        modifier = Modifier.fillMaxWidth().height(40.dp),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF22C55E)), // Green premium start button
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp)
+                    ) {
+                        Text(
+                            text = if (isSavingScore) "A começar jogo..." else "Começar Jogo (A Zeros)",
+                            color = Color.White,
+                            fontFamily = Geist,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp
+                        )
+                    }
+                }
+                
+                isLive -> {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Button(
+                            onClick = onSaveScoreClick,
+                            enabled = !isSavingScore,
+                            modifier = Modifier.weight(1f).height(40.dp),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = LMRed),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp)
+                        ) {
+                            Text(
+                                text = if (isSavingScore) "A guardar..." else "Guardar Placar",
+                                color = Color.White,
+                                fontFamily = Geist,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp
+                            )
+                        }
+
+                        Button(
+                            onClick = onFinishGameClick,
+                            enabled = !isSavingScore,
+                            modifier = Modifier.weight(1f).height(40.dp),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Black), // Premium black end match button
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
+                            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.3f))
+                        ) {
+                            Text(
+                                text = if (isSavingScore) "A finalizar..." else "Finalizar Jogo",
+                                color = Color.White,
+                                fontFamily = Geist,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp
+                            )
+                        }
+                    }
+                }
+                
+                isFinalizado -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(40.dp)
+                            .background(Color.White.copy(alpha = 0.1f), RoundedCornerShape(10.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Jogo Terminado - Resultados Bloqueados",
+                            color = Color.White.copy(alpha = 0.7f),
+                            fontFamily = Geist,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
             }
         }
     }
@@ -212,13 +666,19 @@ private fun TabEventosEstatisticas(
 @Composable
 private fun EventosJogoContent(
     jogo: Jogo,
-    modalidade: String
+    modalidade: String,
+    repository: LeagueMatchRepository,
+    onEventRegistered: (String, String) -> Unit
 ) {
     var eventoSelecionado by remember { mutableStateOf<MatchEventType?>(null) }
     var equipaSelecionada by remember { mutableStateOf("casa") }
     var tipoAlvo by remember { mutableStateOf("equipa") }
     var jogador by remember { mutableStateOf("") }
     var minuto by remember { mutableStateOf("60") }
+
+    var isSaving by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     val eventos = eventosPorModalidade(modalidade)
 
@@ -348,7 +808,39 @@ private fun EventosJogoContent(
         )
 
         Button(
-            onClick = { },
+            onClick = {
+                val ev = eventoSelecionado
+                if (ev == null) {
+                    Toast.makeText(context, "Por favor, selecione um tipo de evento.", Toast.LENGTH_SHORT).show()
+                    return@Button
+                }
+                val minInt = minuto.toIntOrNull()
+                if (minInt == null || minInt < 0) {
+                    Toast.makeText(context, "Por favor, insira um minuto válido.", Toast.LENGTH_SHORT).show()
+                    return@Button
+                }
+
+                scope.launch {
+                    isSaving = true
+                    val success = repository.registarEventoJogo(
+                        partidaId = jogo.id,
+                        tipo = ev.name,
+                        equipa = equipaSelecionada,
+                        tempo = minInt,
+                        jogadorNome = if (tipoAlvo == "jogador" && jogador.isNotBlank()) jogador.trim() else null
+                    )
+                    isSaving = false
+
+                    if (success) {
+                        Toast.makeText(context, "Evento registado com sucesso!", Toast.LENGTH_SHORT).show()
+                        onEventRegistered(ev.name, equipaSelecionada)
+                        jogador = ""
+                    } else {
+                        Toast.makeText(context, "Erro ao registar o evento.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            },
+            enabled = !isSaving,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
@@ -356,7 +848,7 @@ private fun EventosJogoContent(
             colors = ButtonDefaults.buttonColors(containerColor = LMRed)
         ) {
             Text(
-                text = "Registar evento",
+                text = if (isSaving) "A registar..." else "Registar evento",
                 color = Color.White,
                 fontFamily = Geist,
                 fontWeight = FontWeight.Bold,
@@ -414,6 +906,7 @@ private fun EventoButton(
 private fun EstatisticasJogoContent(
     jogo: Jogo,
     modalidade: String,
+    repository: LeagueMatchRepository,
     onGuardarClick: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -497,11 +990,6 @@ private fun EstatisticasJogoContent(
                 scope.launch {
                     isSaving = true
                     mensagem = null
-
-                    val repository = SupabaseLeagueMatchRepository(
-                        supabaseUrl = BuildConfig.SUPABASE_URL,
-                        anonKey = BuildConfig.SUPABASE_ANON_KEY
-                    )
 
                     val listaParaGuardar = estatisticas.toEstatisticasJogo()
 
