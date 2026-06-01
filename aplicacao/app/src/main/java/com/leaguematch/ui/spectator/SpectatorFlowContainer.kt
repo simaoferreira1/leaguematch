@@ -1,31 +1,19 @@
 package com.leaguematch.ui.spectator
 
-import android.widget.Toast
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import com.leaguematch.data.remote.model.Classificacao
+import com.leaguematch.data.remote.model.ConfiguracaoNotificacoes
 import com.leaguematch.data.remote.model.Jogo
 import com.leaguematch.data.remote.model.Torneio
 import com.leaguematch.data.remote.model.Utilizador
 import com.leaguematch.data.repository.LeagueMatchRepository
 import com.leaguematch.ui.admin.DefinicoesScreen
-import com.leaguematch.ui.components.SpectatorBottomBar
-import com.leaguematch.ui.components.RemoteContent
 import com.leaguematch.ui.components.LoadingScreen
-import com.leaguematch.ui.components.ErrorScreen
+import com.leaguematch.ui.components.RemoteContent
+import com.leaguematch.ui.components.SpectatorBottomBar
 import com.leaguematch.viewmodel.AuthViewModel
 import com.leaguematch.viewmodel.TorneiosViewModel
+import kotlinx.coroutines.launch
 
 sealed interface SpectatorRoute {
     data object Explorar : SpectatorRoute
@@ -47,11 +35,18 @@ fun SpectatorFlowContainer(
     usuarioLogado: Utilizador?,
     onTerminarSessao: () -> Unit
 ) {
-    val context = LocalContext.current
-    var currentSpectatorRoute by remember { mutableStateOf<SpectatorRoute>(SpectatorRoute.Explorar) }
-    var torneioSelecionado by remember { mutableStateOf<Torneio?>(null) }
+    val coroutineScope = rememberCoroutineScope()
+
+    var currentSpectatorRoute by remember {
+        mutableStateOf<SpectatorRoute>(SpectatorRoute.Explorar)
+    }
+
+    var torneioSelecionado by remember {
+        mutableStateOf<Torneio?>(null)
+    }
 
     when (currentSpectatorRoute) {
+
         SpectatorRoute.Explorar -> {
             val dadosTorneios by torneiosViewModel.todosTorneiosState.collectAsState()
             val dadosJogosAoVivo by torneiosViewModel.jogosAoVivoState.collectAsState()
@@ -63,6 +58,7 @@ fun SpectatorFlowContainer(
 
             RemoteContent(dadosTorneios) { list: List<Torneio> ->
                 val liveMatches = dadosJogosAoVivo?.getOrNull() ?: emptyList()
+
                 ExplorarScreen(
                     liveMatches = liveMatches,
                     trendingTournaments = list,
@@ -250,23 +246,43 @@ fun SpectatorFlowContainer(
         }
 
         SpectatorRoute.Notificacoes -> {
-            NotificacoesScreen(
-                onHomeClick = {
-                    currentSpectatorRoute = SpectatorRoute.Explorar
-                },
-                onClassificacaoClick = {
-                    currentSpectatorRoute = SpectatorRoute.Classificacao
-                },
-                onJogosClick = {
-                    currentSpectatorRoute = SpectatorRoute.Jogos
-                },
-                onEquipasClick = {
-                    currentSpectatorRoute = SpectatorRoute.Equipas
-                },
-                onPerfilClick = {
-                    currentSpectatorRoute = SpectatorRoute.Perfil
+            val utilizador = usuarioLogado
+
+            if (utilizador == null) {
+                currentSpectatorRoute = SpectatorRoute.Perfil
+            } else {
+                val configuracaoResult by produceState<Result<ConfiguracaoNotificacoes>?>(null, utilizador.id) {
+                    value = runCatching {
+                        repository.obterConfiguracaoNotificacoes(utilizador.id)
+                    }
                 }
-            )
+
+                RemoteContent(configuracaoResult) { configuracao ->
+                    NotificacoesScreen(
+                        configuracao = configuracao,
+                        onGuardarConfiguracao = { novaConfiguracao ->
+                            coroutineScope.launch {
+                                repository.atualizarConfiguracaoNotificacoes(novaConfiguracao)
+                            }
+                        },
+                        onHomeClick = {
+                            currentSpectatorRoute = SpectatorRoute.Explorar
+                        },
+                        onClassificacaoClick = {
+                            currentSpectatorRoute = SpectatorRoute.Classificacao
+                        },
+                        onJogosClick = {
+                            currentSpectatorRoute = SpectatorRoute.Jogos
+                        },
+                        onEquipasClick = {
+                            currentSpectatorRoute = SpectatorRoute.Equipas
+                        },
+                        onPerfilClick = {
+                            currentSpectatorRoute = SpectatorRoute.Perfil
+                        }
+                    )
+                }
+            }
         }
 
         is SpectatorRoute.JogoEmDireto -> {
@@ -334,5 +350,3 @@ fun SpectatorFlowContainer(
         }
     }
 }
-
-

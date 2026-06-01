@@ -14,7 +14,11 @@ import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material.icons.filled.SportsTennis
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,28 +27,29 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.leaguematch.data.remote.model.ConfiguracaoNotificacoes
 import com.leaguematch.ui.components.SpectatorBottomBar
 import com.leaguematch.ui.theme.RedDark
 import com.leaguematch.ui.theme.RedPrimary
 
 @Composable
 fun NotificacoesScreen(
+    configuracao: ConfiguracaoNotificacoes,
+    onGuardarConfiguracao: (ConfiguracaoNotificacoes) -> Unit,
     onHomeClick: () -> Unit,
     onClassificacaoClick: () -> Unit,
     onJogosClick: () -> Unit,
     onEquipasClick: () -> Unit,
     onPerfilClick: () -> Unit
 ) {
-    var notificacoesJogos by remember { mutableStateOf(true) }
-    var notificacoesGolos by remember { mutableStateOf(true) }
-    var notificacoesCartoes by remember { mutableStateOf(false) }
-    var notificacoesFimPartida by remember { mutableStateOf(true) }
-    var somNotificacao by remember { mutableStateOf(true) }
+    var configuracaoAtual by remember(configuracao) {
+        mutableStateOf(configuracao)
+    }
 
-    var futebol by remember { mutableStateOf(true) }
-    var tenis by remember { mutableStateOf(false) }
-    var basquetebol by remember { mutableStateOf(true) }
-    var andebol by remember { mutableStateOf(false) }
+    fun atualizarConfiguracao(novaConfiguracao: ConfiguracaoNotificacoes) {
+        configuracaoAtual = novaConfiguracao
+        onGuardarConfiguracao(novaConfiguracao)
+    }
 
     Scaffold(
         containerColor = Color(0xFFF6F6F8),
@@ -75,8 +80,12 @@ fun NotificacoesScreen(
                 NotificationSwitchRow(
                     title = "Notificações dos jogos",
                     description = "Alertas sobre novos jogos agendados",
-                    checked = notificacoesJogos,
-                    onCheckedChange = { notificacoesJogos = it },
+                    checked = configuracaoAtual.notificacoesJogos,
+                    onCheckedChange = {
+                        atualizarConfiguracao(
+                            configuracaoAtual.copy(notificacoesJogos = it)
+                        )
+                    },
                     icon = Icons.Default.Notifications
                 )
 
@@ -85,8 +94,12 @@ fun NotificacoesScreen(
                 NotificationSwitchRow(
                     title = "Notificações de golos",
                     description = "Receber aviso quando houver golos",
-                    checked = notificacoesGolos,
-                    onCheckedChange = { notificacoesGolos = it },
+                    checked = configuracaoAtual.notificacoesGolos,
+                    onCheckedChange = {
+                        atualizarConfiguracao(
+                            configuracaoAtual.copy(notificacoesGolos = it)
+                        )
+                    },
                     icon = Icons.Default.SportsSoccer
                 )
 
@@ -95,8 +108,12 @@ fun NotificacoesScreen(
                 NotificationSwitchRow(
                     title = "Notificações de cartões",
                     description = "Alertas de cartões durante os jogos",
-                    checked = notificacoesCartoes,
-                    onCheckedChange = { notificacoesCartoes = it },
+                    checked = configuracaoAtual.notificacoesCartoes,
+                    onCheckedChange = {
+                        atualizarConfiguracao(
+                            configuracaoAtual.copy(notificacoesCartoes = it)
+                        )
+                    },
                     icon = Icons.Default.Notifications
                 )
 
@@ -105,8 +122,12 @@ fun NotificacoesScreen(
                 NotificationSwitchRow(
                     title = "Fim de partida",
                     description = "Aviso quando um jogo terminar",
-                    checked = notificacoesFimPartida,
-                    onCheckedChange = { notificacoesFimPartida = it },
+                    checked = configuracaoAtual.notificacoesFimPartida,
+                    onCheckedChange = {
+                        atualizarConfiguracao(
+                            configuracaoAtual.copy(notificacoesFimPartida = it)
+                        )
+                    },
                     icon = Icons.Default.Notifications
                 )
 
@@ -115,8 +136,12 @@ fun NotificacoesScreen(
                 NotificationSwitchRow(
                     title = "Som da notificação",
                     description = "Ativar som nos alertas recebidos",
-                    checked = somNotificacao,
-                    onCheckedChange = { somNotificacao = it },
+                    checked = configuracaoAtual.somNotificacao,
+                    onCheckedChange = {
+                        atualizarConfiguracao(
+                            configuracaoAtual.copy(somNotificacao = it)
+                        )
+                    },
                     icon = Icons.Default.VolumeUp
                 )
             }
@@ -127,8 +152,12 @@ fun NotificacoesScreen(
                 NotificationSwitchRow(
                     title = "Futebol",
                     description = "Receber notificações de futebol",
-                    checked = futebol,
-                    onCheckedChange = { futebol = it },
+                    checked = configuracaoAtual.futebol,
+                    onCheckedChange = {
+                        atualizarConfiguracao(
+                            configuracaoAtual.copy(futebol = it)
+                        )
+                    },
                     icon = Icons.Default.SportsSoccer
                 )
 
@@ -137,8 +166,12 @@ fun NotificacoesScreen(
                 NotificationSwitchRow(
                     title = "Ténis",
                     description = "Receber notificações de ténis",
-                    checked = tenis,
-                    onCheckedChange = { tenis = it },
+                    checked = configuracaoAtual.tenis,
+                    onCheckedChange = {
+                        atualizarConfiguracao(
+                            configuracaoAtual.copy(tenis = it)
+                        )
+                    },
                     icon = Icons.Default.SportsTennis
                 )
 
@@ -147,8 +180,12 @@ fun NotificacoesScreen(
                 NotificationSwitchRow(
                     title = "Basquetebol",
                     description = "Receber notificações de basquetebol",
-                    checked = basquetebol,
-                    onCheckedChange = { basquetebol = it },
+                    checked = configuracaoAtual.basquetebol,
+                    onCheckedChange = {
+                        atualizarConfiguracao(
+                            configuracaoAtual.copy(basquetebol = it)
+                        )
+                    },
                     icon = Icons.Default.SportsBasketball
                 )
 
@@ -157,8 +194,12 @@ fun NotificacoesScreen(
                 NotificationSwitchRow(
                     title = "Andebol",
                     description = "Receber notificações de andebol",
-                    checked = andebol,
-                    onCheckedChange = { andebol = it },
+                    checked = configuracaoAtual.andebol,
+                    onCheckedChange = {
+                        atualizarConfiguracao(
+                            configuracaoAtual.copy(andebol = it)
+                        )
+                    },
                     icon = Icons.Default.SportsHandball
                 )
             }

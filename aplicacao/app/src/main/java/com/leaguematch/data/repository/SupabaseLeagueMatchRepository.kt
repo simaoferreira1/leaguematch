@@ -12,6 +12,7 @@ import com.leaguematch.data.remote.model.TipoUtilizador
 import com.leaguematch.data.remote.model.Torneio
 import com.leaguematch.data.remote.model.Utilizador
 import com.leaguematch.data.remote.model.Classificacao
+import com.leaguematch.data.remote.model.ConfiguracaoNotificacoes
 import com.leaguematch.data.remote.model.EstatisticaJogo
 import com.leaguematch.data.remote.model.EventoJogo
 import com.leaguematch.ui.spectator.JogoResumoItem
@@ -499,7 +500,7 @@ class SupabaseLeagueMatchRepository(
             }
         }
         val response = patchObject("partida", id, json) ?: return null
-        
+
         val teamAId = response.optInt("team_a_id")
         val teamBId = response.optInt("team_b_id")
         val equipasMap = runCatching {
@@ -650,7 +651,7 @@ class SupabaseLeagueMatchRepository(
         val query =
             mutableMapOf("select" to "id,torneio_id,team_a_id,team_b_id,estado,resultado_a,resultado_b,data_hora")
         if (torneioId != null) query["torneio_id"] = "eq.$torneioId"
-        
+
         val equipasMap = runCatching {
             getArray("equipa", mapOf("select" to "id,nome"))
                 .toObjectList()
@@ -1098,9 +1099,9 @@ class SupabaseLeagueMatchRepository(
                             mapOf("select" to "id,nome", "id" to "in.($memberIds)")
                         ).toObjectList()
 
-                        val matchedUser = users.firstOrNull { 
+                        val matchedUser = users.firstOrNull {
                             it.optString("nome").equals(jogadorNome, ignoreCase = true) ||
-                            it.optString("nome").contains(jogadorNome, ignoreCase = true)
+                                    it.optString("nome").contains(jogadorNome, ignoreCase = true)
                         }
                         if (matchedUser != null) {
                             selectedUserId = matchedUser.optInt("id")
@@ -1179,6 +1180,133 @@ class SupabaseLeagueMatchRepository(
             }
         }
     }
+    private suspend fun patchObjectByColumn(
+        table: String,
+        column: String,
+        value: Int,
+        bodyJson: JSONObject
+    ): JSONObject? =
+        withContext(Dispatchers.IO) {
+            if (supabaseUrl.isBlank() || anonKey.isBlank()) {
+                error("Configura SUPABASE_URL e SUPABASE_ANON_KEY no aplicacao/local.properties.")
+            }
+
+            val url = URL("${supabaseUrl.trimEnd('/')}/rest/v1/$table?$column=eq.$value")
+            val connection = (url.openConnection() as HttpURLConnection).apply {
+                requestMethod = "PATCH"
+                connectTimeout = 10_000
+                readTimeout = 10_000
+                setRequestProperty("apikey", anonKey)
+                setRequestProperty("Authorization", "Bearer $anonKey")
+                setRequestProperty("Content-Type", "application/json")
+                setRequestProperty("Prefer", "return=representation")
+                doOutput = true
+            }
+
+            connection.outputStream.bufferedWriter().use {
+                it.write(bodyJson.toString())
+            }
+
+            val code = connection.responseCode
+            val responseBody = if (code in 200..299) {
+                connection.inputStream.bufferedReader().use { it.readText() }
+            } else {
+                connection.errorStream?.bufferedReader()?.use { it.readText() }.orEmpty()
+            }
+
+            connection.disconnect()
+
+            if (code !in 200..299) {
+                error("Erro Supabase ($code): $responseBody")
+            }
+
+            val array = JSONArray(responseBody)
+            if (array.length() > 0) array.getJSONObject(0) else null
+        }
+
+    override suspend fun obterConfiguracaoNotificacoes(
+        utilizadorId: Int
+    ): ConfiguracaoNotificacoes {
+        val resultado = getArray(
+            table = "configuracao_notificacoes",
+            query = mapOf(
+                "select" to "*",
+                "utilizador_id" to "eq.$utilizadorId",
+                "limit" to "1"
+            )
+        )
+
+        val json = resultado.optJSONObject(0)
+
+        return if (json != null) {
+            json.toConfiguracaoNotificacoes()
+        } else {
+            val nova = ConfiguracaoNotificacoes(utilizadorId = utilizadorId)
+            criarConfiguracaoNotificacoes(nova)
+            nova
+        }
+    }
+
+    override suspend fun atualizarConfiguracaoNotificacoes(
+        configuracao: ConfiguracaoNotificacoes
+    ): ConfiguracaoNotificacoes? {
+        val body = JSONObject().apply {
+            put("notificacoes_jogos", configuracao.notificacoesJogos)
+            put("notificacoes_golos", configuracao.notificacoesGolos)
+            put("notificacoes_cartoes", configuracao.notificacoesCartoes)
+            put("notificacoes_fim_partida", configuracao.notificacoesFimPartida)
+            put("som_notificacao", configuracao.somNotificacao)
+            put("futebol", configuracao.futebol)
+            put("tenis", configuracao.tenis)
+            put("basquetebol", configuracao.basquetebol)
+            put("andebol", configuracao.andebol)
+        }
+
+        return patchObjectByColumn(
+            table = "configuracao_notificacoes",
+            column = "utilizador_id",
+            value = configuracao.utilizadorId,
+            bodyJson = body
+        )?.toConfiguracaoNotificacoes()
+    }
+
+    private suspend fun criarConfiguracaoNotificacoes(
+        configuracao: ConfiguracaoNotificacoes
+    ) {
+        val body = JSONObject().apply {
+            put("utilizador_id", configuracao.utilizadorId)
+            put("notificacoes_jogos", configuracao.notificacoesJogos)
+            put("notificacoes_golos", configuracao.notificacoesGolos)
+            put("notificacoes_cartoes", configuracao.notificacoesCartoes)
+            put("notificacoes_fim_partida", configuracao.notificacoesFimPartida)
+            put("som_notificacao", configuracao.somNotificacao)
+            put("futebol", configuracao.futebol)
+            put("tenis", configuracao.tenis)
+            put("basquetebol", configuracao.basquetebol)
+            put("andebol", configuracao.andebol)
+        }
+
+        postObject(
+            table = "configuracao_notificacoes",
+            bodyJson = body
+        )
+    }
+
+    private fun JSONObject.toConfiguracaoNotificacoes(): ConfiguracaoNotificacoes {
+        return ConfiguracaoNotificacoes(
+            utilizadorId = optInt("utilizador_id"),
+            notificacoesJogos = optBoolean("notificacoes_jogos", true),
+            notificacoesGolos = optBoolean("notificacoes_golos", true),
+            notificacoesCartoes = optBoolean("notificacoes_cartoes", false),
+            notificacoesFimPartida = optBoolean("notificacoes_fim_partida", true),
+            somNotificacao = optBoolean("som_notificacao", true),
+            futebol = optBoolean("futebol", true),
+            tenis = optBoolean("tenis", false),
+            basquetebol = optBoolean("basquetebol", true),
+            andebol = optBoolean("andebol", false)
+        )
+    }
+
 }
 
 private fun parseDataHora(dataHoraStr: String?): Pair<String, String> {

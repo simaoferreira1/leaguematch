@@ -13,6 +13,7 @@ import com.leaguematch.data.remote.model.EstatisticaJogo
 import com.leaguematch.data.remote.model.EventoJogo
 import com.leaguematch.ui.spectator.JogoResumoItem
 import com.leaguematch.ui.spectator.MelhorMarcadorItem
+import com.leaguematch.data.remote.model.ConfiguracaoNotificacoes
 
 interface LeagueMatchRepository {
     suspend fun autenticar(email: String, password: String): Utilizador?
@@ -70,4 +71,9 @@ interface LeagueMatchRepository {
     ): Jogo?
     suspend fun guardarEstatisticasJogo(partidaId: Int, estatisticas: List<EstatisticaJogo>): Boolean
     suspend fun registarEventoJogo(partidaId: Int, tipo: String, equipa: String, tempo: Int, jogadorNome: String?): Boolean
+    suspend fun obterConfiguracaoNotificacoes(utilizadorId: Int): ConfiguracaoNotificacoes
+
+    suspend fun atualizarConfiguracaoNotificacoes(
+        configuracao: ConfiguracaoNotificacoes
+    ): ConfiguracaoNotificacoes?
 }
