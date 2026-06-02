@@ -76,4 +76,6 @@ interface LeagueMatchRepository {
     suspend fun atualizarConfiguracaoNotificacoes(
         configuracao: ConfiguracaoNotificacoes
     ): ConfiguracaoNotificacoes?
+
+    suspend fun listarTorneios(): List<Torneio>
 }

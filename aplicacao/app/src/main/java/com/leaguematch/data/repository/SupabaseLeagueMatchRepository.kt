@@ -404,7 +404,7 @@ class SupabaseLeagueMatchRepository(
         )
     }
 
-    private suspend fun listarTorneios(): List<Torneio> {
+    override suspend fun listarTorneios(): List<Torneio> {
         val equipasPorTorneio = listarEquipasPorTorneio()
         val jogosPorTorneio = listarJogos().groupBy { it.torneioId }
         return getArray("torneio", mapOf("select" to "id,nome,modalidade,regras,formato"))
