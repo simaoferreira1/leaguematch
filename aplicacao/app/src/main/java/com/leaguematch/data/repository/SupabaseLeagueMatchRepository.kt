@@ -25,6 +25,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
 import java.security.MessageDigest
+import com.leaguematch.viewmodel.ParticipantStatsData
 
 class SupabaseLeagueMatchRepository(
     private val supabaseUrl: String,
@@ -1307,6 +1308,179 @@ class SupabaseLeagueMatchRepository(
         )
     }
 
+    override suspend fun obterEquipaDoParticipante(utilizadorId: Int): Equipa? {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val membro = getArray(
+                    "team_member",
+                    mapOf(
+                        "select" to "team_id",
+                        "user_id" to "eq.$utilizadorId",
+                        "limit" to "1"
+                    )
+                ).optJSONObject(0) ?: return@runCatching null
+
+                val equipaId = membro.optInt("team_id")
+
+                val equipaJson = getArray(
+                    "equipa",
+                    mapOf(
+                        "select" to "id,nome,torneio_id",
+                        "id" to "eq.$equipaId",
+                        "limit" to "1"
+                    )
+                ).optJSONObject(0) ?: return@runCatching null
+
+                Equipa(
+                    id = equipaJson.optInt("id"),
+                    nome = equipaJson.optString("nome"),
+                    torneioId = equipaJson.optInt("torneio_id")
+                )
+            }.getOrElse {
+                it.printStackTrace()
+                null
+            }
+        }
+    }
+
+    override suspend fun listarJogadoresEquipa(equipaId: Int): List<Utilizador> {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val membros = getArray(
+                    "team_member",
+                    mapOf(
+                        "select" to "user_id",
+                        "team_id" to "eq.$equipaId"
+                    )
+                ).toObjectList()
+
+                if (membros.isEmpty()) return@runCatching emptyList<Utilizador>()
+
+                val ids = membros
+                    .map { it.optInt("user_id") }
+                    .distinct()
+                    .joinToString(",")
+
+                getArray(
+                    "utilizador",
+                    mapOf(
+                        "select" to "id,nome,email,tipo",
+                        "id" to "in.($ids)"
+                    )
+                ).toObjectList().map { it.toUtilizador() }
+            }.getOrElse {
+                it.printStackTrace()
+                emptyList()
+            }
+        }
+    }
+
+    override suspend fun obterClassificacaoEquipa(
+        equipaId: Int,
+        torneioId: Int
+    ): Classificacao? {
+        return runCatching {
+            obterClassificacao(torneioId)
+                .firstOrNull { it.equipaId == equipaId }
+        }.getOrElse {
+            it.printStackTrace()
+            null
+        }
+    }
+
+    override suspend fun listarJogosDaEquipa(equipaId: Int): List<Jogo> {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val partidas = getArray(
+                    "partida",
+                    mapOf(
+                        "select" to "id,torneio_id,team_a_id,team_b_id,resultado_a,resultado_b,estado,data_hora",
+                        "or" to "(team_a_id.eq.$equipaId,team_b_id.eq.$equipaId)"
+                    )
+                ).toObjectList()
+
+                if (partidas.isEmpty()) return@runCatching emptyList<Jogo>()
+
+                val teamIds = partidas
+                    .flatMap { listOf(it.optInt("team_a_id"), it.optInt("team_b_id")) }
+                    .distinct()
+                    .joinToString(",")
+
+                val equipasMap = getArray(
+                    "equipa",
+                    mapOf(
+                        "select" to "id,nome",
+                        "id" to "in.($teamIds)"
+                    )
+                ).toObjectList().associate {
+                    it.optInt("id") to it.optString("nome")
+                }
+
+                partidas.map { json ->
+                    val teamAId = json.optInt("team_a_id")
+                    val teamBId = json.optInt("team_b_id")
+                    val dataHoraStr = json.optString("data_hora", "")
+                    val (dataVal, horaVal) = parseDataHora(dataHoraStr)
+
+                    Jogo(
+                        id = json.optInt("id"),
+                        torneioId = json.optInt("torneio_id"),
+                        casa = equipasMap[teamAId] ?: "Equipa $teamAId",
+                        fora = equipasMap[teamBId] ?: "Equipa $teamBId",
+                        resultadoCasa = json.optInt("resultado_a"),
+                        resultadoFora = json.optInt("resultado_b"),
+                        estado = json.optString("estado", "AGENDADO").toEstadoLegivel(),
+                        data = dataVal,
+                        hora = horaVal
+                    )
+                }
+            }.getOrElse {
+                it.printStackTrace()
+                emptyList()
+            }
+        }
+    }
+
+    override suspend fun obterEstatisticasParticipante(
+        utilizadorId: Int,
+        equipaId: Int
+    ): ParticipantStatsData {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val jogosDaEquipa = listarJogosDaEquipa(equipaId)
+
+                val eventos = getArray(
+                    "evento_jogo",
+                    mapOf(
+                        "select" to "tipo,user_id",
+                        "user_id" to "eq.$utilizadorId"
+                    )
+                ).toObjectList()
+
+                val golos = eventos.count {
+                    it.optString("tipo").equals("GOLO", ignoreCase = true)
+                }
+
+                val assistencias = eventos.count {
+                    it.optString("tipo").equals("ASSISTENCIA", ignoreCase = true)
+                }
+
+                val mvp = eventos.count {
+                    it.optString("tipo").equals("MVP", ignoreCase = true)
+                }
+
+                ParticipantStatsData(
+                    jogos = jogosDaEquipa.size,
+                    golos = golos,
+                    assistencias = assistencias,
+                    mvp = mvp
+                )
+            }.getOrElse {
+                it.printStackTrace()
+                ParticipantStatsData()
+            }
+        }
+    }
 }
 
 private fun parseDataHora(dataHoraStr: String?): Pair<String, String> {

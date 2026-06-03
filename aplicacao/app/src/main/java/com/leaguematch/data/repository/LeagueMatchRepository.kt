@@ -14,6 +14,7 @@ import com.leaguematch.data.remote.model.EventoJogo
 import com.leaguematch.ui.spectator.JogoResumoItem
 import com.leaguematch.ui.spectator.MelhorMarcadorItem
 import com.leaguematch.data.remote.model.ConfiguracaoNotificacoes
+import com.leaguematch.viewmodel.ParticipantStatsData
 
 interface LeagueMatchRepository {
     suspend fun autenticar(email: String, password: String): Utilizador?
@@ -78,4 +79,13 @@ interface LeagueMatchRepository {
     ): ConfiguracaoNotificacoes?
 
     suspend fun listarTorneios(): List<Torneio>
+
+    suspend fun obterEquipaDoParticipante(utilizadorId: Int): Equipa?
+    suspend fun listarJogadoresEquipa(equipaId: Int): List<Utilizador>
+    suspend fun obterClassificacaoEquipa(equipaId: Int, torneioId: Int): Classificacao?
+    suspend fun listarJogosDaEquipa(equipaId: Int): List<Jogo>
+    suspend fun obterEstatisticasParticipante(
+        utilizadorId: Int,
+        equipaId: Int
+    ): ParticipantStatsData
 }

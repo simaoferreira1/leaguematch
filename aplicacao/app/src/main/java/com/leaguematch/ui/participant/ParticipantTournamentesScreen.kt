@@ -27,9 +27,10 @@ import com.leaguematch.ui.theme.*
 @Composable
 fun ParticipantTournamentsScreen(
     torneios: List<Torneio>,
+    onTournamentClick: (Int) -> Unit,
     onHomeClick: () -> Unit,
     onTorneiosClick: () -> Unit,
-    onJogosClick: () -> Unit,
+    onEquipaClick: () -> Unit,
     onEstatisticasClick: () -> Unit,
     onPerfilClick: () -> Unit
 ) {
@@ -48,7 +49,7 @@ fun ParticipantTournamentsScreen(
                 selectedItem = "torneios",
                 onHomeClick = onHomeClick,
                 onTorneiosClick = onTorneiosClick,
-                onJogosClick = onJogosClick,
+                onEquipaClick = onEquipaClick,
                 onEstatisticasClick = onEstatisticasClick,
                 onPerfilClick = onPerfilClick
             )
@@ -130,7 +131,13 @@ fun ParticipantTournamentsScreen(
                 )
             } else {
                 torneiosFiltrados.forEachIndexed { index, torneio ->
-                    ParticipantTournamentCard(torneio = torneio, index = index)
+                    ParticipantTournamentCard(
+                        torneio = torneio,
+                        index = index,
+                        onClick = {
+                            onTournamentClick(torneio.id)
+                        }
+                    )
                     Spacer(modifier = Modifier.height(10.dp))
                 }
             }
@@ -141,10 +148,13 @@ fun ParticipantTournamentsScreen(
 @Composable
 private fun ParticipantTournamentCard(
     torneio: Torneio,
-    index: Int
+    index: Int,
+    onClick: () -> Unit
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         shape = RoundedCornerShape(18.dp),
         color = LMWhite,
         border = BorderStroke(1.dp, Color(0xFFE5E5EA)),

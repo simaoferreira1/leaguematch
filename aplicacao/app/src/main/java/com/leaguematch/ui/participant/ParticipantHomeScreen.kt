@@ -32,6 +32,7 @@ fun ParticipantHomeScreen(
     selectedItem: String,
     onTorneiosClick: () -> Unit,
     onJogosClick: () -> Unit,
+    onEquipaClick: () -> Unit,
     onEstatisticasClick: () -> Unit,
     onPerfilClick: () -> Unit
 ) {
@@ -41,7 +42,7 @@ fun ParticipantHomeScreen(
                 selectedItem = selectedItem,
                 onHomeClick = {},
                 onTorneiosClick = onTorneiosClick,
-                onJogosClick = onJogosClick,
+                onEquipaClick = onEquipaClick,
                 onEstatisticasClick = onEstatisticasClick,
                 onPerfilClick = onPerfilClick
             )
@@ -98,7 +99,7 @@ fun ParticipantHomeScreen(
                 title = "A minha equipa",
                 description = "Vê informações da tua equipa e jogadores.",
                 icon = Icons.Default.Groups,
-                onClick = onJogosClick
+                onClick = onEquipaClick
             )
 
             ParticipantActionCard(
@@ -214,7 +215,7 @@ fun ParticipantPlaceholderScreen(
     selectedItem: String,
     onHomeClick: () -> Unit,
     onTorneiosClick: () -> Unit,
-    onJogosClick: () -> Unit,
+    onEquipaClick: () -> Unit,
     onEstatisticasClick: () -> Unit,
     onPerfilClick: () -> Unit
 ) {
@@ -224,7 +225,7 @@ fun ParticipantPlaceholderScreen(
                 selectedItem = selectedItem,
                 onHomeClick = onHomeClick,
                 onTorneiosClick = onTorneiosClick,
-                onJogosClick = onJogosClick,
+                onEquipaClick = onEquipaClick,
                 onEstatisticasClick = onEstatisticasClick,
                 onPerfilClick = onPerfilClick
             )

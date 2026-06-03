@@ -3,18 +3,23 @@ package com.leaguematch.ui.participant
 import androidx.compose.runtime.*
 import com.leaguematch.data.remote.model.Utilizador
 import com.leaguematch.ui.admin.DefinicoesScreen
+import com.leaguematch.ui.admin.GestaoNotificacoesScreen
 import com.leaguematch.ui.components.ParticipantBottomBar
 import com.leaguematch.viewmodel.AuthViewModel
 import com.leaguematch.viewmodel.ParticipantViewModel
-import com.leaguematch.ui.admin.DefinicoesScreen
-import com.leaguematch.ui.components.ParticipantBottomBar
 
 sealed interface ParticipantRoute {
     data object Home : ParticipantRoute
     data object Torneios : ParticipantRoute
     data object Jogos : ParticipantRoute
+    data object Equipa : ParticipantRoute
     data object Estatisticas : ParticipantRoute
     data object Perfil : ParticipantRoute
+    data object Notificacoes : ParticipantRoute
+
+    data class TournamentDetail(
+        val torneioId: Int
+    ) : ParticipantRoute
 }
 
 @Composable
@@ -28,16 +33,31 @@ fun ParticipantFlowContainer(
         mutableStateOf<ParticipantRoute>(ParticipantRoute.Home)
     }
 
+    LaunchedEffect(usuarioLogado?.id) {
+        usuarioLogado?.id?.let { id ->
+            participantViewModel.carregarDadosParticipante(id)
+        }
+    }
+
     val torneios by participantViewModel.torneios.collectAsState()
-    val jogos by participantViewModel.jogos.collectAsState()
+    val equipa by participantViewModel.equipa.collectAsState()
+    val jogadoresEquipa by participantViewModel.jogadoresEquipa.collectAsState()
+    val classificacaoEquipa by participantViewModel.classificacaoEquipa.collectAsState()
+    val jogosEquipa by participantViewModel.jogosEquipa.collectAsState()
+    val statsParticipante by participantViewModel.statsParticipante.collectAsState()
+
+    val detalheTorneio by participantViewModel.detalheTorneio.collectAsState()
+    val classificacaoTorneio by participantViewModel.classificacaoTorneio.collectAsState()
 
     when (currentRoute) {
+
         ParticipantRoute.Home -> {
             ParticipantHomeScreen(
                 usuarioLogado = usuarioLogado,
                 selectedItem = "home",
                 onTorneiosClick = { currentRoute = ParticipantRoute.Torneios },
                 onJogosClick = { currentRoute = ParticipantRoute.Jogos },
+                onEquipaClick = { currentRoute = ParticipantRoute.Equipa },
                 onEstatisticasClick = { currentRoute = ParticipantRoute.Estatisticas },
                 onPerfilClick = { currentRoute = ParticipantRoute.Perfil }
             )
@@ -46,9 +66,13 @@ fun ParticipantFlowContainer(
         ParticipantRoute.Torneios -> {
             ParticipantTournamentsScreen(
                 torneios = torneios,
+                onTournamentClick = { torneioId ->
+                    participantViewModel.carregarDetalheTorneio(torneioId)
+                    currentRoute = ParticipantRoute.TournamentDetail(torneioId)
+                },
                 onHomeClick = { currentRoute = ParticipantRoute.Home },
                 onTorneiosClick = {},
-                onJogosClick = { currentRoute = ParticipantRoute.Jogos },
+                onEquipaClick = { currentRoute = ParticipantRoute.Equipa },
                 onEstatisticasClick = { currentRoute = ParticipantRoute.Estatisticas },
                 onPerfilClick = { currentRoute = ParticipantRoute.Perfil }
             )
@@ -56,10 +80,24 @@ fun ParticipantFlowContainer(
 
         ParticipantRoute.Jogos -> {
             ParticipantGamesScreen(
-                jogos = jogos,
+                jogos = jogosEquipa,
                 onHomeClick = { currentRoute = ParticipantRoute.Home },
                 onTorneiosClick = { currentRoute = ParticipantRoute.Torneios },
-                onJogosClick = {},
+                onEquipaClick = { currentRoute = ParticipantRoute.Equipa },
+                onEstatisticasClick = { currentRoute = ParticipantRoute.Estatisticas },
+                onPerfilClick = { currentRoute = ParticipantRoute.Perfil }
+            )
+        }
+
+        ParticipantRoute.Equipa -> {
+            ParticipantTeamScreen(
+                equipa = equipa,
+                jogadores = jogadoresEquipa,
+                classificacao = classificacaoEquipa,
+                jogos = jogosEquipa,
+                onHomeClick = { currentRoute = ParticipantRoute.Home },
+                onTorneiosClick = { currentRoute = ParticipantRoute.Torneios },
+                onEquipaClick = {},
                 onEstatisticasClick = { currentRoute = ParticipantRoute.Estatisticas },
                 onPerfilClick = { currentRoute = ParticipantRoute.Perfil }
             )
@@ -68,14 +106,14 @@ fun ParticipantFlowContainer(
         ParticipantRoute.Estatisticas -> {
             ParticipantStatsScreen(
                 stats = ParticipantStats(
-                    jogos = jogos.size,
-                    golos = jogos.sumOf { it.resultadoCasa + it.resultadoFora },
-                    assistencias = 0,
-                    mvp = 0
+                    jogos = statsParticipante.jogos,
+                    golos = statsParticipante.golos,
+                    assistencias = statsParticipante.assistencias,
+                    mvp = statsParticipante.mvp
                 ),
                 onHomeClick = { currentRoute = ParticipantRoute.Home },
                 onTorneiosClick = { currentRoute = ParticipantRoute.Torneios },
-                onJogosClick = { currentRoute = ParticipantRoute.Jogos },
+                onEquipaClick = { currentRoute = ParticipantRoute.Equipa },
                 onEstatisticasClick = {},
                 onPerfilClick = { currentRoute = ParticipantRoute.Perfil }
             )
@@ -86,16 +124,51 @@ fun ParticipantFlowContainer(
                 utilizadorLogado = usuarioLogado,
                 onTerminarSessaoClick = onTerminarSessao,
                 onEditarPerfilClick = { _, _ -> },
-                onGerirNotificacoesClick = {},
+                onGerirNotificacoesClick = {
+                    currentRoute = ParticipantRoute.Notificacoes
+                },
                 bottomBar = {
                     ParticipantBottomBar(
                         selectedItem = "perfil",
                         onHomeClick = { currentRoute = ParticipantRoute.Home },
                         onTorneiosClick = { currentRoute = ParticipantRoute.Torneios },
-                        onJogosClick = { currentRoute = ParticipantRoute.Jogos },
+                        onEquipaClick = { currentRoute = ParticipantRoute.Equipa },
                         onEstatisticasClick = { currentRoute = ParticipantRoute.Estatisticas },
                         onPerfilClick = {}
                     )
+                }
+            )
+        }
+
+        ParticipantRoute.Notificacoes -> {
+            GestaoNotificacoesScreen(
+                onBackClick = {
+                    currentRoute = ParticipantRoute.Perfil
+                },
+                onHomeClick = {
+                    currentRoute = ParticipantRoute.Home
+                },
+                onUtilizadoresClick = {
+                    currentRoute = ParticipantRoute.Equipa
+                },
+                onTorneiosClick = {
+                    currentRoute = ParticipantRoute.Torneios
+                },
+                onGraficosClick = {
+                    currentRoute = ParticipantRoute.Estatisticas
+                },
+                onDefinicoesClick = {
+                    currentRoute = ParticipantRoute.Perfil
+                }
+            )
+        }
+
+        is ParticipantRoute.TournamentDetail -> {
+            ParticipantTournamentDetailScreen(
+                detalhe = detalheTorneio,
+                classificacao = classificacaoTorneio,
+                onBackClick = {
+                    currentRoute = ParticipantRoute.Torneios
                 }
             )
         }
