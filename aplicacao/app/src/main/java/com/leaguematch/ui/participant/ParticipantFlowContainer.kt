@@ -16,6 +16,7 @@ sealed interface ParticipantRoute {
     data object Estatisticas : ParticipantRoute
     data object Perfil : ParticipantRoute
     data object Notificacoes : ParticipantRoute
+    data object JoinTeam : ParticipantRoute
 
     data class TournamentDetail(
         val torneioId: Int
@@ -49,6 +50,9 @@ fun ParticipantFlowContainer(
     val detalheTorneio by participantViewModel.detalheTorneio.collectAsState()
     val classificacaoTorneio by participantViewModel.classificacaoTorneio.collectAsState()
 
+    val juntarEquipaLoading by participantViewModel.juntarEquipaLoading.collectAsState()
+    val juntarEquipaErro by participantViewModel.juntarEquipaErro.collectAsState()
+
     when (currentRoute) {
 
         ParticipantRoute.Home -> {
@@ -72,6 +76,7 @@ fun ParticipantFlowContainer(
                 },
                 onHomeClick = { currentRoute = ParticipantRoute.Home },
                 onTorneiosClick = {},
+                onJogosClick = { currentRoute = ParticipantRoute.Jogos },
                 onEquipaClick = { currentRoute = ParticipantRoute.Equipa },
                 onEstatisticasClick = { currentRoute = ParticipantRoute.Estatisticas },
                 onPerfilClick = { currentRoute = ParticipantRoute.Perfil }
@@ -83,6 +88,7 @@ fun ParticipantFlowContainer(
                 jogos = jogosEquipa,
                 onHomeClick = { currentRoute = ParticipantRoute.Home },
                 onTorneiosClick = { currentRoute = ParticipantRoute.Torneios },
+                onJogosClick = {},
                 onEquipaClick = { currentRoute = ParticipantRoute.Equipa },
                 onEstatisticasClick = { currentRoute = ParticipantRoute.Estatisticas },
                 onPerfilClick = { currentRoute = ParticipantRoute.Perfil }
@@ -95,11 +101,37 @@ fun ParticipantFlowContainer(
                 jogadores = jogadoresEquipa,
                 classificacao = classificacaoEquipa,
                 jogos = jogosEquipa,
+                onJoinTeamClick = {
+                    participantViewModel.limparErroJuntarEquipa()
+                    currentRoute = ParticipantRoute.JoinTeam
+                },
                 onHomeClick = { currentRoute = ParticipantRoute.Home },
                 onTorneiosClick = { currentRoute = ParticipantRoute.Torneios },
+                onJogosClick = { currentRoute = ParticipantRoute.Jogos },
                 onEquipaClick = {},
                 onEstatisticasClick = { currentRoute = ParticipantRoute.Estatisticas },
                 onPerfilClick = { currentRoute = ParticipantRoute.Perfil }
+            )
+        }
+
+        ParticipantRoute.JoinTeam -> {
+            ParticipantJoinTeamScreen(
+                isLoading = juntarEquipaLoading,
+                erro = juntarEquipaErro,
+                onBackClick = {
+                    participantViewModel.limparErroJuntarEquipa()
+                    currentRoute = ParticipantRoute.Equipa
+                },
+                onConfirmClick = { codigo ->
+                    val id = usuarioLogado?.id ?: return@ParticipantJoinTeamScreen
+                    participantViewModel.juntarEquipa(
+                        utilizadorId = id,
+                        codigo = codigo,
+                        onSuccess = {
+                            currentRoute = ParticipantRoute.Equipa
+                        }
+                    )
+                }
             )
         }
 
@@ -113,6 +145,7 @@ fun ParticipantFlowContainer(
                 ),
                 onHomeClick = { currentRoute = ParticipantRoute.Home },
                 onTorneiosClick = { currentRoute = ParticipantRoute.Torneios },
+                onJogosClick = { currentRoute = ParticipantRoute.Jogos },
                 onEquipaClick = { currentRoute = ParticipantRoute.Equipa },
                 onEstatisticasClick = {},
                 onPerfilClick = { currentRoute = ParticipantRoute.Perfil }
@@ -123,7 +156,9 @@ fun ParticipantFlowContainer(
             DefinicoesScreen(
                 utilizadorLogado = usuarioLogado,
                 onTerminarSessaoClick = onTerminarSessao,
-                onEditarPerfilClick = { _, _ -> },
+                onEditarPerfilClick = { nome, password ->
+                    authViewModel.atualizarUtilizador(nome, password)
+                },
                 onGerirNotificacoesClick = {
                     currentRoute = ParticipantRoute.Notificacoes
                 },
@@ -132,6 +167,7 @@ fun ParticipantFlowContainer(
                         selectedItem = "perfil",
                         onHomeClick = { currentRoute = ParticipantRoute.Home },
                         onTorneiosClick = { currentRoute = ParticipantRoute.Torneios },
+                        onJogosClick = { currentRoute = ParticipantRoute.Jogos },
                         onEquipaClick = { currentRoute = ParticipantRoute.Equipa },
                         onEstatisticasClick = { currentRoute = ParticipantRoute.Estatisticas },
                         onPerfilClick = {}
@@ -149,7 +185,7 @@ fun ParticipantFlowContainer(
                     currentRoute = ParticipantRoute.Home
                 },
                 onUtilizadoresClick = {
-                    currentRoute = ParticipantRoute.Equipa
+                    currentRoute = ParticipantRoute.Perfil
                 },
                 onTorneiosClick = {
                     currentRoute = ParticipantRoute.Torneios

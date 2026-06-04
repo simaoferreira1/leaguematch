@@ -49,6 +49,12 @@ class ParticipantViewModel(
     private val _configuracaoNotificacoes = MutableStateFlow<ConfiguracaoNotificacoes?>(null)
     val configuracaoNotificacoes: StateFlow<ConfiguracaoNotificacoes?> = _configuracaoNotificacoes
 
+    private val _juntarEquipaLoading = MutableStateFlow(false)
+    val juntarEquipaLoading: StateFlow<Boolean> = _juntarEquipaLoading
+
+    private val _juntarEquipaErro = MutableStateFlow<String?>(null)
+    val juntarEquipaErro: StateFlow<String?> = _juntarEquipaErro
+
     fun carregarDadosParticipante(utilizadorId: Int) {
         viewModelScope.launch {
             _torneios.value = emptyList()
@@ -101,6 +107,31 @@ class ParticipantViewModel(
             _detalheTorneio.value = repository.obterDetalheTorneio(torneioId)
             _classificacaoTorneio.value = repository.obterClassificacao(torneioId)
         }
+    }
+
+    fun juntarEquipa(
+        utilizadorId: Int,
+        codigo: String,
+        onSuccess: () -> Unit
+    ) {
+        viewModelScope.launch {
+            _juntarEquipaErro.value = null
+            _juntarEquipaLoading.value = true
+            val resultado = repository.juntarEquipaPorCodigo(utilizadorId, codigo)
+            _juntarEquipaLoading.value = false
+            resultado
+                .onSuccess {
+                    carregarDadosParticipante(utilizadorId)
+                    onSuccess()
+                }
+                .onFailure {
+                    _juntarEquipaErro.value = it.message ?: "Não foi possível entrar na equipa."
+                }
+        }
+    }
+
+    fun limparErroJuntarEquipa() {
+        _juntarEquipaErro.value = null
     }
 
     fun atualizarConfiguracaoNotificacoes(configuracao: ConfiguracaoNotificacoes) {

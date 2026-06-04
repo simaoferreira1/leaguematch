@@ -31,6 +31,7 @@ fun ParticipantStatsScreen(
     stats: ParticipantStats,
     onHomeClick: () -> Unit,
     onTorneiosClick: () -> Unit,
+    onJogosClick: () -> Unit,
     onEquipaClick: () -> Unit,
     onEstatisticasClick: () -> Unit,
     onPerfilClick: () -> Unit
@@ -41,6 +42,7 @@ fun ParticipantStatsScreen(
                 selectedItem = "estatisticas",
                 onHomeClick = onHomeClick,
                 onTorneiosClick = onTorneiosClick,
+                onJogosClick = onJogosClick,
                 onEquipaClick = onEquipaClick,
                 onEstatisticasClick = onEstatisticasClick,
                 onPerfilClick = onPerfilClick

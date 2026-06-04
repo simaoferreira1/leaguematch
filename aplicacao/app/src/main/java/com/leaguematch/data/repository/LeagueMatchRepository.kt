@@ -88,4 +88,6 @@ interface LeagueMatchRepository {
         utilizadorId: Int,
         equipaId: Int
     ): ParticipantStatsData
+
+    suspend fun juntarEquipaPorCodigo(utilizadorId: Int, codigo: String): Result<Equipa>
 }

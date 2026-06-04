@@ -42,6 +42,7 @@ fun ParticipantHomeScreen(
                 selectedItem = selectedItem,
                 onHomeClick = {},
                 onTorneiosClick = onTorneiosClick,
+                onJogosClick = onJogosClick,
                 onEquipaClick = onEquipaClick,
                 onEstatisticasClick = onEstatisticasClick,
                 onPerfilClick = onPerfilClick
@@ -208,56 +209,3 @@ private fun ParticipantActionCard(
     }
 }
 
-@Composable
-fun ParticipantPlaceholderScreen(
-    titulo: String,
-    descricao: String,
-    selectedItem: String,
-    onHomeClick: () -> Unit,
-    onTorneiosClick: () -> Unit,
-    onEquipaClick: () -> Unit,
-    onEstatisticasClick: () -> Unit,
-    onPerfilClick: () -> Unit
-) {
-    Scaffold(
-        bottomBar = {
-            ParticipantBottomBar(
-                selectedItem = selectedItem,
-                onHomeClick = onHomeClick,
-                onTorneiosClick = onTorneiosClick,
-                onEquipaClick = onEquipaClick,
-                onEstatisticasClick = onEstatisticasClick,
-                onPerfilClick = onPerfilClick
-            )
-        },
-        containerColor = MaterialTheme.colorScheme.background
-    ) { innerPadding ->
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(22.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = titulo,
-                    fontFamily = Bricolage,
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 28.sp,
-                    color = LMInk
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = descricao,
-                    fontFamily = Geist,
-                    fontSize = 14.sp,
-                    color = LMGray500
-                )
-            }
-        }
-    }
-}

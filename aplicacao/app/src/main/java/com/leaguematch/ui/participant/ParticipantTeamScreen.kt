@@ -14,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,8 +31,10 @@ fun ParticipantTeamScreen(
     jogadores: List<Utilizador>,
     classificacao: Classificacao?,
     jogos: List<Jogo>,
+    onJoinTeamClick: () -> Unit,
     onHomeClick: () -> Unit,
     onTorneiosClick: () -> Unit,
+    onJogosClick: () -> Unit,
     onEquipaClick: () -> Unit,
     onEstatisticasClick: () -> Unit,
     onPerfilClick: () -> Unit
@@ -44,6 +47,7 @@ fun ParticipantTeamScreen(
                 selectedItem = "equipa",
                 onHomeClick = onHomeClick,
                 onTorneiosClick = onTorneiosClick,
+                onJogosClick = onJogosClick,
                 onEquipaClick = onEquipaClick,
                 onEstatisticasClick = onEstatisticasClick,
                 onPerfilClick = onPerfilClick
@@ -85,8 +89,51 @@ fun ParticipantTeamScreen(
                     value = "Ainda não foste associado a uma equipa.",
                     icon = Icons.Default.Groups
                 )
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                Button(
+                    onClick = onJoinTeamClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = LMRed)
+                ) {
+                    Text(
+                        text = "Integrar equipa",
+                        fontFamily = Geist,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = LMWhite
+                    )
+                }
+
                 return@Column
             }
+
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp),
+                color = Color(0xFFFFEAEC)
+            ) {
+                Column(modifier = Modifier.padding(14.dp)) {
+                    Text(
+                        text = "Código de equipa",
+                        fontFamily = Geist,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = LMRed
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = com.leaguematch.data.remote.model.TeamCode.encode(equipa.id),
+                        fontFamily = Bricolage,
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 22.sp,
+                        color = LMInk
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
 
             TeamInfoCard(
                 title = "Nome da equipa",

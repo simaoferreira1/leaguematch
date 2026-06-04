@@ -13,10 +13,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.widget.Toast
 import com.leaguematch.data.remote.model.Equipa
+import com.leaguematch.data.remote.model.TeamCode
 import com.leaguematch.data.remote.model.Torneio
 import com.leaguematch.ui.theme.*
 
@@ -208,6 +214,9 @@ private fun EquipaListItem(
     onEditar: () -> Unit,
     onRemover: () -> Unit
 ) {
+    val context = LocalContext.current
+    val codigo = TeamCode.encode(equipa.id)
+
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
@@ -215,31 +224,78 @@ private fun EquipaListItem(
         border = BorderStroke(1.dp, LMBorder),
         shadowElevation = 1.dp
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(LMGray100, RoundedCornerShape(10.dp)),
-                contentAlignment = Alignment.Center
+        Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(LMGray100, RoundedCornerShape(10.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Default.Groups, contentDescription = null, tint = LMGray500, modifier = Modifier.size(20.dp))
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = equipa.nome,
+                    fontFamily = Geist, fontWeight = FontWeight.SemiBold,
+                    fontSize = 14.sp, color = LMInk, modifier = Modifier.weight(1f)
+                )
+                IconButton(onClick = onEditar, modifier = Modifier.size(32.dp)) {
+                    Icon(Icons.Default.Edit, contentDescription = "Editar", tint = LMGray400, modifier = Modifier.size(18.dp))
+                }
+                Spacer(modifier = Modifier.width(4.dp))
+                IconButton(onClick = onRemover, modifier = Modifier.size(32.dp)) {
+                    Icon(Icons.Default.DeleteOutline, contentDescription = "Remover", tint = LMGray400, modifier = Modifier.size(18.dp))
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Surface(
+                shape = RoundedCornerShape(10.dp),
+                color = LMGray50,
+                border = BorderStroke(1.dp, LMBorder),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(Icons.Default.Groups, contentDescription = null, tint = LMGray500, modifier = Modifier.size(20.dp))
-            }
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = equipa.nome,
-                fontFamily = Geist, fontWeight = FontWeight.SemiBold,
-                fontSize = 14.sp, color = LMInk, modifier = Modifier.weight(1f)
-            )
-            IconButton(onClick = onEditar, modifier = Modifier.size(32.dp)) {
-                Icon(Icons.Default.Edit, contentDescription = "Editar", tint = LMGray400, modifier = Modifier.size(18.dp))
-            }
-            Spacer(modifier = Modifier.width(4.dp))
-            IconButton(onClick = onRemover, modifier = Modifier.size(32.dp)) {
-                Icon(Icons.Default.DeleteOutline, contentDescription = "Remover", tint = LMGray400, modifier = Modifier.size(18.dp))
+                Row(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "CÓDIGO DE INTEGRAÇÃO",
+                            fontFamily = Geist, fontWeight = FontWeight.Bold,
+                            fontSize = 9.sp, color = LMGray500, letterSpacing = 0.6.sp
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = codigo,
+                            fontFamily = Geist, fontWeight = FontWeight.ExtraBold,
+                            fontSize = 16.sp, color = LMInk, letterSpacing = 2.sp
+                        )
+                    }
+                    TextButton(onClick = { copiarParaClipboard(context, codigo) }) {
+                        Icon(
+                            Icons.Default.ContentCopy,
+                            contentDescription = "Copiar código",
+                            tint = LMRed,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            "Copiar",
+                            fontFamily = Geist, fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp, color = LMRed
+                        )
+                    }
+                }
             }
         }
     }
+}
+
+private fun copiarParaClipboard(context: Context, texto: String) {
+    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    clipboard.setPrimaryClip(ClipData.newPlainText("Código de equipa", texto))
+    Toast.makeText(context, "Código copiado: $texto", Toast.LENGTH_SHORT).show()
 }

@@ -6,6 +6,7 @@ import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 
@@ -14,6 +15,7 @@ fun ParticipantBottomBar(
     selectedItem: String,
     onHomeClick: () -> Unit,
     onTorneiosClick: () -> Unit,
+    onJogosClick: () -> Unit,
     onEquipaClick: () -> Unit,
     onEstatisticasClick: () -> Unit,
     onPerfilClick: () -> Unit
@@ -31,6 +33,13 @@ fun ParticipantBottomBar(
             onClick = onTorneiosClick,
             icon = { Icon(Icons.Default.EmojiEvents, contentDescription = null) },
             label = { Text("Torneios") }
+        )
+
+        NavigationBarItem(
+            selected = selectedItem == "jogos",
+            onClick = onJogosClick,
+            icon = { Icon(Icons.Default.SportsSoccer, contentDescription = null) },
+            label = { Text("Jogos") }
         )
 
         NavigationBarItem(

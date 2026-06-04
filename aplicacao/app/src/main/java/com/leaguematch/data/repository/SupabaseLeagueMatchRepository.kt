@@ -15,6 +15,7 @@ import com.leaguematch.data.remote.model.Classificacao
 import com.leaguematch.data.remote.model.ConfiguracaoNotificacoes
 import com.leaguematch.data.remote.model.EstatisticaJogo
 import com.leaguematch.data.remote.model.EventoJogo
+import com.leaguematch.data.remote.model.TeamCode
 import com.leaguematch.ui.spectator.JogoResumoItem
 import com.leaguematch.ui.spectator.MelhorMarcadorItem
 import kotlinx.coroutines.Dispatchers
@@ -1448,12 +1449,18 @@ class SupabaseLeagueMatchRepository(
         return withContext(Dispatchers.IO) {
             runCatching {
                 val jogosDaEquipa = listarJogosDaEquipa(equipaId)
+                val jogoIds = jogosDaEquipa.map { it.id }
+
+                if (jogoIds.isEmpty()) {
+                    return@runCatching ParticipantStatsData(jogos = 0)
+                }
 
                 val eventos = getArray(
                     "evento_jogo",
                     mapOf(
-                        "select" to "tipo,user_id",
-                        "user_id" to "eq.$utilizadorId"
+                        "select" to "tipo,user_id,partida_id",
+                        "user_id" to "eq.$utilizadorId",
+                        "partida_id" to "in.(${jogoIds.joinToString(",")})"
                     )
                 ).toObjectList()
 
@@ -1479,6 +1486,52 @@ class SupabaseLeagueMatchRepository(
                 it.printStackTrace()
                 ParticipantStatsData()
             }
+        }
+    }
+
+    override suspend fun juntarEquipaPorCodigo(
+        utilizadorId: Int,
+        codigo: String
+    ): Result<Equipa> = withContext(Dispatchers.IO) {
+        runCatching {
+            val teamId = TeamCode.decode(codigo)
+                ?: throw IllegalArgumentException("Código inválido.")
+
+            val equipaJson = getArray(
+                "equipa",
+                mapOf(
+                    "select" to "id,nome,torneio_id",
+                    "id" to "eq.$teamId",
+                    "limit" to "1"
+                )
+            ).optJSONObject(0)
+                ?: throw IllegalArgumentException("Equipa não encontrada.")
+
+            val jaMembro = getArray(
+                "team_member",
+                mapOf(
+                    "select" to "id",
+                    "user_id" to "eq.$utilizadorId",
+                    "team_id" to "eq.$teamId",
+                    "limit" to "1"
+                )
+            ).optJSONObject(0)
+
+            if (jaMembro == null) {
+                postObject(
+                    "team_member",
+                    JSONObject().apply {
+                        put("user_id", utilizadorId)
+                        put("team_id", teamId)
+                    }
+                ) ?: throw IllegalStateException("Não foi possível registar a inscrição.")
+            }
+
+            Equipa(
+                id = equipaJson.optInt("id"),
+                nome = equipaJson.optString("nome"),
+                torneioId = equipaJson.optInt("torneio_id")
+            )
         }
     }
 }

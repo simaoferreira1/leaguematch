@@ -29,6 +29,7 @@ fun ParticipantGamesScreen(
     jogos: List<Jogo>,
     onHomeClick: () -> Unit,
     onTorneiosClick: () -> Unit,
+    onJogosClick: () -> Unit,
     onEquipaClick: () -> Unit,
     onEstatisticasClick: () -> Unit,
     onPerfilClick: () -> Unit
@@ -58,9 +59,10 @@ fun ParticipantGamesScreen(
     Scaffold(
         bottomBar = {
             ParticipantBottomBar(
-                selectedItem = "",
+                selectedItem = "jogos",
                 onHomeClick = onHomeClick,
                 onTorneiosClick = onTorneiosClick,
+                onJogosClick = onJogosClick,
                 onEquipaClick = onEquipaClick,
                 onEstatisticasClick = onEstatisticasClick,
                 onPerfilClick = onPerfilClick
