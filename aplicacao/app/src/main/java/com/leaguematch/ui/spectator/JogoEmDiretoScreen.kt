@@ -35,7 +35,8 @@ fun JogoEmDiretoScreen(
     jogo: Jogo,
     estatisticas: List<EstatisticaJogo>,
     eventos: List<EventoJogo>,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onVerEstatisticasClick: () -> Unit
 ) {
     val isFinished = jogo.estado.equals("Finalizado", ignoreCase = true)
     val isOngoing = jogo.estado.equals("A Decorrer", ignoreCase = true)
@@ -56,6 +57,18 @@ fun JogoEmDiretoScreen(
         ) {
             // Scoreboard Card
             ScoreboardHeaderCard(jogo = jogo, isFinished = isFinished, isOngoing = isOngoing)
+            Button(
+                onClick = onVerEstatisticasClick,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = LMRed
+                )
+            ) {
+                Text(
+                    text = "Ver Estatísticas Completas",
+                    color = Color.White
+                )
+            }
 
             // Direct Stats Section
             EstatisticasDiretoSection(estatisticas = estatisticas)

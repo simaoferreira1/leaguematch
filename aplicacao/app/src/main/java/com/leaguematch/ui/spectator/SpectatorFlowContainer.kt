@@ -8,7 +8,6 @@ import com.leaguematch.data.remote.model.Torneio
 import com.leaguematch.data.remote.model.Utilizador
 import com.leaguematch.data.repository.LeagueMatchRepository
 import com.leaguematch.ui.admin.DefinicoesScreen
-import com.leaguematch.ui.components.LoadingScreen
 import com.leaguematch.ui.components.RemoteContent
 import com.leaguematch.ui.components.SpectatorBottomBar
 import com.leaguematch.viewmodel.AuthViewModel
@@ -25,6 +24,7 @@ sealed interface SpectatorRoute {
     data object Perfil : SpectatorRoute
     data object Notificacoes : SpectatorRoute
     data class JogoEmDireto(val jogo: Jogo) : SpectatorRoute
+    data class EstatisticasJogo(val jogo: Jogo) : SpectatorRoute
 }
 
 @Composable
@@ -304,6 +304,33 @@ fun SpectatorFlowContainer(
                 eventos = eventos,
                 onBackClick = {
                     currentSpectatorRoute = SpectatorRoute.Explorar
+                },
+                onVerEstatisticasClick = {
+                    currentSpectatorRoute =
+                        SpectatorRoute.EstatisticasJogo(route.jogo)
+                }
+            )
+        }
+
+        is SpectatorRoute.EstatisticasJogo -> {
+
+            val route = currentSpectatorRoute as SpectatorRoute.EstatisticasJogo
+
+            val estatisticasResult by torneiosViewModel.estatisticasJogoState.collectAsState()
+
+            LaunchedEffect(route.jogo.id) {
+                torneiosViewModel.carregarEstatisticasJogo(route.jogo.id)
+            }
+
+            val estatisticas =
+                estatisticasResult?.getOrNull() ?: emptyList()
+
+            EstatisticasJogoScreen(
+                jogo = route.jogo,
+                estatisticas = estatisticas,
+                onBackClick = {
+                    currentSpectatorRoute =
+                        SpectatorRoute.JogoEmDireto(route.jogo)
                 }
             )
         }

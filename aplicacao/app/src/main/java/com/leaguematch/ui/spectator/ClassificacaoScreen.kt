@@ -19,6 +19,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.leaguematch.data.remote.model.Torneio
+import com.leaguematch.translations.AppStrings
+import com.leaguematch.translations.StringsPt
 import com.leaguematch.ui.theme.RedDark
 import com.leaguematch.ui.theme.RedPrimary
 
@@ -41,7 +43,8 @@ fun ClassificacaoScreen(
     torneio: Torneio,
     classificacao: List<ClassificacaoItem>,
     onBackClick: (() -> Unit)? = null,
-    bottomBar: @Composable () -> Unit = {}
+    bottomBar: @Composable () -> Unit = {},
+    strings: AppStrings = StringsPt
 ) {
     Scaffold(
         bottomBar = bottomBar,
@@ -54,12 +57,16 @@ fun ClassificacaoScreen(
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
-            TorneioHeader(torneio, onBackClick)
+            TorneioHeader(
+                torneio = torneio,
+                onBackClick = onBackClick,
+                strings = strings
+            )
 
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
-                text = "Classificação",
+                text = strings.classification,
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = RedDark
@@ -67,13 +74,13 @@ fun ClassificacaoScreen(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            ClassificacaoTableHeader()
+            ClassificacaoTableHeader(strings = strings)
 
             Spacer(modifier = Modifier.height(8.dp))
 
             if (classificacao.isEmpty()) {
                 Text(
-                    text = "Ainda não existem dados de classificação.",
+                    text = strings.noClassificationAvailable,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             } else {
@@ -96,7 +103,8 @@ fun ClassificacaoScreen(
 @Composable
 private fun TorneioHeader(
     torneio: Torneio,
-    onBackClick: (() -> Unit)? = null
+    onBackClick: (() -> Unit)? = null,
+    strings: AppStrings
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -121,7 +129,7 @@ private fun TorneioHeader(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Voltar",
+                        contentDescription = strings.back,
                         tint = Color.White
                     )
                 }
@@ -161,7 +169,7 @@ private fun TorneioHeader(
                 )
 
                 Text(
-                    text = "Participantes: ${torneio.equipas} equipas",
+                    text = strings.participantsTeams(torneio.equipas),
                     color = Color.White.copy(alpha = 0.82f),
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -171,22 +179,24 @@ private fun TorneioHeader(
 }
 
 @Composable
-private fun ClassificacaoTableHeader() {
+private fun ClassificacaoTableHeader(
+    strings: AppStrings
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text("Pos", modifier = Modifier.width(36.dp), style = MaterialTheme.typography.labelSmall)
-        Text("Equipa", modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelSmall)
+        Text(strings.positionShort, modifier = Modifier.width(36.dp), style = MaterialTheme.typography.labelSmall)
+        Text(strings.team, modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelSmall)
 
-        HeaderCell("J")
-        HeaderCell("V")
-        HeaderCell("E")
-        HeaderCell("D")
-        HeaderCell("DG")
-        HeaderCell("Pts", width = 38.dp)
+        HeaderCell(strings.gamesShort)
+        HeaderCell(strings.winsShort)
+        HeaderCell(strings.drawsShort)
+        HeaderCell(strings.lossesShort)
+        HeaderCell(strings.goalDifferenceShort)
+        HeaderCell(strings.pointsShort, width = 38.dp)
     }
 }
 

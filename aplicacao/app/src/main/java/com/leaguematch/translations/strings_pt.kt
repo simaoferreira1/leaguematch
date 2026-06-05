@@ -105,4 +105,67 @@ object StringsPt : AppStrings {
     override val assistsPerGame = "Assist. por jogo"
     override val statsStartMessage = "Participa em jogos para começares a ver o teu progresso."
     override val statsContinueMessage = "Continua a jogar para melhorares as tuas estatísticas."
+
+
+    //
+    override val spectatorHomeTitle = "Explorar"
+    override val spectatorHomeSubtitle = "Acompanha torneios e jogos em direto"
+
+    override val liveMatches = "Jogos em direto"
+    override val trendingTournaments = "Torneios em destaque"
+
+    override val tournamentDetails = "Detalhes do torneio"
+    override val bestScorers = "Melhores marcadores"
+    override val standings = "Classificação"
+    override val teams = "Equipas"
+    override val matches = "Jogos"
+
+    override val classification = "Classificação"
+    override val noClassificationAvailable = "Ainda não existe classificação."
+
+    override val matchStatistics = "Estatísticas do Jogo"
+    override val liveStatistics = "Estatísticas em direto"
+    override val completeStatistics = "Ver Estatísticas Completas"
+
+    override val timeline = "Cronologia"
+    override val noEventsRegistered = "Nenhum evento registado neste jogo."
+
+    override val live = "Em direto"
+    override val finished = "Terminado"
+    override val scheduled = "Agendado"
+
+    override val homeTeam = "Casa"
+    override val awayTeam = "Fora"
+
+    override val possession = "Posse de Bola"
+    override val shots = "Remates"
+    override val shotsOnTarget = "Remates à Baliza"
+    override val corners = "Cantos"
+    override val fouls = "Faltas"
+    override val yellowCards = "Cartões Amarelos"
+    override val redCards = "Cartões Vermelhos"
+
+    override val noStatisticsAvailable =
+        "Ainda não existem estatísticas registadas para este jogo."
+
+    override val notifications = "Notificações"
+    override val notificationSettings = "Configuração de notificações"
+
+    override val gameDetails = "Detalhes do Jogo"
+    override val matchResult = "Resultado"
+
+    //ClassificacaoScreen Spectator
+
+
+    override val back = "Voltar"
+    override val participantsTeams: (Int) -> String = { total -> "Participantes: $total equipas" }
+    override val positionShort = "Pos"
+    override val team = "Equipa"
+    override val gamesShort = "J"
+    override val winsShort = "V"
+    override val drawsShort = "E"
+    override val lossesShort = "D"
+    override val goalDifferenceShort = "DG"
+    override val pointsShort = "Pts"
+    override val noTeamsYet = "Ainda não existem equipas."
 }

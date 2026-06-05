@@ -20,6 +20,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.leaguematch.data.remote.model.Equipa
 import com.leaguematch.data.remote.model.Torneio
+import com.leaguematch.translations.AppStrings
+import com.leaguematch.translations.StringsPt
 import com.leaguematch.ui.components.SpectatorBottomBar
 import com.leaguematch.ui.theme.RedDark
 import com.leaguematch.ui.theme.RedPrimary
@@ -32,7 +34,8 @@ fun EquipasScreen(
     onClassificacaoClick: () -> Unit,
     onJogosClick: () -> Unit,
     onEquipasClick: () -> Unit,
-    onPerfilClick: () -> Unit
+    onPerfilClick: () -> Unit,
+    strings: AppStrings = StringsPt
 ) {
     Scaffold(
         bottomBar = {
@@ -53,12 +56,15 @@ fun EquipasScreen(
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
-            TorneioHeaderEquipas(torneio)
+            TorneioHeaderEquipas(
+                torneio = torneio,
+                strings = strings
+            )
 
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
-                text = "Equipas",
+                text = strings.teams,
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = RedDark
@@ -73,7 +79,9 @@ fun EquipasScreen(
                     colors = CardDefaults.cardColors(containerColor = Color(0xFF1B1B20))
                 ) {
                     Column(
-                        modifier = Modifier.padding(24.dp).fillMaxWidth(),
+                        modifier = Modifier
+                            .padding(24.dp)
+                            .fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Icon(
@@ -82,9 +90,11 @@ fun EquipasScreen(
                             tint = Color.White.copy(alpha = 0.4f),
                             modifier = Modifier.size(36.dp)
                         )
+
                         Spacer(modifier = Modifier.height(8.dp))
+
                         Text(
-                            "Ainda não existem equipas.",
+                            text = strings.noTeamsYet,
                             color = Color.White.copy(alpha = 0.65f),
                             style = MaterialTheme.typography.bodySmall
                         )
@@ -96,7 +106,10 @@ fun EquipasScreen(
                     contentPadding = PaddingValues(bottom = 12.dp)
                 ) {
                     itemsIndexed(equipas) { index, equipa ->
-                        EquipaCard(posicao = index + 1, equipa = equipa)
+                        EquipaCard(
+                            posicao = index + 1,
+                            equipa = equipa
+                        )
                     }
                 }
             }
@@ -105,7 +118,10 @@ fun EquipasScreen(
 }
 
 @Composable
-private fun EquipaCard(posicao: Int, equipa: Equipa) {
+private fun EquipaCard(
+    posicao: Int,
+    equipa: Equipa
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -153,7 +169,10 @@ private fun EquipaCard(posicao: Int, equipa: Equipa) {
 }
 
 @Composable
-private fun TorneioHeaderEquipas(torneio: Torneio) {
+private fun TorneioHeaderEquipas(
+    torneio: Torneio,
+    strings: AppStrings
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(22.dp),
@@ -162,7 +181,11 @@ private fun TorneioHeaderEquipas(torneio: Torneio) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Brush.horizontalGradient(listOf(RedPrimary, RedDark, Color(0xFF17171C))))
+                .background(
+                    Brush.horizontalGradient(
+                        listOf(RedPrimary, RedDark, Color(0xFF17171C))
+                    )
+                )
                 .padding(18.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -173,12 +196,29 @@ private fun TorneioHeaderEquipas(torneio: Torneio) {
                     .background(Color.White.copy(alpha = 0.18f)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Default.EmojiEvents, contentDescription = null, tint = Color.White, modifier = Modifier.size(30.dp))
+                Icon(
+                    Icons.Default.EmojiEvents,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(30.dp)
+                )
             }
+
             Spacer(modifier = Modifier.width(14.dp))
+
             Column(modifier = Modifier.weight(1f)) {
-                Text(torneio.nome, color = Color.White, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
-                Text("${torneio.equipas} equipas • ${torneio.modalidade}", color = Color.White.copy(alpha = 0.82f), style = MaterialTheme.typography.bodySmall)
+                Text(
+                    text = torneio.nome,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                Text(
+                    text = "${strings.teamsLabel(torneio.equipas)} • ${torneio.modalidade}",
+                    color = Color.White.copy(alpha = 0.82f),
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
         }
     }

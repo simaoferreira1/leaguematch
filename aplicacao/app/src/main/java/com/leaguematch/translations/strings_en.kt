@@ -105,4 +105,65 @@ object StringsEn : AppStrings {
     override val assistsPerGame = "Assists per game"
     override val statsStartMessage = "Play matches to start seeing your progress."
     override val statsContinueMessage = "Keep playing to improve your statistics."
+
+    //
+    override val spectatorHomeTitle = "Explore"
+    override val spectatorHomeSubtitle = "Follow tournaments and live matches"
+
+    override val liveMatches = "Live Matches"
+    override val trendingTournaments = "Trending Tournaments"
+
+    override val tournamentDetails = "Tournament Details"
+    override val bestScorers = "Top Scorers"
+    override val standings = "Standings"
+    override val teams = "Teams"
+    override val matches = "Matches"
+
+
+    override val matchStatistics = "Match Statistics"
+    override val liveStatistics = "Live Statistics"
+    override val completeStatistics = "View Full Statistics"
+
+    override val timeline = "Timeline"
+    override val noEventsRegistered = "No events recorded for this match."
+
+    override val live = "Live"
+    override val finished = "Finished"
+    override val scheduled = "Scheduled"
+
+    override val homeTeam = "Home"
+    override val awayTeam = "Away"
+
+    override val possession = "Possession"
+    override val shots = "Shots"
+    override val shotsOnTarget = "Shots on Target"
+    override val corners = "Corners"
+    override val fouls = "Fouls"
+    override val yellowCards = "Yellow Cards"
+    override val redCards = "Red Cards"
+
+    override val noStatisticsAvailable =
+        "No statistics have been recorded for this match yet."
+
+    override val notifications = "Notifications"
+    override val notificationSettings = "Notification Settings"
+
+    override val gameDetails = "Match Details"
+    override val matchResult = "Result"
+
+    //ClassificacaoScreen Spectator
+
+    override val classification = "Standings"
+    override val noClassificationAvailable = "No standings data available yet."
+    override val back = "Back"
+    override val participantsTeams: (Int) -> String = { total -> "Participants: $total teams" }
+    override val positionShort = "Pos"
+    override val team = "Team"
+    override val gamesShort = "P"
+    override val winsShort = "W"
+    override val drawsShort = "D"
+    override val lossesShort = "L"
+    override val goalDifferenceShort = "GD"
+    override val pointsShort = "Pts"
+    override val noTeamsYet = "There are no teams yet."
 }

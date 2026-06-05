@@ -89,4 +89,64 @@ interface AppStrings {
     val assistsPerGame: String
     val statsStartMessage: String
     val statsContinueMessage: String
+
+    // Spectator
+
+    val spectatorHomeTitle: String
+    val spectatorHomeSubtitle: String
+
+    val liveMatches: String
+    val trendingTournaments: String
+
+    val tournamentDetails: String
+    val bestScorers: String
+    val standings: String
+    val teams: String
+    val matches: String
+
+    val matchStatistics: String
+    val liveStatistics: String
+    val completeStatistics: String
+
+    val timeline: String
+    val noEventsRegistered: String
+
+    val live: String
+    val finished: String
+    val scheduled: String
+
+    val homeTeam: String
+    val awayTeam: String
+
+    val possession: String
+    val shots: String
+    val shotsOnTarget: String
+    val corners: String
+    val fouls: String
+    val yellowCards: String
+    val redCards: String
+
+    val noStatisticsAvailable: String
+
+    val notifications: String
+    val notificationSettings: String
+
+    val gameDetails: String
+    val matchResult: String
+
+    //ClassificacaoScreen Spectator
+
+    val classification: String
+    val noClassificationAvailable: String
+    val back: String
+    val participantsTeams: (Int) -> String
+    val positionShort: String
+    val team: String
+    val gamesShort: String
+    val winsShort: String
+    val drawsShort: String
+    val lossesShort: String
+    val goalDifferenceShort: String
+    val pointsShort: String
+    val noTeamsYet: String
 }
