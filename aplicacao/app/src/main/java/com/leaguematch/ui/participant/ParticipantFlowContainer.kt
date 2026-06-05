@@ -1,7 +1,12 @@
 package com.leaguematch.ui.participant
 
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.graphics.Color
 import com.leaguematch.data.remote.model.Utilizador
+import com.leaguematch.translations.Language
+import com.leaguematch.translations.StringsEn
+import com.leaguematch.translations.StringsPt
 import com.leaguematch.ui.admin.DefinicoesScreen
 import com.leaguematch.ui.admin.GestaoNotificacoesScreen
 import com.leaguematch.ui.components.ParticipantBottomBar
@@ -18,9 +23,7 @@ sealed interface ParticipantRoute {
     data object Notificacoes : ParticipantRoute
     data object JoinTeam : ParticipantRoute
 
-    data class TournamentDetail(
-        val torneioId: Int
-    ) : ParticipantRoute
+    data class TournamentDetail(val torneioId: Int) : ParticipantRoute
 }
 
 @Composable
@@ -32,6 +35,21 @@ fun ParticipantFlowContainer(
 ) {
     var currentRoute by remember {
         mutableStateOf<ParticipantRoute>(ParticipantRoute.Home)
+    }
+
+    var language by rememberSaveable {
+        mutableStateOf(Language.PT)
+    }
+
+    var primaryColorLong by rememberSaveable {
+        mutableStateOf(0xFFE31734L)
+    }
+
+    val primaryColor = Color(primaryColorLong)
+
+    val strings = when (language) {
+        Language.PT -> StringsPt
+        Language.EN -> StringsEn
     }
 
     LaunchedEffect(usuarioLogado?.id) {
@@ -59,6 +77,8 @@ fun ParticipantFlowContainer(
             ParticipantHomeScreen(
                 usuarioLogado = usuarioLogado,
                 selectedItem = "home",
+                strings = strings,
+                primaryColor = primaryColor,
                 onTorneiosClick = { currentRoute = ParticipantRoute.Torneios },
                 onJogosClick = { currentRoute = ParticipantRoute.Jogos },
                 onEquipaClick = { currentRoute = ParticipantRoute.Equipa },
@@ -70,6 +90,8 @@ fun ParticipantFlowContainer(
         ParticipantRoute.Torneios -> {
             ParticipantTournamentsScreen(
                 torneios = torneios,
+                strings = strings,
+                primaryColor = primaryColor,
                 onTournamentClick = { torneioId ->
                     participantViewModel.carregarDetalheTorneio(torneioId)
                     currentRoute = ParticipantRoute.TournamentDetail(torneioId)
@@ -86,6 +108,8 @@ fun ParticipantFlowContainer(
         ParticipantRoute.Jogos -> {
             ParticipantGamesScreen(
                 jogos = jogosEquipa,
+                strings = strings,
+                primaryColor = primaryColor,
                 onHomeClick = { currentRoute = ParticipantRoute.Home },
                 onTorneiosClick = { currentRoute = ParticipantRoute.Torneios },
                 onJogosClick = {},
@@ -101,6 +125,8 @@ fun ParticipantFlowContainer(
                 jogadores = jogadoresEquipa,
                 classificacao = classificacaoEquipa,
                 jogos = jogosEquipa,
+                strings = strings,
+                primaryColor = primaryColor,
                 onJoinTeamClick = {
                     participantViewModel.limparErroJuntarEquipa()
                     currentRoute = ParticipantRoute.JoinTeam
@@ -118,6 +144,8 @@ fun ParticipantFlowContainer(
             ParticipantJoinTeamScreen(
                 isLoading = juntarEquipaLoading,
                 erro = juntarEquipaErro,
+                strings = strings,
+                primaryColor = primaryColor,
                 onBackClick = {
                     participantViewModel.limparErroJuntarEquipa()
                     currentRoute = ParticipantRoute.Equipa
@@ -143,6 +171,8 @@ fun ParticipantFlowContainer(
                     assistencias = statsParticipante.assistencias,
                     mvp = statsParticipante.mvp
                 ),
+                strings = strings,
+                primaryColor = primaryColor,
                 onHomeClick = { currentRoute = ParticipantRoute.Home },
                 onTorneiosClick = { currentRoute = ParticipantRoute.Torneios },
                 onJogosClick = { currentRoute = ParticipantRoute.Jogos },
@@ -155,6 +185,18 @@ fun ParticipantFlowContainer(
         ParticipantRoute.Perfil -> {
             DefinicoesScreen(
                 utilizadorLogado = usuarioLogado,
+                language = language,
+                onLanguageChange = { language = it },
+                primaryColor = primaryColor,
+                onPrimaryColorChange = { color ->
+                    primaryColorLong = when (color) {
+                        Color(0xFFE31734) -> 0xFFE31734L
+                        Color(0xFF2563EB) -> 0xFF2563EBL
+                        Color(0xFF16A34A) -> 0xFF16A34AL
+                        Color(0xFF9333EA) -> 0xFF9333EAL
+                        else -> 0xFFE31734L
+                    }
+                },
                 onTerminarSessaoClick = onTerminarSessao,
                 onEditarPerfilClick = { nome, password ->
                     authViewModel.atualizarUtilizador(nome, password)
@@ -178,24 +220,12 @@ fun ParticipantFlowContainer(
 
         ParticipantRoute.Notificacoes -> {
             GestaoNotificacoesScreen(
-                onBackClick = {
-                    currentRoute = ParticipantRoute.Perfil
-                },
-                onHomeClick = {
-                    currentRoute = ParticipantRoute.Home
-                },
-                onUtilizadoresClick = {
-                    currentRoute = ParticipantRoute.Perfil
-                },
-                onTorneiosClick = {
-                    currentRoute = ParticipantRoute.Torneios
-                },
-                onGraficosClick = {
-                    currentRoute = ParticipantRoute.Estatisticas
-                },
-                onDefinicoesClick = {
-                    currentRoute = ParticipantRoute.Perfil
-                }
+                onBackClick = { currentRoute = ParticipantRoute.Perfil },
+                onHomeClick = { currentRoute = ParticipantRoute.Home },
+                onUtilizadoresClick = { currentRoute = ParticipantRoute.Perfil },
+                onTorneiosClick = { currentRoute = ParticipantRoute.Torneios },
+                onGraficosClick = { currentRoute = ParticipantRoute.Estatisticas },
+                onDefinicoesClick = { currentRoute = ParticipantRoute.Perfil }
             )
         }
 
@@ -203,6 +233,8 @@ fun ParticipantFlowContainer(
             ParticipantTournamentDetailScreen(
                 detalhe = detalheTorneio,
                 classificacao = classificacaoTorneio,
+                strings = strings,
+                primaryColor = primaryColor,
                 onBackClick = {
                     currentRoute = ParticipantRoute.Torneios
                 }

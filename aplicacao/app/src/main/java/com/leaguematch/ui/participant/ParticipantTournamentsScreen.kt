@@ -21,12 +21,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.leaguematch.data.remote.model.Torneio
+import com.leaguematch.translations.AppStrings
 import com.leaguematch.ui.components.ParticipantBottomBar
 import com.leaguematch.ui.theme.*
 
 @Composable
 fun ParticipantTournamentsScreen(
     torneios: List<Torneio>,
+    strings: AppStrings,
+    primaryColor: Color,
     onTournamentClick: (Int) -> Unit,
     onHomeClick: () -> Unit,
     onTorneiosClick: () -> Unit,
@@ -68,7 +71,7 @@ fun ParticipantTournamentsScreen(
                 .padding(bottom = 80.dp)
         ) {
             Text(
-                text = "Torneios inscritos",
+                text = strings.registeredTournaments,
                 fontFamily = Bricolage,
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 28.sp,
@@ -78,7 +81,7 @@ fun ParticipantTournamentsScreen(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "${torneios.size} torneios associados à tua conta",
+                text = strings.tournamentsAssociated(torneios.size),
                 fontFamily = Geist,
                 fontSize = 13.sp,
                 color = LMGray500
@@ -105,7 +108,7 @@ fun ParticipantTournamentsScreen(
                     onValueChange = { pesquisa = it },
                     placeholder = {
                         Text(
-                            text = "Pesquisar torneios...",
+                            text = strings.searchTournamentsPlaceholder,
                             fontFamily = Geist,
                             fontSize = 13.sp,
                             color = LMGray500
@@ -126,7 +129,7 @@ fun ParticipantTournamentsScreen(
 
             if (torneiosFiltrados.isEmpty()) {
                 Text(
-                    text = "Ainda não estás inscrito em nenhum torneio.",
+                    text = strings.noRegisteredTournaments,
                     fontFamily = Geist,
                     fontSize = 14.sp,
                     color = LMGray500
@@ -136,6 +139,8 @@ fun ParticipantTournamentsScreen(
                     ParticipantTournamentCard(
                         torneio = torneio,
                         index = index,
+                        strings = strings,
+                        primaryColor = primaryColor,
                         onClick = {
                             onTournamentClick(torneio.id)
                         }
@@ -151,6 +156,8 @@ fun ParticipantTournamentsScreen(
 private fun ParticipantTournamentCard(
     torneio: Torneio,
     index: Int,
+    strings: AppStrings,
+    primaryColor: Color,
     onClick: () -> Unit
 ) {
     Surface(
@@ -171,7 +178,10 @@ private fun ParticipantTournamentCard(
                     .size(58.dp)
                     .background(
                         brush = Brush.linearGradient(
-                            listOf(LMRed, Color(0xFFC41326))
+                            listOf(
+                                primaryColor,
+                                primaryColor.copy(alpha = 0.82f)
+                            )
                         ),
                         shape = RoundedCornerShape(14.dp)
                     ),
@@ -207,7 +217,7 @@ private fun ParticipantTournamentCard(
                 )
 
                 Text(
-                    text = "${torneio.equipas} equipas",
+                    text = strings.teamsLabel(torneio.equipas),
                     fontFamily = Geist,
                     fontSize = 12.sp,
                     color = LMGray500

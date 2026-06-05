@@ -28,12 +28,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.leaguematch.data.remote.model.TeamCode
+import com.leaguematch.translations.AppStrings
 import com.leaguematch.ui.theme.*
 
 @Composable
 fun ParticipantJoinTeamScreen(
     isLoading: Boolean,
     erro: String?,
+    strings: AppStrings,
+    primaryColor: Color,
     onBackClick: () -> Unit,
     onConfirmClick: (codigo: String) -> Unit
 ) {
@@ -63,12 +66,12 @@ fun ParticipantJoinTeamScreen(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Voltar",
+                            contentDescription = null,
                             tint = LMInk
                         )
                     }
                     Text(
-                        text = "Equipas",
+                        text = strings.teamsTitle,
                         fontFamily = Bricolage,
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 26.sp,
@@ -102,13 +105,13 @@ fun ParticipantJoinTeamScreen(
                         modifier = Modifier
                             .size(56.dp)
                             .clip(RoundedCornerShape(16.dp))
-                            .background(Color(0xFFFFEAEC)),
+                            .background(primaryColor.copy(alpha = 0.10f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.QrCode2,
                             contentDescription = null,
-                            tint = LMRed,
+                            tint = primaryColor,
                             modifier = Modifier.size(30.dp)
                         )
                     }
@@ -116,7 +119,7 @@ fun ParticipantJoinTeamScreen(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = "Integrar Equipa",
+                        text = strings.joinTeamTitle,
                         fontFamily = Bricolage,
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 18.sp,
@@ -126,7 +129,7 @@ fun ParticipantJoinTeamScreen(
                     Spacer(modifier = Modifier.height(4.dp))
 
                     Text(
-                        text = "Introduz o código que recebeste do organizador da equipa.",
+                        text = strings.joinTeamDescription,
                         fontFamily = Geist,
                         fontSize = 12.sp,
                         color = LMGray500,
@@ -138,6 +141,7 @@ fun ParticipantJoinTeamScreen(
                     CodeBoxes(
                         value = codigo,
                         length = TeamCode.LENGTH,
+                        primaryColor = primaryColor,
                         focusRequester = focusRequester,
                         onChange = { novo ->
                             codigo = novo.uppercase().filter {
@@ -164,7 +168,7 @@ fun ParticipantJoinTeamScreen(
                         enabled = !isLoading && codigo.length == TeamCode.LENGTH,
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(14.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = LMRed)
+                        colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
                     ) {
                         if (isLoading) {
                             CircularProgressIndicator(
@@ -174,7 +178,7 @@ fun ParticipantJoinTeamScreen(
                             )
                         } else {
                             Text(
-                                text = "Confirmar e entrar",
+                                text = strings.confirmAndJoin,
                                 fontFamily = Geist,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = LMWhite
@@ -189,7 +193,7 @@ fun ParticipantJoinTeamScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
-                            text = "Cancelar",
+                            text = strings.cancel,
                             fontFamily = Geist,
                             fontWeight = FontWeight.Bold,
                             color = LMGray500
@@ -205,6 +209,7 @@ fun ParticipantJoinTeamScreen(
 private fun CodeBoxes(
     value: String,
     length: Int,
+    primaryColor: Color,
     focusRequester: FocusRequester,
     onChange: (String) -> Unit
 ) {
@@ -230,15 +235,16 @@ private fun CodeBoxes(
             repeat(length) { index ->
                 val char = value.getOrNull(index)?.toString().orEmpty()
                 val filled = char.isNotEmpty()
+
                 Box(
                     modifier = Modifier
                         .size(width = 38.dp, height = 48.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(if (filled) Color(0xFFFFEAEC) else LMWhite)
+                        .background(if (filled) primaryColor.copy(alpha = 0.10f) else LMWhite)
                         .border(
                             border = BorderStroke(
                                 width = 1.5.dp,
-                                color = if (filled) LMRed else LMInk
+                                color = if (filled) primaryColor else LMInk
                             ),
                             shape = RoundedCornerShape(10.dp)
                         ),
@@ -249,11 +255,10 @@ private fun CodeBoxes(
                         fontFamily = Bricolage,
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 20.sp,
-                        color = if (filled) LMRed else LMInk
+                        color = if (filled) primaryColor else LMInk
                     )
                 }
             }
         }
     }
 }
-

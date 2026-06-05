@@ -11,10 +11,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.leaguematch.data.remote.model.Jogo
+import com.leaguematch.translations.AppStrings
 import com.leaguematch.ui.components.ParticipantBottomBar
 import com.leaguematch.ui.theme.*
 
@@ -27,6 +29,8 @@ private enum class GamesTab {
 @Composable
 fun ParticipantGamesScreen(
     jogos: List<Jogo>,
+    strings: AppStrings,
+    primaryColor: Color,
     onHomeClick: () -> Unit,
     onTorneiosClick: () -> Unit,
     onJogosClick: () -> Unit,
@@ -80,7 +84,7 @@ fun ParticipantGamesScreen(
                 .padding(bottom = 80.dp)
         ) {
             Text(
-                text = "Os meus jogos",
+                text = strings.myGamesTitle,
                 fontFamily = Bricolage,
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 28.sp,
@@ -90,7 +94,7 @@ fun ParticipantGamesScreen(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "Consulta próximos jogos, resultados e histórico.",
+                text = strings.myGamesSubtitle,
                 fontFamily = Geist,
                 fontSize = 13.sp,
                 color = LMGray500
@@ -103,22 +107,25 @@ fun ParticipantGamesScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 GamesFilterChip(
-                    text = "Próximos",
+                    text = strings.upcomingTab,
                     selected = selectedTab == GamesTab.PROXIMOS,
+                    primaryColor = primaryColor,
                     onClick = { selectedTab = GamesTab.PROXIMOS },
                     modifier = Modifier.weight(1f)
                 )
 
                 GamesFilterChip(
-                    text = "Resultados",
+                    text = strings.resultsTab,
                     selected = selectedTab == GamesTab.RESULTADOS,
+                    primaryColor = primaryColor,
                     onClick = { selectedTab = GamesTab.RESULTADOS },
                     modifier = Modifier.weight(1f)
                 )
 
                 GamesFilterChip(
-                    text = "Histórico",
+                    text = strings.historyTab,
                     selected = selectedTab == GamesTab.HISTORICO,
+                    primaryColor = primaryColor,
                     onClick = { selectedTab = GamesTab.HISTORICO },
                     modifier = Modifier.weight(1f)
                 )
@@ -129,9 +136,9 @@ fun ParticipantGamesScreen(
             if (jogosFiltrados.isEmpty()) {
                 Text(
                     text = when (selectedTab) {
-                        GamesTab.PROXIMOS -> "Ainda não existem próximos jogos associados à tua conta."
-                        GamesTab.RESULTADOS -> "Ainda não existem resultados disponíveis."
-                        GamesTab.HISTORICO -> "Ainda não existe histórico de jogos."
+                        GamesTab.PROXIMOS -> strings.noUpcomingGames
+                        GamesTab.RESULTADOS -> strings.noResultsYet
+                        GamesTab.HISTORICO -> strings.noGameHistory
                     },
                     fontFamily = Geist,
                     fontSize = 14.sp,
@@ -139,7 +146,10 @@ fun ParticipantGamesScreen(
                 )
             } else {
                 jogosFiltrados.forEach { jogo ->
-                    ParticipantGameCard(jogo = jogo)
+                    ParticipantGameCard(
+                        jogo = jogo,
+                        primaryColor = primaryColor
+                    )
                     Spacer(modifier = Modifier.height(10.dp))
                 }
             }
@@ -151,16 +161,17 @@ fun ParticipantGamesScreen(
 private fun GamesFilterChip(
     text: String,
     selected: Boolean,
+    primaryColor: Color,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(18.dp),
-        color = if (selected) LMRed else LMWhite,
+        color = if (selected) primaryColor else LMWhite,
         border = BorderStroke(
             1.dp,
-            if (selected) LMRed else androidx.compose.ui.graphics.Color(0xFFE5E5EA)
+            if (selected) primaryColor else Color(0xFFE5E5EA)
         ),
         shadowElevation = 1.dp,
         onClick = onClick
@@ -181,12 +192,15 @@ private fun GamesFilterChip(
 }
 
 @Composable
-private fun ParticipantGameCard(jogo: Jogo) {
+private fun ParticipantGameCard(
+    jogo: Jogo,
+    primaryColor: Color
+) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(18.dp),
         color = LMWhite,
-        border = BorderStroke(1.dp, androidx.compose.ui.graphics.Color(0xFFE5E5EA)),
+        border = BorderStroke(1.dp, Color(0xFFE5E5EA)),
         shadowElevation = 1.dp
     ) {
         Row(
@@ -196,7 +210,7 @@ private fun ParticipantGameCard(jogo: Jogo) {
             Icon(
                 imageVector = Icons.Default.SportsSoccer,
                 contentDescription = null,
-                tint = LMRed,
+                tint = primaryColor,
                 modifier = Modifier.size(34.dp)
             )
 

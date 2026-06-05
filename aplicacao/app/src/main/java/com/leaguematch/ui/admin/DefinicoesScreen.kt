@@ -28,10 +28,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.leaguematch.ui.components.*
 import com.leaguematch.ui.theme.*
+import com.leaguematch.translations.Language
 
 @Composable
 fun DefinicoesScreen(
     utilizadorLogado: Utilizador? = null,
+    language: Language = Language.PT,
+    onLanguageChange: (Language) -> Unit = {},
+    primaryColor: Color = LMRed,
+    onPrimaryColorChange: (Color) -> Unit = {},
     onTerminarSessaoClick: () -> Unit = {},
     onEditarPerfilClick: (String, String?) -> Unit = { _, _ -> },
     onGerirNotificacoesClick: () -> Unit = {},
@@ -53,6 +58,7 @@ fun DefinicoesScreen(
     var showEditDialog by remember { mutableStateOf(false) }
     var newNome by remember(utilizadorLogado) { mutableStateOf(utilizadorLogado?.nome.orEmpty()) }
     var newPassword by remember { mutableStateOf("") }
+    var showLanguageDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         bottomBar = bottomBar,
@@ -104,7 +110,7 @@ fun DefinicoesScreen(
                     Avatar(
                         name = nomeExibido,
                         size = 56.dp,
-                        color = LMRed
+                        color = primaryColor
                     )
                     
                     Spacer(modifier = Modifier.width(14.dp))
@@ -186,9 +192,10 @@ fun DefinicoesScreen(
                         ProfileRow(
                             icon = Icons.Default.Language,
                             label = "Idioma",
+                            onClick = { showLanguageDialog = true },
                             rightContent = {
                                 Text(
-                                    text = "Português ›",
+                                    text = if (language == Language.PT) "Português ›" else "English ›",
                                     fontFamily = Geist,
                                     fontSize = 12.sp,
                                     color = LMGray500
@@ -218,27 +225,31 @@ fun DefinicoesScreen(
                             label = "Cor da aplicação",
                             rightContent = {
                                 Row(
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(14.dp)
-                                            .clip(CircleShape)
-                                            .background(LMRed)
-                                            .border(BorderStroke(1.5.dp, LMInk), CircleShape)
+                                    ColorOption(
+                                        color = Color(0xFFE31734),
+                                        selectedColor = primaryColor,
+                                        onClick = { onPrimaryColorChange(Color(0xFFE31734)) }
                                     )
-                                    Box(
-                                        modifier = Modifier
-                                            .size(14.dp)
-                                            .clip(CircleShape)
-                                            .background(Color(0xFF2563EB))
+
+                                    ColorOption(
+                                        color = Color(0xFF2563EB),
+                                        selectedColor = primaryColor,
+                                        onClick = { onPrimaryColorChange(Color(0xFF2563EB)) }
                                     )
-                                    Box(
-                                        modifier = Modifier
-                                            .size(14.dp)
-                                            .clip(CircleShape)
-                                            .background(Color(0xFF16A34A))
+
+                                    ColorOption(
+                                        color = Color(0xFF16A34A),
+                                        selectedColor = primaryColor,
+                                        onClick = { onPrimaryColorChange(Color(0xFF16A34A)) }
+                                    )
+
+                                    ColorOption(
+                                        color = Color(0xFF9333EA),
+                                        selectedColor = primaryColor,
+                                        onClick = { onPrimaryColorChange(Color(0xFF9333EA)) }
                                     )
                                 }
                             }
@@ -296,7 +307,7 @@ fun DefinicoesScreen(
                                 Icon(
                                     imageVector = Icons.Default.ChevronRight,
                                     contentDescription = null,
-                                    tint = LMRed,
+                                    tint = primaryColor,
                                     modifier = Modifier.size(16.dp)
                                 )
                             }
@@ -367,7 +378,7 @@ fun DefinicoesScreen(
                             newPassword = ""
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = LMRed),
+                    colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
                     shape = RoundedCornerShape(10.dp)
                 ) {
                     Text(
@@ -393,6 +404,57 @@ fun DefinicoesScreen(
                     )
                 }
             },
+            containerColor = LMWhite,
+            shape = RoundedCornerShape(16.dp)
+        )
+    }
+
+    if (showLanguageDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showLanguageDialog = false
+            },
+            title = {
+                Text(
+                    text = "Escolher idioma",
+                    fontFamily = Bricolage,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    color = LMInk
+                )
+            },
+            text = {
+                Column {
+                    Text(
+                        text = "Português",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                onLanguageChange(Language.PT)
+                                showLanguageDialog = false
+                            }
+                            .padding(12.dp),
+                        fontFamily = Geist,
+                        fontWeight = if (language == Language.PT) FontWeight.Bold else FontWeight.Normal,
+                        color = LMInk
+                    )
+
+                    Text(
+                        text = "English",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                onLanguageChange(Language.EN)
+                                showLanguageDialog = false
+                            }
+                            .padding(12.dp),
+                        fontFamily = Geist,
+                        fontWeight = if (language == Language.EN) FontWeight.Bold else FontWeight.Normal,
+                        color = LMInk
+                    )
+                }
+            },
+            confirmButton = {},
             containerColor = LMWhite,
             shape = RoundedCornerShape(16.dp)
         )
@@ -444,6 +506,28 @@ fun ProfileRow(
         
         rightContent()
     }
+}
+
+@Composable
+fun ColorOption(
+    color: Color,
+    selectedColor: Color,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .size(18.dp)
+            .clip(CircleShape)
+            .background(color)
+            .border(
+                BorderStroke(
+                    width = if (selectedColor == color) 2.dp else 0.dp,
+                    color = LMInk
+                ),
+                CircleShape
+            )
+            .clickable { onClick() }
+    )
 }
 
 @Preview(showBackground = true)

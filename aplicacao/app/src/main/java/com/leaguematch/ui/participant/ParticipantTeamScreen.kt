@@ -1,6 +1,7 @@
 package com.leaguematch.ui.participant
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,7 +22,9 @@ import androidx.compose.ui.unit.sp
 import com.leaguematch.data.remote.model.Classificacao
 import com.leaguematch.data.remote.model.Equipa
 import com.leaguematch.data.remote.model.Jogo
+import com.leaguematch.data.remote.model.TeamCode
 import com.leaguematch.data.remote.model.Utilizador
+import com.leaguematch.translations.AppStrings
 import com.leaguematch.ui.components.ParticipantBottomBar
 import com.leaguematch.ui.theme.*
 
@@ -31,6 +34,8 @@ fun ParticipantTeamScreen(
     jogadores: List<Utilizador>,
     classificacao: Classificacao?,
     jogos: List<Jogo>,
+    strings: AppStrings,
+    primaryColor: Color,
     onJoinTeamClick: () -> Unit,
     onHomeClick: () -> Unit,
     onTorneiosClick: () -> Unit,
@@ -65,7 +70,7 @@ fun ParticipantTeamScreen(
                 .padding(bottom = 80.dp)
         ) {
             Text(
-                text = "A minha equipa",
+                text = strings.myTeamTitle,
                 fontFamily = Bricolage,
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 28.sp,
@@ -75,7 +80,7 @@ fun ParticipantTeamScreen(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "Consulta jogadores, classificação e últimos jogos.",
+                text = strings.myTeamSubtitle,
                 fontFamily = Geist,
                 fontSize = 13.sp,
                 color = LMGray500
@@ -85,9 +90,10 @@ fun ParticipantTeamScreen(
 
             if (equipa == null) {
                 TeamInfoCard(
-                    title = "Sem equipa associada",
-                    value = "Ainda não foste associado a uma equipa.",
-                    icon = Icons.Default.Groups
+                    title = strings.noTeamTitle,
+                    value = strings.noTeamDescription,
+                    icon = Icons.Default.Groups,
+                    primaryColor = primaryColor
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
@@ -96,10 +102,10 @@ fun ParticipantTeamScreen(
                     onClick = onJoinTeamClick,
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(14.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = LMRed)
+                    colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
                 ) {
                     Text(
-                        text = "Integrar equipa",
+                        text = strings.joinTeamButton,
                         fontFamily = Geist,
                         fontWeight = FontWeight.ExtraBold,
                         color = LMWhite
@@ -112,19 +118,21 @@ fun ParticipantTeamScreen(
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(14.dp),
-                color = Color(0xFFFFEAEC)
+                color = primaryColor.copy(alpha = 0.10f)
             ) {
                 Column(modifier = Modifier.padding(14.dp)) {
                     Text(
-                        text = "Código de equipa",
+                        text = strings.teamCode,
                         fontFamily = Geist,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
-                        color = LMRed
+                        color = primaryColor
                     )
+
                     Spacer(modifier = Modifier.height(2.dp))
+
                     Text(
-                        text = com.leaguematch.data.remote.model.TeamCode.encode(equipa.id),
+                        text = TeamCode.encode(equipa.id),
                         fontFamily = Bricolage,
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 22.sp,
@@ -136,53 +144,57 @@ fun ParticipantTeamScreen(
             Spacer(modifier = Modifier.height(10.dp))
 
             TeamInfoCard(
-                title = "Nome da equipa",
+                title = strings.teamName,
                 value = equipa.nome,
-                icon = Icons.Default.Groups
+                icon = Icons.Default.Groups,
+                primaryColor = primaryColor
             )
 
             Spacer(modifier = Modifier.height(10.dp))
 
             TeamInfoCard(
-                title = "Jogadores",
-                value = "${jogadores.size} jogadores na equipa",
-                icon = Icons.Default.Person
+                title = strings.playersTitle,
+                value = strings.playersCount(jogadores.size),
+                icon = Icons.Default.Person,
+                primaryColor = primaryColor
             )
 
             Spacer(modifier = Modifier.height(10.dp))
 
             TeamInfoCard(
-                title = "Classificação",
+                title = strings.teamStandingTitle,
                 value = if (classificacao != null) {
-                    "${classificacao.pontos} pts • ${classificacao.vitorias}V ${classificacao.empates}E ${classificacao.derrotas}D"
+                    "${strings.pointsLabel(classificacao.pontos)} • ${
+                        strings.classificationRecord(
+                            classificacao.vitorias,
+                            classificacao.empates,
+                            classificacao.derrotas
+                        )
+                    }"
                 } else {
-                    "Ainda sem classificação"
+                    strings.noStandingYet
                 },
-                icon = Icons.Default.EmojiEvents
+                icon = Icons.Default.EmojiEvents,
+                primaryColor = primaryColor
             )
 
             Spacer(modifier = Modifier.height(10.dp))
 
             TeamInfoCard(
-                title = "Últimos jogos",
+                title = strings.lastGamesTitle,
                 value = if (ultimosJogos.isEmpty()) {
-                    "Ainda não existem jogos registados"
+                    strings.noRegisteredGames
                 } else {
-                    "${ultimosJogos.size} jogos encontrados"
+                    strings.gamesFound(ultimosJogos.size)
                 },
-                icon = Icons.Default.SportsSoccer
+                icon = Icons.Default.SportsSoccer,
+                primaryColor = primaryColor
             )
 
             if (jogadores.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(22.dp))
 
-                Text(
-                    text = "Jogadores",
-                    fontFamily = Bricolage,
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 21.sp,
-                    color = LMInk
-                )
+                SectionTitle(strings.playersTitle)
 
                 Spacer(modifier = Modifier.height(10.dp))
 
@@ -199,13 +211,7 @@ fun ParticipantTeamScreen(
             if (ultimosJogos.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(22.dp))
 
-                Text(
-                    text = "Últimos jogos",
-                    fontFamily = Bricolage,
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 21.sp,
-                    color = LMInk
-                )
+                SectionTitle(strings.lastGamesTitle)
 
                 Spacer(modifier = Modifier.height(10.dp))
 
@@ -223,16 +229,28 @@ fun ParticipantTeamScreen(
 }
 
 @Composable
+private fun SectionTitle(text: String) {
+    Text(
+        text = text,
+        fontFamily = Bricolage,
+        fontWeight = FontWeight.ExtraBold,
+        fontSize = 21.sp,
+        color = LMInk
+    )
+}
+
+@Composable
 private fun TeamInfoCard(
     title: String,
     value: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    primaryColor: Color
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(18.dp),
         color = LMWhite,
-        border = BorderStroke(1.dp, androidx.compose.ui.graphics.Color(0xFFE5E5EA)),
+        border = BorderStroke(1.dp, Color(0xFFE5E5EA)),
         shadowElevation = 1.dp
     ) {
         Row(
@@ -242,7 +260,7 @@ private fun TeamInfoCard(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = LMRed,
+                tint = primaryColor,
                 modifier = Modifier.size(32.dp)
             )
 
@@ -279,7 +297,7 @@ private fun SimpleListCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         color = LMWhite,
-        border = BorderStroke(1.dp, androidx.compose.ui.graphics.Color(0xFFE5E5EA)),
+        border = BorderStroke(1.dp, Color(0xFFE5E5EA)),
         shadowElevation = 1.dp
     ) {
         Column(

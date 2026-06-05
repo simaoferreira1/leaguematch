@@ -7,23 +7,26 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.leaguematch.data.remote.model.Classificacao
 import com.leaguematch.data.remote.model.DetalheTorneio
+import com.leaguematch.translations.AppStrings
 import com.leaguematch.ui.theme.*
 
 @Composable
 fun ParticipantTournamentDetailScreen(
     detalhe: DetalheTorneio?,
     classificacao: List<Classificacao>,
+    strings: AppStrings,
+    primaryColor: Color,
     onBackClick: () -> Unit
 ) {
     Scaffold(
@@ -43,13 +46,13 @@ fun ParticipantTournamentDetailScreen(
                 IconButton(onClick = onBackClick) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Voltar",
+                        contentDescription = null,
                         tint = LMInk
                     )
                 }
 
                 Text(
-                    text = "Detalhes do torneio",
+                    text = strings.tournamentDetailsTitle,
                     fontFamily = Bricolage,
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 26.sp,
@@ -60,12 +63,7 @@ fun ParticipantTournamentDetailScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             if (detalhe == null) {
-                Text(
-                    text = "Não foi possível carregar os detalhes deste torneio.",
-                    fontFamily = Geist,
-                    fontSize = 14.sp,
-                    color = LMGray500
-                )
+                EmptyText(strings.tournamentDetailsLoadError)
                 return@Column
             }
 
@@ -77,23 +75,19 @@ fun ParticipantTournamentDetailScreen(
 
             Spacer(modifier = Modifier.height(18.dp))
 
-            Text(
-                text = "Classificação",
-                fontFamily = Bricolage,
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 21.sp,
-                color = LMInk
-            )
+            SectionTitle(strings.standingsTitle)
 
             Spacer(modifier = Modifier.height(10.dp))
 
             if (classificacao.isEmpty()) {
-                EmptyText("Ainda não existe classificação.")
+                EmptyText(strings.noStandingsYet)
             } else {
                 classificacao.forEachIndexed { index, item ->
                     ClassificationCard(
                         posicao = index + 1,
-                        classificacao = item
+                        classificacao = item,
+                        strings = strings,
+                        primaryColor = primaryColor
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                 }
@@ -101,24 +95,19 @@ fun ParticipantTournamentDetailScreen(
 
             Spacer(modifier = Modifier.height(18.dp))
 
-            Text(
-                text = "Jogos",
-                fontFamily = Bricolage,
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 21.sp,
-                color = LMInk
-            )
+            SectionTitle(strings.matchesTitle)
 
             Spacer(modifier = Modifier.height(10.dp))
 
             if (detalhe.jogos.isEmpty()) {
-                EmptyText("Ainda não existem jogos neste torneio.")
+                EmptyText(strings.noMatchesYet)
             } else {
                 detalhe.jogos.forEach { jogo ->
                     MatchCard(
                         title = "${jogo.casa} vs ${jogo.fora}",
                         subtitle = "${jogo.estado} • ${jogo.data} ${jogo.hora}",
-                        result = "${jogo.resultadoCasa}-${jogo.resultadoFora}"
+                        result = "${jogo.resultadoCasa}-${jogo.resultadoFora}",
+                        primaryColor = primaryColor
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                 }
@@ -126,30 +115,35 @@ fun ParticipantTournamentDetailScreen(
 
             Spacer(modifier = Modifier.height(18.dp))
 
-            Text(
-                text = "Melhores marcadores",
-                fontFamily = Bricolage,
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 21.sp,
-                color = LMInk
-            )
+            SectionTitle(strings.topScorersTitle)
 
             Spacer(modifier = Modifier.height(10.dp))
 
             if (detalhe.goleadores.isEmpty()) {
-                EmptyText("Ainda não existem marcadores registados.")
+                EmptyText(strings.noScorersYet)
             } else {
                 detalhe.goleadores.forEach { goleador ->
                     SimpleInfoCard(
                         title = goleador.nome,
-                        subtitle = "${goleador.golos} golos",
-                        icon = Icons.Default.SportsSoccer
+                        subtitle = strings.goalsLabel(goleador.golos),
+                        primaryColor = primaryColor
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             }
         }
     }
+}
+
+@Composable
+private fun SectionTitle(text: String) {
+    Text(
+        text = text,
+        fontFamily = Bricolage,
+        fontWeight = FontWeight.ExtraBold,
+        fontSize = 21.sp,
+        color = LMInk
+    )
 }
 
 @Composable
@@ -162,7 +156,7 @@ private fun TournamentInfoCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         color = LMWhite,
-        border = BorderStroke(1.dp, androidx.compose.ui.graphics.Color(0xFFE5E5EA)),
+        border = BorderStroke(1.dp, Color(0xFFE5E5EA)),
         shadowElevation = 1.dp
     ) {
         Column(
@@ -189,7 +183,7 @@ private fun TournamentInfoCard(
 
             Surface(
                 shape = RoundedCornerShape(20.dp),
-                color = androidx.compose.ui.graphics.Color(0xFFEFFBF3)
+                color = Color(0xFFEFFBF3)
             ) {
                 Text(
                     text = extra,
@@ -197,7 +191,7 @@ private fun TournamentInfoCard(
                     fontFamily = Geist,
                     fontWeight = FontWeight.Bold,
                     fontSize = 12.sp,
-                    color = androidx.compose.ui.graphics.Color(0xFF15803D)
+                    color = Color(0xFF15803D)
                 )
             }
         }
@@ -207,13 +201,15 @@ private fun TournamentInfoCard(
 @Composable
 private fun ClassificationCard(
     posicao: Int,
-    classificacao: Classificacao
+    classificacao: Classificacao,
+    strings: AppStrings,
+    primaryColor: Color
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         color = LMWhite,
-        border = BorderStroke(1.dp, androidx.compose.ui.graphics.Color(0xFFE5E5EA)),
+        border = BorderStroke(1.dp, Color(0xFFE5E5EA)),
         shadowElevation = 1.dp
     ) {
         Row(
@@ -225,7 +221,7 @@ private fun ClassificationCard(
                 fontFamily = Bricolage,
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 20.sp,
-                color = LMRed
+                color = primaryColor
             )
 
             Spacer(modifier = Modifier.width(12.dp))
@@ -240,7 +236,11 @@ private fun ClassificationCard(
                 )
 
                 Text(
-                    text = "${classificacao.vitorias}V ${classificacao.empates}E ${classificacao.derrotas}D",
+                    text = strings.classificationRecord(
+                        classificacao.vitorias,
+                        classificacao.empates,
+                        classificacao.derrotas
+                    ),
                     fontFamily = Geist,
                     fontSize = 12.sp,
                     color = LMGray500
@@ -248,7 +248,7 @@ private fun ClassificationCard(
             }
 
             Text(
-                text = "${classificacao.pontos} pts",
+                text = strings.pointsLabel(classificacao.pontos),
                 fontFamily = Geist,
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 14.sp,
@@ -262,13 +262,14 @@ private fun ClassificationCard(
 private fun MatchCard(
     title: String,
     subtitle: String,
-    result: String
+    result: String,
+    primaryColor: Color
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         color = LMWhite,
-        border = BorderStroke(1.dp, androidx.compose.ui.graphics.Color(0xFFE5E5EA)),
+        border = BorderStroke(1.dp, Color(0xFFE5E5EA)),
         shadowElevation = 1.dp
     ) {
         Row(
@@ -278,7 +279,7 @@ private fun MatchCard(
             Icon(
                 imageVector = Icons.Default.SportsSoccer,
                 contentDescription = null,
-                tint = LMRed,
+                tint = primaryColor,
                 modifier = Modifier.size(30.dp)
             )
 
@@ -316,13 +317,13 @@ private fun MatchCard(
 private fun SimpleInfoCard(
     title: String,
     subtitle: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector
+    primaryColor: Color
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         color = LMWhite,
-        border = BorderStroke(1.dp, androidx.compose.ui.graphics.Color(0xFFE5E5EA)),
+        border = BorderStroke(1.dp, Color(0xFFE5E5EA)),
         shadowElevation = 1.dp
     ) {
         Row(
@@ -330,9 +331,9 @@ private fun SimpleInfoCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = icon,
+                imageVector = Icons.Default.SportsSoccer,
                 contentDescription = null,
-                tint = LMRed,
+                tint = primaryColor,
                 modifier = Modifier.size(28.dp)
             )
 

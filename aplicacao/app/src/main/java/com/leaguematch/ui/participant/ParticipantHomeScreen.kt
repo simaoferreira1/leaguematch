@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.leaguematch.data.remote.model.Utilizador
+import com.leaguematch.translations.AppStrings
 import com.leaguematch.ui.components.ParticipantBottomBar
 import com.leaguematch.ui.theme.*
 
@@ -30,6 +31,8 @@ import com.leaguematch.ui.theme.*
 fun ParticipantHomeScreen(
     usuarioLogado: Utilizador?,
     selectedItem: String,
+    strings: AppStrings,
+    primaryColor: Color,
     onTorneiosClick: () -> Unit,
     onJogosClick: () -> Unit,
     onEquipaClick: () -> Unit,
@@ -59,8 +62,10 @@ fun ParticipantHomeScreen(
                 .padding(horizontal = 18.dp, vertical = 18.dp)
                 .padding(bottom = 80.dp)
         ) {
+            val nome = usuarioLogado?.nome ?: strings.participantFallbackName
+
             Text(
-                text = "Olá, ${usuarioLogado?.nome ?: "Participante"}",
+                text = "${strings.participantGreetingPrefix}, $nome",
                 fontFamily = Bricolage,
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 28.sp,
@@ -70,7 +75,7 @@ fun ParticipantHomeScreen(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "Acompanha os teus torneios, jogos e estatísticas.",
+                text = strings.participantHomeSubtitle,
                 fontFamily = Geist,
                 fontSize = 13.sp,
                 color = LMGray500
@@ -78,35 +83,42 @@ fun ParticipantHomeScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            ParticipantHeroCard()
+            ParticipantHeroCard(
+                strings = strings,
+                primaryColor = primaryColor
+            )
 
             Spacer(modifier = Modifier.height(18.dp))
 
             ParticipantActionCard(
-                title = "Torneios inscritos",
-                description = "Vê os torneios onde estás a participar.",
+                title = strings.registeredTournaments,
+                description = strings.registeredTournamentsDescription,
                 icon = Icons.Default.EmojiEvents,
+                primaryColor = primaryColor,
                 onClick = onTorneiosClick
             )
 
             ParticipantActionCard(
-                title = "Próximos jogos",
-                description = "Consulta calendário, adversários e resultados.",
+                title = strings.upcomingGames,
+                description = strings.upcomingGamesDescription,
                 icon = Icons.Default.SportsSoccer,
+                primaryColor = primaryColor,
                 onClick = onJogosClick
             )
 
             ParticipantActionCard(
-                title = "A minha equipa",
-                description = "Vê informações da tua equipa e jogadores.",
+                title = strings.myTeam,
+                description = strings.myTeamDescription,
                 icon = Icons.Default.Groups,
+                primaryColor = primaryColor,
                 onClick = onEquipaClick
             )
 
             ParticipantActionCard(
-                title = "Estatísticas",
-                description = "Consulta golos, jogos e desempenho.",
+                title = strings.statistics,
+                description = strings.statisticsDescription,
                 icon = Icons.Default.BarChart,
+                primaryColor = primaryColor,
                 onClick = onEstatisticasClick
             )
         }
@@ -114,13 +126,19 @@ fun ParticipantHomeScreen(
 }
 
 @Composable
-private fun ParticipantHeroCard() {
+private fun ParticipantHeroCard(
+    strings: AppStrings,
+    primaryColor: Color
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .background(
                 brush = Brush.linearGradient(
-                    listOf(LMRed, Color(0xFFC41326))
+                    listOf(
+                        primaryColor,
+                        primaryColor.copy(alpha = 0.82f)
+                    )
                 ),
                 shape = RoundedCornerShape(22.dp)
             )
@@ -128,7 +146,7 @@ private fun ParticipantHeroCard() {
     ) {
         Column {
             Text(
-                text = "Área do Participante",
+                text = strings.participantAreaTitle,
                 fontFamily = Bricolage,
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 22.sp,
@@ -138,7 +156,7 @@ private fun ParticipantHeroCard() {
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text = "Tudo o que precisas para acompanhar a tua participação nos torneios.",
+                text = strings.participantAreaDescription,
                 fontFamily = Geist,
                 fontSize = 13.sp,
                 color = LMWhite.copy(alpha = 0.9f)
@@ -152,6 +170,7 @@ private fun ParticipantActionCard(
     title: String,
     description: String,
     icon: ImageVector,
+    primaryColor: Color,
     onClick: () -> Unit
 ) {
     Surface(
@@ -172,7 +191,7 @@ private fun ParticipantActionCard(
                 modifier = Modifier
                     .size(52.dp)
                     .background(
-                        color = Color(0xFFF3F3F5),
+                        color = primaryColor.copy(alpha = 0.10f),
                         shape = RoundedCornerShape(14.dp)
                     ),
                 contentAlignment = Alignment.Center
@@ -180,7 +199,7 @@ private fun ParticipantActionCard(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = LMRed,
+                    tint = primaryColor,
                     modifier = Modifier.size(26.dp)
                 )
             }
@@ -208,4 +227,3 @@ private fun ParticipantActionCard(
         }
     }
 }
-
