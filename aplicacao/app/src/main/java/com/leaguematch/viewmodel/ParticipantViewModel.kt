@@ -19,6 +19,8 @@ class ParticipantViewModel(
     private val repository: LeagueMatchRepository
 ) : ViewModel() {
 
+    private var equipaSelecionadaId: Int? = null
+
     private val _torneios = MutableStateFlow<List<Torneio>>(emptyList())
     val torneios: StateFlow<List<Torneio>> = _torneios
 
@@ -27,6 +29,9 @@ class ParticipantViewModel(
 
     private val _equipa = MutableStateFlow<Equipa?>(null)
     val equipa: StateFlow<Equipa?> = _equipa
+
+    private val _equipas = MutableStateFlow<List<Equipa>>(emptyList())
+    val equipas: StateFlow<List<Equipa>> = _equipas
 
     private val _jogadoresEquipa = MutableStateFlow<List<Utilizador>>(emptyList())
     val jogadoresEquipa: StateFlow<List<Utilizador>> = _jogadoresEquipa
@@ -55,50 +60,71 @@ class ParticipantViewModel(
     private val _juntarEquipaErro = MutableStateFlow<String?>(null)
     val juntarEquipaErro: StateFlow<String?> = _juntarEquipaErro
 
-
     fun carregarDadosParticipante(utilizadorId: Int) {
         viewModelScope.launch {
             _torneios.value = emptyList()
             _jogos.value = emptyList()
 
+            val equipasEncontradas = repository.listarEquipasDoParticipante(utilizadorId)
+            _equipas.value = equipasEncontradas
 
-            val equipaEncontrada = repository.obterEquipaDoParticipante(utilizadorId)
-            _equipa.value = equipaEncontrada
+            if (equipasEncontradas.none { it.id == equipaSelecionadaId }) {
+                equipaSelecionadaId = equipasEncontradas.firstOrNull()?.id
+            }
+
+            val equipaPrincipal = equipasEncontradas.firstOrNull {
+                it.id == equipaSelecionadaId
+            }
+
+            _equipa.value = equipaPrincipal
 
             _configuracaoNotificacoes.value =
                 repository.obterConfiguracaoNotificacoes(utilizadorId)
 
-            if (equipaEncontrada != null) {
+            if (equipaPrincipal != null) {
                 _jogadoresEquipa.value =
-                    repository.listarJogadoresEquipa(equipaEncontrada.id)
+                    repository.listarJogadoresEquipa(equipaPrincipal.id)
 
                 _classificacaoEquipa.value =
                     repository.obterClassificacaoEquipa(
-                        equipaId = equipaEncontrada.id,
-                        torneioId = equipaEncontrada.torneioId
+                        equipaId = equipaPrincipal.id,
+                        torneioId = equipaPrincipal.torneioId
                     )
 
-                val jogosDaEquipa = repository.listarJogosDaEquipa(equipaEncontrada.id)
-                _jogosEquipa.value = jogosDaEquipa
-                _jogos.value = jogosDaEquipa
+                val jogosDeTodasEquipas = equipasEncontradas
+                    .flatMap { equipa ->
+                        repository.listarJogosDaEquipa(equipa.id)
+                    }
+                    .distinctBy { it.id }
+
+                _jogosEquipa.value = jogosDeTodasEquipas
+                _jogos.value = jogosDeTodasEquipas
 
                 _torneios.value = repository.listarTorneios()
-                    .filter { torneio ->
-                        torneio.id == equipaEncontrada.torneioId
-                    }
 
                 _statsParticipante.value =
                     repository.obterEstatisticasParticipante(
                         utilizadorId = utilizadorId,
-                        equipaId = equipaEncontrada.id
+                        equipaId = equipaPrincipal.id
                     )
             } else {
+                equipaSelecionadaId = null
                 _jogadoresEquipa.value = emptyList()
                 _classificacaoEquipa.value = null
                 _jogosEquipa.value = emptyList()
+                _jogos.value = emptyList()
+                _torneios.value = repository.listarTorneios()
                 _statsParticipante.value = ParticipantStatsData()
             }
         }
+    }
+
+    fun selecionarEquipa(
+        utilizadorId: Int,
+        equipaId: Int
+    ) {
+        equipaSelecionadaId = equipaId
+        carregarDadosParticipante(utilizadorId)
     }
 
     fun carregarDetalheTorneio(torneioId: Int) {
@@ -119,23 +145,47 @@ class ParticipantViewModel(
         viewModelScope.launch {
             _juntarEquipaErro.value = null
             _juntarEquipaLoading.value = true
+
             val resultado = repository.juntarEquipaPorCodigo(utilizadorId, codigo)
+
             _juntarEquipaLoading.value = false
+
             resultado
-                .onSuccess {
+                .onSuccess { equipa ->
+                    equipaSelecionadaId = equipa.id
                     carregarDadosParticipante(utilizadorId)
                     onSuccess()
                 }
                 .onFailure {
-                    _juntarEquipaErro.value = it.message ?: "Não foi possível entrar na equipa."
+                    _juntarEquipaErro.value =
+                        it.message ?: "Não foi possível entrar na equipa."
                 }
+        }
+    }
+
+    fun sairDaEquipa(
+        utilizadorId: Int,
+        equipaId: Int
+    ) {
+        viewModelScope.launch {
+            val removido = repository.removerJogadorEquipa(
+                equipaId = equipaId,
+                utilizadorId = utilizadorId
+            )
+
+            if (removido) {
+                if (equipaSelecionadaId == equipaId) {
+                    equipaSelecionadaId = null
+                }
+
+                carregarDadosParticipante(utilizadorId)
+            }
         }
     }
 
     fun limparErroJuntarEquipa() {
         _juntarEquipaErro.value = null
     }
-
 
     fun atualizarConfiguracaoNotificacoes(configuracao: ConfiguracaoNotificacoes) {
         viewModelScope.launch {

@@ -1,7 +1,6 @@
 package com.leaguematch.ui.participant
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,12 +30,15 @@ import com.leaguematch.ui.theme.*
 @Composable
 fun ParticipantTeamScreen(
     equipa: Equipa?,
+    equipas: List<Equipa>,
     jogadores: List<Utilizador>,
     classificacao: Classificacao?,
     jogos: List<Jogo>,
     strings: AppStrings,
     primaryColor: Color,
     onJoinTeamClick: () -> Unit,
+    onSelecionarEquipaClick: (Int) -> Unit,
+    onSairEquipaClick: (Int) -> Unit,
     onHomeClick: () -> Unit,
     onTorneiosClick: () -> Unit,
     onJogosClick: () -> Unit,
@@ -44,7 +46,13 @@ fun ParticipantTeamScreen(
     onEstatisticasClick: () -> Unit,
     onPerfilClick: () -> Unit
 ) {
-    val ultimosJogos = jogos.take(3)
+    val ultimosJogos = jogos
+        .filter { jogo ->
+            equipa == null ||
+                    jogo.casa.equals(equipa.nome, ignoreCase = true) ||
+                    jogo.fora.equals(equipa.nome, ignoreCase = true)
+        }
+        .take(3)
 
     Scaffold(
         bottomBar = {
@@ -88,7 +96,7 @@ fun ParticipantTeamScreen(
 
             Spacer(modifier = Modifier.height(18.dp))
 
-            if (equipa == null) {
+            if (equipas.isEmpty()) {
                 TeamInfoCard(
                     title = strings.noTeamTitle,
                     value = strings.noTeamDescription,
@@ -114,6 +122,53 @@ fun ParticipantTeamScreen(
 
                 return@Column
             }
+
+            Button(
+                onClick = onJoinTeamClick,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
+            ) {
+                Text(
+                    text = strings.joinTeamButton,
+                    fontFamily = Geist,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = LMWhite
+                )
+            }
+
+            Spacer(modifier = Modifier.height(22.dp))
+
+            SectionTitle(strings.myTeamsTitle)
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            equipas.forEach { equipaItem ->
+                TeamMembershipCard(
+                    equipa = equipaItem,
+                    selecionada = equipa?.id == equipaItem.id,
+                    strings = strings,
+                    primaryColor = primaryColor,
+                    onSelecionarEquipaClick = {
+                        onSelecionarEquipaClick(equipaItem.id)
+                    },
+                    onSairEquipaClick = {
+                        onSairEquipaClick(equipaItem.id)
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+            }
+
+            if (equipa == null) {
+                return@Column
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            SectionTitle(strings.selectedTeamTitle)
+
+            Spacer(modifier = Modifier.height(10.dp))
 
             Surface(
                 modifier = Modifier.fillMaxWidth(),
@@ -223,6 +278,103 @@ fun ParticipantTeamScreen(
 
                     Spacer(modifier = Modifier.height(8.dp))
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TeamMembershipCard(
+    equipa: Equipa,
+    selecionada: Boolean,
+    strings: AppStrings,
+    primaryColor: Color,
+    onSelecionarEquipaClick: () -> Unit,
+    onSairEquipaClick: () -> Unit
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        color = LMWhite,
+        border = BorderStroke(
+            2.dp,
+            if (selecionada) {
+                primaryColor
+            } else {
+                Color(0xFFE5E5EA)
+            }
+        ),
+        shadowElevation = 1.dp
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp)
+        ) {
+            Text(
+                text = equipa.nome,
+                fontFamily = Geist,
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 15.sp,
+                color = LMInk
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "${strings.tournamentIdLabel}: ${equipa.torneioId} • ${strings.codeLabel}: ${
+                    TeamCode.encode(equipa.id)
+                }",
+                fontFamily = Geist,
+                fontSize = 12.sp,
+                color = LMGray500
+            )
+
+            if (selecionada) {
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Text(
+                    text = strings.selectedTeam,
+                    fontFamily = Geist,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 12.sp,
+                    color = primaryColor
+                )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Button(
+                onClick = onSelecionarEquipaClick,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
+            ) {
+                Text(
+                    text = if (selecionada) {
+                        strings.viewDetails
+                    } else {
+                        strings.selectTeam
+                    },
+                    fontFamily = Geist,
+                    fontWeight = FontWeight.Bold,
+                    color = LMWhite
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedButton(
+                onClick = onSairEquipaClick,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = primaryColor
+                )
+            ) {
+                Text(
+                    text = strings.leaveTeam,
+                    fontFamily = Geist,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }

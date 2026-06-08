@@ -74,6 +74,7 @@ object StringsPt : AppStrings {
     override val confirmAndJoin = "Confirmar e entrar"
     override val cancel = "Cancelar"
 
+
     //ParticipantTeamScreen
     override val myTeamTitle = "A minha equipa"
     override val myTeamSubtitle = "Consulta jogadores, classificação e últimos jogos."
@@ -89,6 +90,16 @@ object StringsPt : AppStrings {
     override val lastGamesTitle = "Últimos jogos"
     override val noRegisteredGames = "Ainda não existem jogos registados"
     override val gamesFound: (Int) -> String = { total -> "$total jogos encontrados" }
+    override val myTeamsTitle = "As minhas equipas"
+    override val selectedTeamTitle = "Equipa selecionada"
+
+    override val selectedTeam = "Selecionada"
+    override val viewDetails = "A ver detalhes"
+    override val selectTeam = "Selecionar equipa"
+    override val leaveTeam = "Sair da equipa"
+
+    override val tournamentIdLabel = "Torneio ID"
+    override val codeLabel = "Código"
 
     //ParticipantStatsScreen
     override val myStatsTitle = "As minhas estatísticas"

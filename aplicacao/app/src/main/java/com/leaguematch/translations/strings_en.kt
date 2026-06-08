@@ -90,6 +90,17 @@ object StringsEn : AppStrings {
     override val noRegisteredGames = "There are no registered games yet"
     override val gamesFound: (Int) -> String = { total -> "$total games found" }
 
+    override val myTeamsTitle = "My teams"
+    override val selectedTeamTitle = "Selected team"
+
+    override val selectedTeam = "Selected"
+    override val viewDetails = "Seeing details"
+    override val selectTeam = "Select team"
+    override val leaveTeam = "Leave team"
+
+    override val tournamentIdLabel = "Tournament ID"
+    override val codeLabel = "Code"
+
     //ParticipantStatsScreen
     override val myStatsTitle = "My statistics"
     override val myStatsSubtitle = "Summary of your performance."

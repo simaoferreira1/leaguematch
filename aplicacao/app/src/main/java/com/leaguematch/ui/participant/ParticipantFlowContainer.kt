@@ -1,10 +1,11 @@
 package com.leaguematch.ui.participant
 
+import android.content.Context
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.Color
-import com.leaguematch.data.remote.model.Utilizador
+import androidx.compose.ui.platform.LocalContext
 import com.leaguematch.data.remote.model.Jogo
+import com.leaguematch.data.remote.model.Utilizador
 import com.leaguematch.translations.Language
 import com.leaguematch.translations.StringsEn
 import com.leaguematch.translations.StringsPt
@@ -37,16 +38,29 @@ fun ParticipantFlowContainer(
     usuarioLogado: Utilizador?,
     onTerminarSessao: () -> Unit
 ) {
+    val context = LocalContext.current
+
+    val prefs = remember {
+        context.getSharedPreferences("participant_preferences", Context.MODE_PRIVATE)
+    }
+
     var currentRoute by remember {
         mutableStateOf<ParticipantRoute>(ParticipantRoute.Home)
     }
 
-    var language by rememberSaveable {
-        mutableStateOf(Language.PT)
+    var language by remember {
+        mutableStateOf(
+            when (prefs.getString("language", Language.PT.name)) {
+                Language.EN.name -> Language.EN
+                else -> Language.PT
+            }
+        )
     }
 
-    var primaryColorLong by rememberSaveable {
-        mutableStateOf(0xFFE31734L)
+    var primaryColorLong by remember {
+        mutableLongStateOf(
+            prefs.getLong("primary_color", 0xFFE31734L)
+        )
     }
 
     val primaryColor = Color(primaryColorLong)
@@ -68,6 +82,7 @@ fun ParticipantFlowContainer(
 
     val torneios by participantViewModel.torneios.collectAsState()
     val equipa by participantViewModel.equipa.collectAsState()
+    val equipas by participantViewModel.equipas.collectAsState()
     val jogadoresEquipa by participantViewModel.jogadoresEquipa.collectAsState()
     val classificacaoEquipa by participantViewModel.classificacaoEquipa.collectAsState()
     val jogosEquipa by participantViewModel.jogosEquipa.collectAsState()
@@ -133,6 +148,7 @@ fun ParticipantFlowContainer(
         ParticipantRoute.Equipa -> {
             ParticipantTeamScreen(
                 equipa = equipa,
+                equipas = equipas,
                 jogadores = jogadoresEquipa,
                 classificacao = classificacaoEquipa,
                 jogos = jogosEquipa,
@@ -141,6 +157,20 @@ fun ParticipantFlowContainer(
                 onJoinTeamClick = {
                     participantViewModel.limparErroJuntarEquipa()
                     currentRoute = ParticipantRoute.JoinTeam
+                },
+                onSelecionarEquipaClick = { equipaId ->
+                    val id = usuarioLogado?.id ?: return@ParticipantTeamScreen
+                    participantViewModel.selecionarEquipa(
+                        utilizadorId = id,
+                        equipaId = equipaId
+                    )
+                },
+                onSairEquipaClick = { equipaId ->
+                    val id = usuarioLogado?.id ?: return@ParticipantTeamScreen
+                    participantViewModel.sairDaEquipa(
+                        utilizadorId = id,
+                        equipaId = equipaId
+                    )
                 },
                 onHomeClick = { currentRoute = ParticipantRoute.Home },
                 onTorneiosClick = { currentRoute = ParticipantRoute.Torneios },
@@ -197,16 +227,28 @@ fun ParticipantFlowContainer(
             DefinicoesScreen(
                 utilizadorLogado = usuarioLogado,
                 language = language,
-                onLanguageChange = { language = it },
+                onLanguageChange = { newLanguage ->
+                    language = newLanguage
+
+                    prefs.edit()
+                        .putString("language", newLanguage.name)
+                        .apply()
+                },
                 primaryColor = primaryColor,
                 onPrimaryColorChange = { color ->
-                    primaryColorLong = when (color) {
+                    val novaCor = when (color) {
                         Color(0xFFE31734) -> 0xFFE31734L
                         Color(0xFF2563EB) -> 0xFF2563EBL
                         Color(0xFF16A34A) -> 0xFF16A34AL
                         Color(0xFF9333EA) -> 0xFF9333EAL
                         else -> 0xFFE31734L
                     }
+
+                    primaryColorLong = novaCor
+
+                    prefs.edit()
+                        .putLong("primary_color", novaCor)
+                        .apply()
                 },
                 onTerminarSessaoClick = onTerminarSessao,
                 onEditarPerfilClick = { nome, password ->
@@ -261,8 +303,10 @@ fun ParticipantFlowContainer(
             }
 
             val estatisticas = estatisticasResult?.getOrNull() ?: emptyList()
+
             val modalidade = participantViewModel.torneios.value
-                .firstOrNull { it.id == route.jogo.torneioId }?.modalidade ?: "Futebol"
+                .firstOrNull { it.id == route.jogo.torneioId }
+                ?.modalidade ?: "Futebol"
 
             com.leaguematch.ui.spectator.EstatisticasJogoScreen(
                 jogo = route.jogo,

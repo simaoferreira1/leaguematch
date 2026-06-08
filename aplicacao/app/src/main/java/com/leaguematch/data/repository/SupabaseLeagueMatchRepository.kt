@@ -1564,6 +1564,18 @@ class SupabaseLeagueMatchRepository(
             ).optJSONObject(0)
                 ?: throw IllegalArgumentException("Equipa não encontrada.")
 
+            val torneioId = equipaJson.optInt("torneio_id")
+
+            val equipasAtuais = listarEquipasDoParticipante(utilizadorId)
+
+            val jaTemEquipaNesteTorneio = equipasAtuais.any {
+                it.torneioId == torneioId && it.id != teamId
+            }
+
+            if (jaTemEquipaNesteTorneio) {
+                throw IllegalArgumentException("Já pertence a uma equipa neste torneio.")
+            }
+
             val jaMembro = getArray(
                 "team_member",
                 mapOf(
@@ -1581,14 +1593,52 @@ class SupabaseLeagueMatchRepository(
                         put("user_id", utilizadorId)
                         put("team_id", teamId)
                     }
-                ) ?: throw IllegalStateException("Não foi possível registar a inscrição.")
+                ) ?: throw IllegalStateException("Não foi possível entrar na equipa.")
             }
 
             Equipa(
                 id = equipaJson.optInt("id"),
                 nome = equipaJson.optString("nome"),
-                torneioId = equipaJson.optInt("torneio_id")
+                torneioId = torneioId
             )
+        }
+    }
+
+    override suspend fun listarEquipasDoParticipante(utilizadorId: Int): List<Equipa> {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val membros = getArray(
+                    "team_member",
+                    mapOf(
+                        "select" to "team_id",
+                        "user_id" to "eq.$utilizadorId"
+                    )
+                ).toObjectList()
+
+                if (membros.isEmpty()) return@runCatching emptyList<Equipa>()
+
+                val equipaIds = membros
+                    .map { it.optInt("team_id") }
+                    .distinct()
+                    .joinToString(",")
+
+                getArray(
+                    "equipa",
+                    mapOf(
+                        "select" to "id,nome,torneio_id",
+                        "id" to "in.($equipaIds)"
+                    )
+                ).toObjectList().map { json ->
+                    Equipa(
+                        id = json.optInt("id"),
+                        nome = json.optString("nome"),
+                        torneioId = json.optInt("torneio_id")
+                    )
+                }
+            }.getOrElse {
+                it.printStackTrace()
+                emptyList()
+            }
         }
     }
 }

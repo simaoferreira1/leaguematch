@@ -94,4 +94,6 @@ interface LeagueMatchRepository {
     suspend fun juntarEquipaPorCodigo(utilizadorId: Int, codigo: String): Result<Equipa>
 
     suspend fun removerJogadorEquipa(equipaId: Int, utilizadorId: Int): Boolean
+
+    suspend fun listarEquipasDoParticipante(utilizadorId: Int): List<Equipa>
 }

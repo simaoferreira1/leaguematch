@@ -73,6 +73,16 @@ interface AppStrings {
     val lastGamesTitle: String
     val noRegisteredGames: String
     val gamesFound: (Int) -> String
+    val myTeamsTitle: String
+    val selectedTeamTitle: String
+
+    val selectedTeam: String
+    val viewDetails: String
+    val selectTeam: String
+    val leaveTeam: String
+
+    val tournamentIdLabel: String
+    val codeLabel: String
 
     //ParticipantStatsScreen
     val myStatsTitle: String

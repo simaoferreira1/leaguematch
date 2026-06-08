@@ -22,8 +22,7 @@ import com.leaguematch.ui.theme.*
 
 private enum class GamesTab {
     PROXIMOS,
-    RESULTADOS,
-    HISTORICO
+    RESULTADOS
 }
 
 @Composable
@@ -50,15 +49,9 @@ fun ParticipantGamesScreen(
         it.estado.equals("Finalizado", ignoreCase = true)
     }
 
-    val historico = jogos.filter {
-        it.estado.equals("Finalizado", ignoreCase = true) ||
-                it.estado.equals("A Decorrer", ignoreCase = true)
-    }
-
     val jogosFiltrados = when (selectedTab) {
         GamesTab.PROXIMOS -> proximosJogos
         GamesTab.RESULTADOS -> resultados
-        GamesTab.HISTORICO -> historico
     }
 
     Scaffold(
@@ -122,14 +115,6 @@ fun ParticipantGamesScreen(
                     onClick = { selectedTab = GamesTab.RESULTADOS },
                     modifier = Modifier.weight(1f)
                 )
-
-                GamesFilterChip(
-                    text = strings.historyTab,
-                    selected = selectedTab == GamesTab.HISTORICO,
-                    primaryColor = primaryColor,
-                    onClick = { selectedTab = GamesTab.HISTORICO },
-                    modifier = Modifier.weight(1f)
-                )
             }
 
             Spacer(modifier = Modifier.height(18.dp))
@@ -139,7 +124,6 @@ fun ParticipantGamesScreen(
                     text = when (selectedTab) {
                         GamesTab.PROXIMOS -> strings.noUpcomingGames
                         GamesTab.RESULTADOS -> strings.noResultsYet
-                        GamesTab.HISTORICO -> strings.noGameHistory
                     },
                     fontFamily = Geist,
                     fontSize = 14.sp,
@@ -152,6 +136,7 @@ fun ParticipantGamesScreen(
                         primaryColor = primaryColor,
                         onCardClick = { onJogoClick(jogo) }
                     )
+
                     Spacer(modifier = Modifier.height(10.dp))
                 }
             }
