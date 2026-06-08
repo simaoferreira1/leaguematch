@@ -38,7 +38,8 @@ data class Torneio(
     val formato: String,
     val estado: String,
     val equipas: Int = 0,
-    val active: Boolean = true
+    val active: Boolean = true,
+    val organizadorId: Int? = null
 )
 
 @Entity(tableName = "jogos")
@@ -52,7 +53,8 @@ data class Jogo(
     val estado: String,
     val active: Boolean = true,
     val data: String = "",
-    val hora: String = ""
+    val hora: String = "",
+    val local: String = "A definir"
 )
 
 data class Classificacao(
@@ -104,6 +106,7 @@ data class Equipa(
     val nome: String,
     val torneioId: Int
 )
+
 
 data class DetalheTorneio(
     val torneio: Torneio,

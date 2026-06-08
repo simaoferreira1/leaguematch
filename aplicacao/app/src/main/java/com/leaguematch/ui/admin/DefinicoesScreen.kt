@@ -36,7 +36,7 @@ fun DefinicoesScreen(
     language: Language = Language.PT,
     onLanguageChange: (Language) -> Unit = {},
     primaryColor: Color = LMRed,
-    onPrimaryColorChange: (Color) -> Unit = {},
+    onPrimaryColorChange: (Color) -> Unit = { com.leaguematch.ui.theme.BrandTheme.primaryColor = it },
     onTerminarSessaoClick: () -> Unit = {},
     onEditarPerfilClick: (String, String?) -> Unit = { _, _ -> },
     onGerirNotificacoesClick: () -> Unit = {},
@@ -271,21 +271,6 @@ fun DefinicoesScreen(
                     pad = 0.dp
                 ) {
                     Column {
-                        // Privacidade e Segurança Row
-                        ProfileRow(
-                            icon = Icons.Default.Security,
-                            label = "Privacidade e segurança",
-                            rightContent = {
-                                Icon(
-                                    imageVector = Icons.Default.ChevronRight,
-                                    contentDescription = null,
-                                    tint = LMGray400,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                            }
-                        )
-                        HorizontalDivider(modifier = Modifier.padding(start = 58.dp), color = LMBorder, thickness = 1.dp)
-
                         // Sincronização offline Row
                         ProfileRow(
                             icon = Icons.Default.Sync,

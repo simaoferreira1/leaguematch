@@ -263,7 +263,7 @@ class SupabaseLeagueMatchRepository(
             runCatching {
                 val matchesJson = getArray(
                     "partida",
-                    mapOf("select" to "id,torneio_id,team_a_id,team_b_id,resultado_a,resultado_b,estado,data_hora", "estado" to "eq.EM_CURSO")
+                    mapOf("select" to "id,torneio_id,team_a_id,team_b_id,resultado_a,resultado_b,estado,data_hora,local", "estado" to "eq.EM_CURSO")
                 ).toObjectList()
 
                 val equipasMap = if (matchesJson.isNotEmpty()) {
@@ -290,7 +290,8 @@ class SupabaseLeagueMatchRepository(
                         resultadoFora = json.optInt("resultado_b"),
                         estado = "A Decorrer",
                         data = dataVal,
-                        hora = horaVal
+                        hora = horaVal,
+                        local = json.optString("local", "A definir")
                     )
                 }
             }.getOrElse {
@@ -305,7 +306,7 @@ class SupabaseLeagueMatchRepository(
             runCatching {
                 val matchesJson = getArray(
                     "partida", mapOf(
-                        "select" to "id,torneio_id,team_a_id,team_b_id,resultado_a,resultado_b,estado,data_hora"
+                        "select" to "id,torneio_id,team_a_id,team_b_id,resultado_a,resultado_b,estado,data_hora,local"
                     )
                 ).toObjectList()
 
@@ -346,7 +347,8 @@ class SupabaseLeagueMatchRepository(
                         resultadoFora = json.optInt("resultado_b"),
                         estado = estado,
                         data = dataVal,
-                        hora = horaVal
+                        hora = horaVal,
+                        local = json.optString("local", "A definir")
                     )
                 }
             }.getOrElse {
@@ -409,7 +411,7 @@ class SupabaseLeagueMatchRepository(
     override suspend fun listarTorneios(): List<Torneio> {
         val equipasPorTorneio = listarEquipasPorTorneio()
         val jogosPorTorneio = listarJogos().groupBy { it.torneioId }
-        return getArray("torneio", mapOf("select" to "id,nome,modalidade,regras,formato"))
+        return getArray("torneio", mapOf("select" to "id,nome,modalidade,regras,formato,organizador_id"))
             .toObjectList()
             .map { json ->
                 val id = json.optInt("id")
@@ -421,9 +423,14 @@ class SupabaseLeagueMatchRepository(
                     regras = json.optString("regras"),
                     formato = json.optString("formato"),
                     estado = inferirEstado(jogos),
-                    equipas = equipasPorTorneio[id] ?: 0
+                    equipas = equipasPorTorneio[id] ?: 0,
+                    organizadorId = if (json.isNull("organizador_id")) null else json.optInt("organizador_id")
                 )
             }
+    }
+
+    override suspend fun listarTorneiosDoOrganizador(organizadorId: Int): List<Torneio> {
+        return listarTorneios().filter { it.organizadorId == organizadorId }
     }
 
     override suspend fun listarEquipasTorneio(torneioId: Int): List<Equipa> {
@@ -523,7 +530,8 @@ class SupabaseLeagueMatchRepository(
             resultadoFora = response.optInt("resultado_b"),
             estado = response.optString("estado").toEstadoLegivel(),
             data = dataVal,
-            hora = horaVal
+            hora = horaVal,
+            local = response.optString("local", "A definir")
         )
     }
 
@@ -559,7 +567,8 @@ class SupabaseLeagueMatchRepository(
             fora = "Equipa $equipaForaId",
             resultadoCasa = 0,
             resultadoFora = 0,
-            estado = "Agendado"
+            estado = "Agendado",
+            local = localFinal
         )
     }
 
@@ -619,6 +628,39 @@ class SupabaseLeagueMatchRepository(
         )
     }
 
+    private suspend fun deleteWhere(table: String, filters: Map<String, String>): Unit = withContext(Dispatchers.IO) {
+        if (supabaseUrl.isBlank() || anonKey.isBlank()) {
+            error("Configura SUPABASE_URL e SUPABASE_ANON_KEY no local.properties.")
+        }
+
+        val query = filters.entries.joinToString("&") { (k, v) ->
+            "${URLEncoder.encode(k, "UTF-8")}=${URLEncoder.encode(v, "UTF-8")}"
+        }
+        val url = URL("${supabaseUrl.trimEnd('/')}/rest/v1/$table?$query")
+
+        val connection = (url.openConnection() as HttpURLConnection).apply {
+            requestMethod = "DELETE"
+            connectTimeout = 10_000
+            readTimeout = 10_000
+            setRequestProperty("apikey", anonKey)
+            setRequestProperty("Authorization", "Bearer $anonKey")
+            setRequestProperty("Content-Type", "application/json")
+        }
+
+        val code = connection.responseCode
+        val responseBody = if (code in 200..299) {
+            connection.inputStream?.bufferedReader()?.use { it.readText() }.orEmpty()
+        } else {
+            connection.errorStream?.bufferedReader()?.use { it.readText() }.orEmpty()
+        }
+
+        connection.disconnect()
+
+        if (code !in 200..299) {
+            error("Erro Supabase ($code): $responseBody")
+        }
+    }
+
     private suspend fun deleteObject(table: String, id: Int): Unit = withContext(Dispatchers.IO) {
         if (supabaseUrl.isBlank() || anonKey.isBlank()) {
             error("Configura SUPABASE_URL e SUPABASE_ANON_KEY no local.properties.")
@@ -651,7 +693,7 @@ class SupabaseLeagueMatchRepository(
 
     private suspend fun listarJogos(torneioId: Int? = null): List<Jogo> {
         val query =
-            mutableMapOf("select" to "id,torneio_id,team_a_id,team_b_id,estado,resultado_a,resultado_b,data_hora")
+            mutableMapOf("select" to "id,torneio_id,team_a_id,team_b_id,estado,resultado_a,resultado_b,data_hora,local")
         if (torneioId != null) query["torneio_id"] = "eq.$torneioId"
 
         val equipasMap = runCatching {
@@ -676,7 +718,8 @@ class SupabaseLeagueMatchRepository(
                     resultadoFora = json.optInt("resultado_b"),
                     estado = json.optString("estado", "AGENDADO").toEstadoLegivel(),
                     data = dataVal,
-                    hora = horaVal
+                    hora = horaVal,
+                    local = json.optString("local", "A definir")
                 )
             }
     }
@@ -953,32 +996,27 @@ class SupabaseLeagueMatchRepository(
         partidaId: Int,
         estatisticas: List<EstatisticaJogo>
     ): Boolean {
-
         return withContext(Dispatchers.IO) {
+            deleteWhere(
+                table = "estatistica_jogo",
+                filters = mapOf("partida_id" to "eq.$partidaId")
+            )
 
-            runCatching {
-
-                estatisticas.forEach { estatistica ->
-
-                    val json = JSONObject().apply {
-                        put("partida_id", partidaId)
-                        put("tipo", estatistica.tipo)
-                        put("equipa", estatistica.equipa)
-                        put("valor", estatistica.valor)
-                    }
-
-                    postObject(
-                        table = "estatistica_jogo",
-                        bodyJson = json
-                    )
+            estatisticas.forEach { estatistica ->
+                val json = JSONObject().apply {
+                    put("partida_id", partidaId)
+                    put("tipo", estatistica.tipo)
+                    put("equipa", estatistica.equipa)
+                    put("valor", estatistica.valor)
                 }
 
-                true
-
-            }.getOrElse {
-                it.printStackTrace()
-                false
+                postObject(
+                    table = "estatistica_jogo",
+                    bodyJson = json
+                )
             }
+
+            true
         }
     }
 
@@ -1395,7 +1433,7 @@ class SupabaseLeagueMatchRepository(
                 val partidas = getArray(
                     "partida",
                     mapOf(
-                        "select" to "id,torneio_id,team_a_id,team_b_id,resultado_a,resultado_b,estado,data_hora",
+                        "select" to "id,torneio_id,team_a_id,team_b_id,resultado_a,resultado_b,estado,data_hora,local",
                         "or" to "(team_a_id.eq.$equipaId,team_b_id.eq.$equipaId)"
                     )
                 ).toObjectList()
@@ -1432,7 +1470,8 @@ class SupabaseLeagueMatchRepository(
                         resultadoFora = json.optInt("resultado_b"),
                         estado = json.optString("estado", "AGENDADO").toEstadoLegivel(),
                         data = dataVal,
-                        hora = horaVal
+                        hora = horaVal,
+                        local = json.optString("local", "A definir")
                     )
                 }
             }.getOrElse {
@@ -1485,6 +1524,24 @@ class SupabaseLeagueMatchRepository(
             }.getOrElse {
                 it.printStackTrace()
                 ParticipantStatsData()
+            }
+        }
+    }
+
+    override suspend fun removerJogadorEquipa(equipaId: Int, utilizadorId: Int): Boolean {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                deleteWhere(
+                    "team_member",
+                    mapOf(
+                        "team_id" to "eq.$equipaId",
+                        "user_id" to "eq.$utilizadorId"
+                    )
+                )
+                true
+            }.getOrElse {
+                it.printStackTrace()
+                false
             }
         }
     }

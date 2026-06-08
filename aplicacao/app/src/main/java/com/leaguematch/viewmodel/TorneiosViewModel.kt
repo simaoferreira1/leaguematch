@@ -9,6 +9,7 @@ import com.leaguematch.data.remote.model.ResumoModalidade
 import com.leaguematch.data.remote.model.Torneio
 import com.leaguematch.data.remote.model.EstatisticaJogo
 import com.leaguematch.data.remote.model.EventoJogo
+import com.leaguematch.data.remote.model.Utilizador
 import com.leaguematch.data.repository.LeagueMatchRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -42,6 +43,27 @@ class TorneiosViewModel(private val repository: LeagueMatchRepository) : ViewMod
 
     private val _eventosJogoState = MutableStateFlow<Result<List<EventoJogo>>?>(null)
     val eventosJogoState: StateFlow<Result<List<EventoJogo>>?> = _eventosJogoState
+
+    private val _jogadoresEquipaState = MutableStateFlow<List<Utilizador>>(emptyList())
+    val jogadoresEquipaState: StateFlow<List<Utilizador>> = _jogadoresEquipaState
+
+    private val _jogadoresLoading = MutableStateFlow(false)
+    val jogadoresLoading: StateFlow<Boolean> = _jogadoresLoading
+
+    fun carregarJogadoresEquipa(equipaId: Int) {
+        viewModelScope.launch {
+            _jogadoresLoading.value = true
+            _jogadoresEquipaState.value = repository.listarJogadoresEquipa(equipaId)
+            _jogadoresLoading.value = false
+        }
+    }
+
+    fun removerJogador(equipaId: Int, jogadorId: Int) {
+        viewModelScope.launch {
+            repository.removerJogadorEquipa(equipaId, jogadorId)
+            carregarJogadoresEquipa(equipaId)
+        }
+    }
 
     fun carregarJogosAoVivo() {
         viewModelScope.launch {
@@ -100,6 +122,18 @@ class TorneiosViewModel(private val repository: LeagueMatchRepository) : ViewMod
                 val torneios = modalidades.flatMap { modalidade ->
                     repository.listarTorneiosPorModalidade(modalidade.nome)
                 }
+                _todosTorneiosState.value = Result.success(torneios)
+            } catch (e: Exception) {
+                _todosTorneiosState.value = Result.failure(e)
+            }
+        }
+    }
+
+    fun carregarTorneiosDoOrganizador(organizadorId: Int) {
+        viewModelScope.launch {
+            _todosTorneiosState.value = null
+            try {
+                val torneios = repository.listarTorneiosDoOrganizador(organizadorId)
                 _todosTorneiosState.value = Result.success(torneios)
             } catch (e: Exception) {
                 _todosTorneiosState.value = Result.failure(e)
@@ -300,7 +334,7 @@ class TorneiosViewModel(private val repository: LeagueMatchRepository) : ViewMod
                 val result = repository.criarTorneio(nome, modalidade, regras, formato, organizadorId)
                 if (result != null) {
                     carregarTorneios()
-                    carregarTodosTorneios()
+                    carregarTorneiosDoOrganizador(organizadorId)
                     onSuccess()
                 } else {
                     onError("Não foi possível criar o torneio.")

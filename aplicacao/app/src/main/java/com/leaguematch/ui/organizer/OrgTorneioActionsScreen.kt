@@ -43,6 +43,8 @@ fun OrgTorneioActionsScreen(
     onEditarTorneio: (nome: String, regras: String, formato: String) -> Unit,
     onRemoverTorneio: (id: Int) -> Unit,
     onGerirEquipasClick: () -> Unit,
+    onCalendarioClick: () -> Unit = {},
+    onEstatisticasClick: () -> Unit = {},
     bottomBar: @Composable () -> Unit
 ) {
     val torneio = detalhe?.torneio
@@ -235,6 +237,22 @@ fun OrgTorneioActionsScreen(
                 iconColor = LMRed,
                 iconBg = LMRed50,
                 onClick = onGerirEquipasClick
+            ),
+            AcaoCard(
+                titulo = "Calendário",
+                subtitulo = "Jogos agrupados por data",
+                icon = Icons.Default.CalendarMonth,
+                iconColor = Color(0xFFEA580C),
+                iconBg = Color(0xFFFFEDD5),
+                onClick = onCalendarioClick
+            ),
+            AcaoCard(
+                titulo = "Estatísticas",
+                subtitulo = "Resumo do torneio",
+                icon = Icons.Default.QueryStats,
+                iconColor = Color(0xFF0891B2),
+                iconBg = Color(0xFFCFFAFE),
+                onClick = onEstatisticasClick
             ),
             AcaoCard(
                 titulo = "Editar Torneio",

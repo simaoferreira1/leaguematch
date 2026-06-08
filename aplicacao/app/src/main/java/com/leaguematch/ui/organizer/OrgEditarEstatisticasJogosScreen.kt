@@ -928,6 +928,19 @@ private fun EstatisticasJogoContent(
         }
     }
 
+    LaunchedEffect(jogo.id) {
+        val salvas = repository.obterEstatisticasJogo(jogo.id)
+        if (salvas.isNotEmpty()) {
+            estatisticas.clear()
+            val grouped = salvas.groupBy { it.tipo }
+            grouped.forEach { (tipo, list) ->
+                val casaVal = list.firstOrNull { it.equipa.equals("casa", ignoreCase = true) }?.valor ?: 0
+                val foraVal = list.firstOrNull { it.equipa.equals("fora", ignoreCase = true) }?.valor ?: 0
+                estatisticas.add(EstatisticaEditavel(tipo, casaVal, foraVal))
+            }
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -991,20 +1004,24 @@ private fun EstatisticasJogoContent(
                     isSaving = true
                     mensagem = null
 
-                    val listaParaGuardar = estatisticas.toEstatisticasJogo()
+                    try {
+                        val listaParaGuardar = estatisticas.toEstatisticasJogo()
+                        val sucesso = repository.guardarEstatisticasJogo(
+                            partidaId = jogo.id,
+                            estatisticas = listaParaGuardar
+                        )
 
-                    val sucesso = repository.guardarEstatisticasJogo(
-                        partidaId = jogo.id,
-                        estatisticas = listaParaGuardar
-                    )
+                        isSaving = false
 
-                    isSaving = false
-
-                    if (sucesso) {
-                        mensagem = "Estatísticas guardadas com sucesso."
-                        onGuardarClick()
-                    } else {
-                        mensagem = "Erro ao guardar estatísticas."
+                        if (sucesso) {
+                            mensagem = "Estatísticas guardadas com sucesso."
+                            onGuardarClick()
+                        } else {
+                            mensagem = "Erro ao guardar estatísticas."
+                        }
+                    } catch (e: Exception) {
+                        isSaving = false
+                        mensagem = "Erro: ${e.message}"
                     }
                 }
             },
@@ -1091,19 +1108,23 @@ private fun StatBarEditable(
                         .height(14.dp)
                         .background(Color(0xFFE5E7EB), RoundedCornerShape(50))
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .weight(casaPeso)
-                            .background(LMRed, RoundedCornerShape(50))
-                    )
+                    if (casa > 0) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .weight(casaPeso)
+                                .background(LMRed, RoundedCornerShape(50))
+                        )
+                    }
 
-                    Box(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .weight(foraPeso)
-                            .background(Color.Black, RoundedCornerShape(50))
-                    )
+                    if (fora > 0) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .weight(foraPeso)
+                                .background(Color.Black, RoundedCornerShape(50))
+                        )
+                    }
                 }
 
                 Text(
@@ -1309,66 +1330,8 @@ private fun TargetButton(
     }
 }
 
-private data class EstatisticaInicial(
-    val titulo: String,
-    val casa: Int,
-    val fora: Int
-)
-
 private data class EstatisticaEditavel(
     val titulo: String,
     val casa: Int,
     val fora: Int
 )
-
-private fun estatisticasPorModalidade(modalidade: String): List<EstatisticaInicial> {
-    val lista = mutableListOf<EstatisticaInicial>()
-
-    if (modalidadeUsaPosseBola(modalidade)) {
-        lista.add(EstatisticaInicial("Posse de Bola", 57, 43))
-    }
-
-    when (modalidade.lowercase()) {
-        "futebol" -> {
-            lista.add(EstatisticaInicial("Remates", 9, 4))
-            lista.add(EstatisticaInicial("Remates à baliza", 8, 2))
-            lista.add(EstatisticaInicial("Cantos", 5, 7))
-            lista.add(EstatisticaInicial("Faltas", 3, 7))
-            lista.add(EstatisticaInicial("Cartões amarelos", 5, 0))
-            lista.add(EstatisticaInicial("Cartões vermelhos", 1, 0))
-        }
-
-        "andebol" -> {
-            lista.add(EstatisticaInicial("Remates", 18, 14))
-            lista.add(EstatisticaInicial("Defesas", 6, 8))
-            lista.add(EstatisticaInicial("Faltas", 5, 7))
-            lista.add(EstatisticaInicial("Cartões amarelos", 2, 1))
-            lista.add(EstatisticaInicial("Cartões vermelhos", 0, 1))
-        }
-
-        "basquetebol" -> {
-            lista.add(EstatisticaInicial("Lançamentos 2 pts", 12, 10))
-            lista.add(EstatisticaInicial("Lançamentos 3 pts", 5, 7))
-            lista.add(EstatisticaInicial("Lances livres", 8, 4))
-            lista.add(EstatisticaInicial("Faltas", 6, 9))
-        }
-
-        "padel" -> {
-            lista.add(EstatisticaInicial("Aces", 3, 5))
-            lista.add(EstatisticaInicial("Break points", 2, 4))
-            lista.add(EstatisticaInicial("Erros", 6, 3))
-        }
-
-        "ténis", "tenis" -> {
-            lista.add(EstatisticaInicial("Aces", 4, 6))
-            lista.add(EstatisticaInicial("Break points", 2, 3))
-            lista.add(EstatisticaInicial("Erros", 5, 4))
-        }
-
-        else -> {
-            lista.add(EstatisticaInicial("Faltas", 0, 0))
-        }
-    }
-
-    return lista
-}

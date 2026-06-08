@@ -2,9 +2,25 @@ package com.leaguematch.ui.theme
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+
+object BrandTheme {
+    var primaryColor by mutableStateOf(Color(0xFFE31734))
+}
+
+private fun Color.darken(factor: Float): Color {
+    return Color(
+        red = (red * (1f - factor)).coerceIn(0f, 1f),
+        green = (green * (1f - factor)).coerceIn(0f, 1f),
+        blue = (blue * (1f - factor)).coerceIn(0f, 1f),
+        alpha = alpha
+    )
+}
 
 // Old variables for backward compatibility during migration
-val RedPrimary = Color(0xFFE11D2E)
+val RedPrimary: Color get() = BrandTheme.primaryColor
 val RedDark = Color(0xFF18181B)
 val DarkBackground = Color(0xFF0A0A0B)
 val SurfaceDark = Color(0xFF18181B)
@@ -17,11 +33,11 @@ val CardGradient = Brush.verticalGradient(
 )
 
 // Brand
-val LMRed     = Color(0xFFE11D2E)
-val LMRed600  = Color(0xFFC41326)
-val LMRed700  = Color(0xFFA30D1F)
-val LMRed50   = Color(0xFFFEEAEC)
-val LMRed100  = Color(0xFFFBD0D5)
+val LMRed: Color get() = BrandTheme.primaryColor
+val LMRed600: Color get() = BrandTheme.primaryColor.darken(0.15f)
+val LMRed700: Color get() = BrandTheme.primaryColor.darken(0.30f)
+val LMRed50: Color get() = BrandTheme.primaryColor.copy(alpha = 0.12f)
+val LMRed100: Color get() = BrandTheme.primaryColor.copy(alpha = 0.25f)
 
 // Neutrals
 val LMInk     = Color(0xFF0A0A0B)

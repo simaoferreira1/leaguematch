@@ -4,6 +4,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.Color
 import com.leaguematch.data.remote.model.Utilizador
+import com.leaguematch.data.remote.model.Jogo
 import com.leaguematch.translations.Language
 import com.leaguematch.translations.StringsEn
 import com.leaguematch.translations.StringsPt
@@ -12,6 +13,7 @@ import com.leaguematch.ui.admin.GestaoNotificacoesScreen
 import com.leaguematch.ui.components.ParticipantBottomBar
 import com.leaguematch.viewmodel.AuthViewModel
 import com.leaguematch.viewmodel.ParticipantViewModel
+import com.leaguematch.viewmodel.TorneiosViewModel
 
 sealed interface ParticipantRoute {
     data object Home : ParticipantRoute
@@ -24,10 +26,12 @@ sealed interface ParticipantRoute {
     data object JoinTeam : ParticipantRoute
 
     data class TournamentDetail(val torneioId: Int) : ParticipantRoute
+    data class VerEstatisticasJogo(val jogo: Jogo) : ParticipantRoute
 }
 
 @Composable
 fun ParticipantFlowContainer(
+    torneiosViewModel: TorneiosViewModel,
     authViewModel: AuthViewModel,
     participantViewModel: ParticipantViewModel,
     usuarioLogado: Utilizador?,
@@ -46,6 +50,10 @@ fun ParticipantFlowContainer(
     }
 
     val primaryColor = Color(primaryColorLong)
+
+    LaunchedEffect(primaryColor) {
+        com.leaguematch.ui.theme.BrandTheme.primaryColor = primaryColor
+    }
 
     val strings = when (language) {
         Language.PT -> StringsPt
@@ -115,7 +123,10 @@ fun ParticipantFlowContainer(
                 onJogosClick = {},
                 onEquipaClick = { currentRoute = ParticipantRoute.Equipa },
                 onEstatisticasClick = { currentRoute = ParticipantRoute.Estatisticas },
-                onPerfilClick = { currentRoute = ParticipantRoute.Perfil }
+                onPerfilClick = { currentRoute = ParticipantRoute.Perfil },
+                onJogoClick = { jogo ->
+                    currentRoute = ParticipantRoute.VerEstatisticasJogo(jogo)
+                }
             )
         }
 
@@ -237,6 +248,28 @@ fun ParticipantFlowContainer(
                 primaryColor = primaryColor,
                 onBackClick = {
                     currentRoute = ParticipantRoute.Torneios
+                }
+            )
+        }
+
+        is ParticipantRoute.VerEstatisticasJogo -> {
+            val route = currentRoute as ParticipantRoute.VerEstatisticasJogo
+            val estatisticasResult by torneiosViewModel.estatisticasJogoState.collectAsState()
+
+            LaunchedEffect(route.jogo.id) {
+                torneiosViewModel.carregarEstatisticasJogo(route.jogo.id)
+            }
+
+            val estatisticas = estatisticasResult?.getOrNull() ?: emptyList()
+            val modalidade = participantViewModel.torneios.value
+                .firstOrNull { it.id == route.jogo.torneioId }?.modalidade ?: "Futebol"
+
+            com.leaguematch.ui.spectator.EstatisticasJogoScreen(
+                jogo = route.jogo,
+                estatisticas = estatisticas,
+                modalidade = modalidade,
+                onBackClick = {
+                    currentRoute = ParticipantRoute.Jogos
                 }
             )
         }

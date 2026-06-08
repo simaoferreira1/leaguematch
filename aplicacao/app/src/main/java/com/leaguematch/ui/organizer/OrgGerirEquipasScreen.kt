@@ -34,7 +34,8 @@ fun OrgGerirEquipasScreen(
     onBackClick: () -> Unit,
     onCriarEquipaClick: () -> Unit,
     onRemoverEquipa: (Equipa) -> Unit,
-    onEditarEquipa: (Equipa, String) -> Unit
+    onEditarEquipa: (Equipa, String) -> Unit,
+    onGerirJogadores: (Equipa) -> Unit = {}
 ) {
     var equipaParaRemover by remember { mutableStateOf<Equipa?>(null) }
     var equipaParaEditar by remember { mutableStateOf<Equipa?>(null) }
@@ -186,7 +187,8 @@ fun OrgGerirEquipasScreen(
                         EquipaListItem(
                             equipa = equipa,
                             onEditar = { equipaParaEditar = equipa },
-                            onRemover = { equipaParaRemover = equipa }
+                            onRemover = { equipaParaRemover = equipa },
+                            onGerirJogadores = { onGerirJogadores(equipa) }
                         )
                     }
                 }
@@ -212,7 +214,8 @@ fun OrgGerirEquipasScreen(
 private fun EquipaListItem(
     equipa: Equipa,
     onEditar: () -> Unit,
-    onRemover: () -> Unit
+    onRemover: () -> Unit,
+    onGerirJogadores: () -> Unit
 ) {
     val context = LocalContext.current
     val codigo = TeamCode.encode(equipa.id)
@@ -240,6 +243,10 @@ private fun EquipaListItem(
                     fontFamily = Geist, fontWeight = FontWeight.SemiBold,
                     fontSize = 14.sp, color = LMInk, modifier = Modifier.weight(1f)
                 )
+                IconButton(onClick = onGerirJogadores, modifier = Modifier.size(32.dp)) {
+                    Icon(Icons.Default.Person, contentDescription = "Jogadores", tint = LMGray400, modifier = Modifier.size(18.dp))
+                }
+                Spacer(modifier = Modifier.width(4.dp))
                 IconButton(onClick = onEditar, modifier = Modifier.size(32.dp)) {
                     Icon(Icons.Default.Edit, contentDescription = "Editar", tint = LMGray400, modifier = Modifier.size(18.dp))
                 }

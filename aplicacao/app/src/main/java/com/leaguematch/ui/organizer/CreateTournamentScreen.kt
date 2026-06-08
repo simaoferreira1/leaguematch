@@ -375,49 +375,121 @@ private fun FormTextField(
     )
 }
 
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 private fun DateField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String
 ) {
-    TextField(
-        value = value,
-        onValueChange = onValueChange,
-        placeholder = {
-            Text(
-                text = placeholder,
-                fontFamily = Geist,
-                fontSize = 13.sp,
-                color = Color(0xFFA3A3AE)
+    var showDialog by remember { mutableStateOf(false) }
+
+    if (showDialog) {
+        val initialMillis = parseDateToMillis(value)
+        val state = rememberDatePickerState(initialSelectedDateMillis = initialMillis)
+
+        DatePickerDialog(
+            onDismissRequest = { showDialog = false },
+            shape = RoundedCornerShape(24.dp),
+            properties = androidx.compose.ui.window.DialogProperties(
+                usePlatformDefaultWidth = false
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            confirmButton = {
+                TextButton(onClick = {
+                    state.selectedDateMillis?.let {
+                        onValueChange(formatMillisToDate(it))
+                    }
+                    showDialog = false
+                }) {
+                    Text("OK", color = LMRed, fontFamily = Geist, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text("Cancelar", color = LMGray500, fontFamily = Geist)
+                }
+            }
+        ) {
+            DatePicker(
+                state = state,
+                title = {
+                    Text(
+                        text = "Escolher data",
+                        modifier = Modifier.padding(start = 24.dp, top = 16.dp),
+                        fontFamily = Geist,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        color = LMGray500
+                    )
+                },
+                headline = {
+                    val texto = state.selectedDateMillis?.let { formatMillisToDate(it) } ?: "—/—/——"
+                    Text(
+                        text = texto,
+                        modifier = Modifier.padding(start = 24.dp, bottom = 12.dp),
+                        fontFamily = Bricolage,
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 26.sp,
+                        color = LMInk
+                    )
+                },
+                showModeToggle = false
             )
-        },
-        leadingIcon = {
+        }
+    }
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(52.dp)
+            .clickable { showDialog = true },
+        shape = RoundedCornerShape(16.dp),
+        color = LMWhite
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Icon(
                 imageVector = Icons.Default.CalendarMonth,
                 contentDescription = null,
                 tint = LMGray500,
                 modifier = Modifier.size(16.dp)
             )
-        },
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(52.dp),
-        shape = RoundedCornerShape(16.dp),
-        textStyle = LocalTextStyle.current.copy(
-            fontFamily = Geist,
-            fontSize = 13.sp,
-            color = LMInk,
-            fontWeight = FontWeight.Medium
-        ),
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = LMWhite,
-            unfocusedContainerColor = LMWhite,
-            disabledContainerColor = LMWhite,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent
-        )
-    )
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(
+                text = value.ifBlank { placeholder },
+                fontFamily = Geist,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Medium,
+                color = if (value.isBlank()) Color(0xFFA3A3AE) else LMInk
+            )
+        }
+    }
+}
+
+private fun parseDateToMillis(date: String): Long? {
+    if (date.isBlank()) return null
+    val parts = date.split("/")
+    if (parts.size != 3) return null
+    return runCatching {
+        val cal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC"))
+        cal.clear()
+        cal.set(parts[2].toInt(), parts[1].toInt() - 1, parts[0].toInt())
+        cal.timeInMillis
+    }.getOrNull()
+}
+
+private fun formatMillisToDate(millis: Long): String {
+    val cal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC"))
+    cal.timeInMillis = millis
+    val dia = cal.get(java.util.Calendar.DAY_OF_MONTH).toString().padStart(2, '0')
+    val mes = (cal.get(java.util.Calendar.MONTH) + 1).toString().padStart(2, '0')
+    val ano = cal.get(java.util.Calendar.YEAR)
+    return "$dia/$mes/$ano"
 }
 
 @Composable

@@ -68,3 +68,61 @@ fun modalidadeUsaPosseBola(modalidade: String): Boolean {
         "basquetebol"
     )
 }
+
+data class EstatisticaInicial(
+    val titulo: String,
+    val casa: Int,
+    val fora: Int
+)
+
+fun estatisticasPorModalidade(modalidade: String): List<EstatisticaInicial> {
+    val lista = mutableListOf<EstatisticaInicial>()
+
+    if (modalidadeUsaPosseBola(modalidade)) {
+        lista.add(EstatisticaInicial("Posse de Bola", 50, 50))
+    }
+
+    when (modalidade.trim().lowercase()) {
+        "futebol" -> {
+            lista.add(EstatisticaInicial("Remates", 0, 0))
+            lista.add(EstatisticaInicial("Remates à baliza", 0, 0))
+            lista.add(EstatisticaInicial("Cantos", 0, 0))
+            lista.add(EstatisticaInicial("Faltas", 0, 0))
+            lista.add(EstatisticaInicial("Cartões amarelos", 0, 0))
+            lista.add(EstatisticaInicial("Cartões vermelhos", 0, 0))
+        }
+
+        "andebol" -> {
+            lista.add(EstatisticaInicial("Remates", 0, 0))
+            lista.add(EstatisticaInicial("Defesas", 0, 0))
+            lista.add(EstatisticaInicial("Faltas", 0, 0))
+            lista.add(EstatisticaInicial("Cartões amarelos", 0, 0))
+            lista.add(EstatisticaInicial("Cartões vermelhos", 0, 0))
+        }
+
+        "basquetebol" -> {
+            lista.add(EstatisticaInicial("Lançamentos 2 pts", 0, 0))
+            lista.add(EstatisticaInicial("Lançamentos 3 pts", 0, 0))
+            lista.add(EstatisticaInicial("Lances livres", 0, 0))
+            lista.add(EstatisticaInicial("Faltas", 0, 0))
+        }
+
+        "padel" -> {
+            lista.add(EstatisticaInicial("Aces", 0, 0))
+            lista.add(EstatisticaInicial("Break points", 0, 0))
+            lista.add(EstatisticaInicial("Erros", 0, 0))
+        }
+
+        "ténis", "tenis" -> {
+            lista.add(EstatisticaInicial("Aces", 0, 0))
+            lista.add(EstatisticaInicial("Break points", 0, 0))
+            lista.add(EstatisticaInicial("Erros", 0, 0))
+        }
+
+        else -> {
+            lista.add(EstatisticaInicial("Faltas", 0, 0))
+        }
+    }
+
+    return lista
+}

@@ -113,6 +113,7 @@ class MainActivity : ComponentActivity() {
 
                             TipoUtilizador.PARTICIPANTE -> {
                                 ParticipantFlowContainer(
+                                    torneiosViewModel = torneiosViewModel,
                                     authViewModel = authViewModel,
                                     participantViewModel = participantViewModel,
                                     usuarioLogado = usuarioLogado,

@@ -32,7 +32,6 @@ CREATE TABLE team_member (
     user_id INT NOT NULL REFERENCES utilizador(id),
     team_id INT NOT NULL REFERENCES equipa(id)
 );
-
 -- TABELA PARTIDA
 CREATE TABLE partida (
     id SERIAL PRIMARY KEY,

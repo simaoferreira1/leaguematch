@@ -80,6 +80,8 @@ interface LeagueMatchRepository {
 
     suspend fun listarTorneios(): List<Torneio>
 
+    suspend fun listarTorneiosDoOrganizador(organizadorId: Int): List<Torneio>
+
     suspend fun obterEquipaDoParticipante(utilizadorId: Int): Equipa?
     suspend fun listarJogadoresEquipa(equipaId: Int): List<Utilizador>
     suspend fun obterClassificacaoEquipa(equipaId: Int, torneioId: Int): Classificacao?
@@ -90,4 +92,6 @@ interface LeagueMatchRepository {
     ): ParticipantStatsData
 
     suspend fun juntarEquipaPorCodigo(utilizadorId: Int, codigo: String): Result<Equipa>
+
+    suspend fun removerJogadorEquipa(equipaId: Int, utilizadorId: Int): Boolean
 }

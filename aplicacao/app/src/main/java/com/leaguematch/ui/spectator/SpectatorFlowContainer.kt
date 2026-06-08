@@ -45,14 +45,18 @@ fun SpectatorFlowContainer(
         mutableStateOf<Torneio?>(null)
     }
 
+    val dadosTorneios by torneiosViewModel.todosTorneiosState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        torneiosViewModel.carregarTodosTorneios()
+    }
+
     when (currentSpectatorRoute) {
 
         SpectatorRoute.Explorar -> {
-            val dadosTorneios by torneiosViewModel.todosTorneiosState.collectAsState()
             val dadosJogosAoVivo by torneiosViewModel.jogosAoVivoState.collectAsState()
 
             LaunchedEffect(Unit) {
-                torneiosViewModel.carregarTodosTorneios()
                 torneiosViewModel.carregarJogosAoVivo()
             }
 
@@ -298,10 +302,16 @@ fun SpectatorFlowContainer(
             val estatisticas = estatisticasResult?.getOrNull() ?: emptyList()
             val eventos = eventosResult?.getOrNull() ?: emptyList()
 
+            val modalidade = (dadosTorneios?.getOrNull() ?: emptyList())
+                .firstOrNull { it.id == route.jogo.torneioId }?.modalidade
+                ?: torneioSelecionado?.modalidade
+                ?: "Futebol"
+
             JogoEmDiretoScreen(
                 jogo = route.jogo,
                 estatisticas = estatisticas,
                 eventos = eventos,
+                modalidade = modalidade,
                 onBackClick = {
                     currentSpectatorRoute = SpectatorRoute.Explorar
                 },
@@ -325,9 +335,15 @@ fun SpectatorFlowContainer(
             val estatisticas =
                 estatisticasResult?.getOrNull() ?: emptyList()
 
+            val modalidade = (dadosTorneios?.getOrNull() ?: emptyList())
+                .firstOrNull { it.id == route.jogo.torneioId }?.modalidade
+                ?: torneioSelecionado?.modalidade
+                ?: "Futebol"
+
             EstatisticasJogoScreen(
                 jogo = route.jogo,
                 estatisticas = estatisticas,
+                modalidade = modalidade,
                 onBackClick = {
                     currentSpectatorRoute =
                         SpectatorRoute.JogoEmDireto(route.jogo)

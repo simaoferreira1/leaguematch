@@ -10,7 +10,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.EmojiEvents
-import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.SportsScore
@@ -40,13 +39,11 @@ fun CreateTournamentStep2Screen(
     onCancelClick: () -> Unit = {},
     onCreateClick: (
         publico: Boolean,
-        inscricoesAutomaticas: Boolean,
         jogosIdaVolta: Boolean,
         pontosVitoria: Int
-    ) -> Unit = { _, _, _, _ -> }
+    ) -> Unit = { _, _, _ -> }
 ) {
     var publico by remember { mutableStateOf(true) }
-    var inscricoesAutomaticas by remember { mutableStateOf(true) }
     var jogosIdaVolta by remember { mutableStateOf(false) }
     var pontosVitoria by remember { mutableStateOf(3) }
 
@@ -146,16 +143,6 @@ fun CreateTournamentStep2Screen(
             Spacer(modifier = Modifier.height(10.dp))
 
             OptionSwitchCard(
-                icon = Icons.Default.Groups,
-                title = "Inscrições automáticas",
-                subtitle = "As equipas podem pedir inscrição sem serem adicionadas manualmente.",
-                checked = inscricoesAutomaticas,
-                onCheckedChange = { inscricoesAutomaticas = it }
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            OptionSwitchCard(
                 icon = Icons.Default.SportsScore,
                 title = "Jogos ida e volta",
                 subtitle = "Cada equipa joga duas vezes contra o mesmo adversário.",
@@ -214,7 +201,6 @@ fun CreateTournamentStep2Screen(
                         .clickable {
                             onCreateClick(
                                 publico,
-                                inscricoesAutomaticas,
                                 jogosIdaVolta,
                                 pontosVitoria
                             )

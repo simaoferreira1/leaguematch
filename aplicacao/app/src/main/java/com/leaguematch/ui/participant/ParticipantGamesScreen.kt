@@ -36,7 +36,8 @@ fun ParticipantGamesScreen(
     onJogosClick: () -> Unit,
     onEquipaClick: () -> Unit,
     onEstatisticasClick: () -> Unit,
-    onPerfilClick: () -> Unit
+    onPerfilClick: () -> Unit,
+    onJogoClick: (Jogo) -> Unit
 ) {
     var selectedTab by remember { mutableStateOf(GamesTab.PROXIMOS) }
 
@@ -148,7 +149,8 @@ fun ParticipantGamesScreen(
                 jogosFiltrados.forEach { jogo ->
                     ParticipantGameCard(
                         jogo = jogo,
-                        primaryColor = primaryColor
+                        primaryColor = primaryColor,
+                        onCardClick = { onJogoClick(jogo) }
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                 }
@@ -194,9 +196,11 @@ private fun GamesFilterChip(
 @Composable
 private fun ParticipantGameCard(
     jogo: Jogo,
-    primaryColor: Color
+    primaryColor: Color,
+    onCardClick: () -> Unit
 ) {
     Surface(
+        onClick = onCardClick,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(18.dp),
         color = LMWhite,

@@ -9,6 +9,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -39,7 +41,11 @@ sealed interface OrganizerRoute {
     data class CriarEquipa(val torneioId: Int) : OrganizerRoute
     data class VerJogos(val torneioId: Int) : OrganizerRoute
     data class EditarEstatisticas(val torneioId: Int, val jogoId: Int) : OrganizerRoute
+    data class VerEstatisticasJogo(val torneioId: Int, val jogoId: Int) : OrganizerRoute
     data class VerClassificacao(val torneioId: Int) : OrganizerRoute
+    data class GerirJogadores(val torneioId: Int, val equipaId: Int) : OrganizerRoute
+    data class Calendario(val torneioId: Int) : OrganizerRoute
+    data class EstatisticasTorneio(val torneioId: Int) : OrganizerRoute
 }
 
 @Composable
@@ -54,6 +60,12 @@ fun OrganizerFlowContainer(
     var currentOrgRoute by remember { mutableStateOf<OrganizerRoute>(OrganizerRoute.MeusTorneios) }
     var currentOrgTorneioId by remember { mutableStateOf<Int?>(null) }
     var dadosCriarTorneio by remember { mutableStateOf<List<String>?>(null) }
+    var primaryColorArgb by rememberSaveable { mutableStateOf(0xFFE31734.toInt()) }
+    val primaryColor = androidx.compose.ui.graphics.Color(primaryColorArgb)
+
+    LaunchedEffect(primaryColor) {
+        com.leaguematch.ui.theme.BrandTheme.primaryColor = primaryColor
+    }
 
     val goMeusTorneios = { currentOrgRoute = OrganizerRoute.MeusTorneios }
     val goPerfil = { currentOrgRoute = OrganizerRoute.Perfil }
@@ -63,9 +75,12 @@ fun OrganizerFlowContainer(
             val dadosModalidades by torneiosViewModel.modalidadesState.collectAsState()
             val dadosTorneios by torneiosViewModel.todosTorneiosState.collectAsState()
 
-            LaunchedEffect(Unit) {
+            val orgId = usuarioLogado?.id
+            LaunchedEffect(orgId) {
                 torneiosViewModel.carregarTorneios()
-                torneiosViewModel.carregarTodosTorneios()
+                if (orgId != null) {
+                    torneiosViewModel.carregarTorneiosDoOrganizador(orgId)
+                }
             }
 
             when {
@@ -110,7 +125,8 @@ fun OrganizerFlowContainer(
                             val tid = currentOrgTorneioId
                             if (tid != null) currentOrgRoute = OrganizerRoute.VerJogos(tid)
                         },
-                        onPerfilClick = goPerfil
+                        onPerfilClick = goPerfil,
+                        accentColor = primaryColor
                     )
                 }
             }
@@ -163,7 +179,7 @@ fun OrganizerFlowContainer(
                         dadosCriarTorneio = null
                         currentOrgRoute = OrganizerRoute.MeusTorneios
                     },
-                    onCreateClick = { publico, inscricoesAutomaticas, jogosIdaVolta, pontosVitoria ->
+                    onCreateClick = { publico, jogosIdaVolta, pontosVitoria ->
                         val orgId = usuarioLogado?.id ?: 0
                         torneiosViewModel.criarTorneio(
                             nome = dados[0],
@@ -196,6 +212,10 @@ fun OrganizerFlowContainer(
         OrganizerRoute.Perfil -> {
             DefinicoesScreen(
                 utilizadorLogado = usuarioLogado,
+                primaryColor = primaryColor,
+                onPrimaryColorChange = { color ->
+                    primaryColorArgb = color.toArgb()
+                },
                 onTerminarSessaoClick = {
                     onTerminarSessao()
                     currentOrgRoute = OrganizerRoute.MeusTorneios
@@ -207,7 +227,8 @@ fun OrganizerFlowContainer(
                     OrganizerBottomBar(
                         selectedItem = "perfil",
                         onTorneiosClick = goMeusTorneios,
-                        onPerfilClick = goPerfil
+                        onPerfilClick = goPerfil,
+                        accentColor = primaryColor
                     )
                 }
             )
@@ -257,11 +278,18 @@ fun OrganizerFlowContainer(
                     onGerirEquipasClick = {
                         currentOrgRoute = OrganizerRoute.GerirEquipas(route.id)
                     },
+                    onCalendarioClick = {
+                        currentOrgRoute = OrganizerRoute.Calendario(route.id)
+                    },
+                    onEstatisticasClick = {
+                        currentOrgRoute = OrganizerRoute.EstatisticasTorneio(route.id)
+                    },
                     bottomBar = {
                         OrganizerBottomBar(
                             selectedItem = "torneios",
                             onTorneiosClick = goMeusTorneios,
-                            onPerfilClick = goPerfil
+                            onPerfilClick = goPerfil,
+                            accentColor = primaryColor
                         )
                     }
                 )
@@ -357,10 +385,46 @@ fun OrganizerFlowContainer(
                                 Toast.makeText(context, erro, Toast.LENGTH_LONG).show()
                             }
                         )
+                    },
+                    onGerirJogadores = { equipa ->
+                        currentOrgRoute = OrganizerRoute.GerirJogadores(
+                            torneioId = route.torneioId,
+                            equipaId = equipa.id
+                        )
                     }
                 )
             } else {
                 currentOrgRoute = OrganizerRoute.DetalheTorneio(route.torneioId)
+            }
+        }
+
+        is OrganizerRoute.GerirJogadores -> {
+            val route = currentOrgRoute as OrganizerRoute.GerirJogadores
+            val equipasResult by torneiosViewModel.equipasState.collectAsState()
+            val jogadores by torneiosViewModel.jogadoresEquipaState.collectAsState()
+            val isLoading by torneiosViewModel.jogadoresLoading.collectAsState()
+
+            LaunchedEffect(route.equipaId) {
+                torneiosViewModel.carregarEquipas(route.torneioId)
+                torneiosViewModel.carregarJogadoresEquipa(route.equipaId)
+            }
+
+            val equipa = equipasResult?.getOrNull()?.firstOrNull { it.id == route.equipaId }
+
+            if (equipa != null) {
+                OrgGerirJogadoresScreen(
+                    equipa = equipa,
+                    jogadores = jogadores,
+                    isLoading = isLoading,
+                    onBackClick = {
+                        currentOrgRoute = OrganizerRoute.GerirEquipas(route.torneioId)
+                    },
+                    onRemoverJogador = { jogador ->
+                        torneiosViewModel.removerJogador(route.equipaId, jogador.id)
+                    }
+                )
+            } else {
+                LoadingScreen()
             }
         }
 
@@ -435,6 +499,12 @@ fun OrganizerFlowContainer(
                                 Toast.makeText(context, erro, Toast.LENGTH_LONG).show()
                             }
                         )
+                    },
+                    onVerEstatisticas = { jogo ->
+                        currentOrgRoute = OrganizerRoute.VerEstatisticasJogo(
+                            torneioId = route.torneioId,
+                            jogoId = jogo.id
+                        )
                     }
                 )
             } else {
@@ -463,6 +533,35 @@ fun OrganizerFlowContainer(
                         currentOrgRoute = OrganizerRoute.VerJogos(route.torneioId)
                     },
                     onGuardarClick = {
+                        currentOrgRoute = OrganizerRoute.VerJogos(route.torneioId)
+                    }
+                )
+            } else {
+                LoadingScreen()
+            }
+        }
+
+        is OrganizerRoute.VerEstatisticasJogo -> {
+            val route = currentOrgRoute as OrganizerRoute.VerEstatisticasJogo
+            val detalhe by torneiosViewModel.detalheTorneioState.collectAsState()
+            val estatisticasResult by torneiosViewModel.estatisticasJogoState.collectAsState()
+
+            LaunchedEffect(route.torneioId, route.jogoId) {
+                torneiosViewModel.carregarDetalheTorneio(route.torneioId)
+                torneiosViewModel.carregarEstatisticasJogo(route.jogoId)
+            }
+
+            val torneio = detalhe?.getOrNull()?.torneio
+            val jogos = detalhe?.getOrNull()?.jogos ?: emptyList()
+            val jogo = jogos.firstOrNull { it.id == route.jogoId }
+            val estatisticas = estatisticasResult?.getOrNull() ?: emptyList()
+
+            if (torneio != null && jogo != null) {
+                com.leaguematch.ui.spectator.EstatisticasJogoScreen(
+                    jogo = jogo,
+                    estatisticas = estatisticas,
+                    modalidade = torneio.modalidade,
+                    onBackClick = {
                         currentOrgRoute = OrganizerRoute.VerJogos(route.torneioId)
                     }
                 )
@@ -515,6 +614,49 @@ fun OrganizerFlowContainer(
                         }
                     )
                 }
+            } else {
+                LoadingScreen()
+            }
+        }
+
+        is OrganizerRoute.Calendario -> {
+            val route = currentOrgRoute as OrganizerRoute.Calendario
+            val detalhe by torneiosViewModel.detalheTorneioState.collectAsState()
+
+            LaunchedEffect(route.torneioId) {
+                torneiosViewModel.carregarDetalheTorneio(route.torneioId)
+            }
+
+            val data = detalhe?.getOrNull()
+            if (data?.torneio != null) {
+                OrgCalendarioScreen(
+                    torneio = data.torneio,
+                    jogos = data.jogos,
+                    onBackClick = {
+                        currentOrgRoute = OrganizerRoute.DetalheTorneio(route.torneioId)
+                    }
+                )
+            } else {
+                LoadingScreen()
+            }
+        }
+
+        is OrganizerRoute.EstatisticasTorneio -> {
+            val route = currentOrgRoute as OrganizerRoute.EstatisticasTorneio
+            val detalhe by torneiosViewModel.detalheTorneioState.collectAsState()
+
+            LaunchedEffect(route.torneioId) {
+                torneiosViewModel.carregarDetalheTorneio(route.torneioId)
+            }
+
+            val data = detalhe?.getOrNull()
+            if (data != null) {
+                OrgEstatisticasTorneioScreen(
+                    detalhe = data,
+                    onBackClick = {
+                        currentOrgRoute = OrganizerRoute.DetalheTorneio(route.torneioId)
+                    }
+                )
             } else {
                 LoadingScreen()
             }

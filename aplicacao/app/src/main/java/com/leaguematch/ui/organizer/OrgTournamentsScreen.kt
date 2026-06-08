@@ -41,7 +41,8 @@ fun OrgTournamentsScreen(
     onNavigateToActions: (Int) -> Unit = {},
     onEquipasClick: () -> Unit = {},
     onJogosClick: () -> Unit = {},
-    onPerfilClick: () -> Unit = {}
+    onPerfilClick: () -> Unit = {},
+    accentColor: Color = LMRed
 ) {
     var pesquisa by remember { mutableStateOf("") }
     var modalidadeSelecionada by remember(torneios) { mutableStateOf("Todos") }
@@ -152,7 +153,8 @@ fun OrgTournamentsScreen(
                             OrganizerTorneioCard(
                                 torneio = torneio,
                                 index = index,
-                                onClick = { onNavigateToActions(torneio.id) }
+                                onClick = { onNavigateToActions(torneio.id) },
+                                accentColor = accentColor
                             )
                         }
                     }
@@ -163,7 +165,8 @@ fun OrgTournamentsScreen(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(end = 18.dp, bottom = 24.dp),
-                onClick = onNavigateToCreate
+                onClick = onNavigateToCreate,
+                accentColor = accentColor
             )
         }
     }
@@ -269,7 +272,8 @@ private fun OrganizerModalidadeChips(
 private fun OrganizerTorneioCard(
     torneio: Torneio,
     index: Int,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    accentColor: Color = LMRed
 ) {
     Surface(
         modifier = Modifier
@@ -290,7 +294,7 @@ private fun OrganizerTorneioCard(
                     .size(60.dp)
                     .background(
                         brush = Brush.linearGradient(
-                            colors = colorsForTorneio(torneio, index)
+                            colors = colorsForTorneio(torneio, index, accentColor)
                         ),
                         shape = RoundedCornerShape(14.dp)
                     ),
@@ -398,13 +402,14 @@ private fun OrganizerEstadoPill(
 @Composable
 private fun CriarTorneioButton(
     modifier: Modifier = Modifier,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    accentColor: Color = LMRed
 ) {
     Box(
         modifier = modifier
             .background(
                 brush = Brush.linearGradient(
-                    listOf(LMRed, Color(0xFFC41326))
+                    listOf(accentColor, accentColor.copy(alpha = 0.85f))
                 ),
                 shape = RoundedCornerShape(99.dp)
             )
@@ -460,10 +465,10 @@ private fun iconForModalidade(modalidade: String): ImageVector {
     }
 }
 
-private fun colorsForTorneio(torneio: Torneio, index: Int): List<Color> {
+private fun colorsForTorneio(torneio: Torneio, index: Int, accentColor: Color = LMRed): List<Color> {
     return when {
         torneio.modalidade == "Futebol" && index % 3 == 0 ->
-            listOf(LMRed, LMRed700)
+            listOf(accentColor, accentColor.copy(alpha = 0.85f))
 
         torneio.modalidade == "Basquetebol" ->
             listOf(Color(0xFF2563EB), Color(0xFF1D4ED8))

@@ -36,7 +36,8 @@ fun JogoEmDiretoScreen(
     estatisticas: List<EstatisticaJogo>,
     eventos: List<EventoJogo>,
     onBackClick: () -> Unit,
-    onVerEstatisticasClick: () -> Unit
+    onVerEstatisticasClick: () -> Unit,
+    modalidade: String = "Futebol"
 ) {
     val isFinished = jogo.estado.equals("Finalizado", ignoreCase = true)
     val isOngoing = jogo.estado.equals("A Decorrer", ignoreCase = true)
@@ -71,7 +72,7 @@ fun JogoEmDiretoScreen(
             }
 
             // Direct Stats Section
-            EstatisticasDiretoSection(estatisticas = estatisticas)
+            EstatisticasDiretoSection(estatisticas = estatisticas, modalidade = modalidade)
 
             // Timeline Section
             TimelineEventosSection(eventos = eventos)
@@ -350,7 +351,7 @@ private fun ScoreboardHeaderCard(
                 )
 
                 Text(
-                    text = "Campo Municipal Braga",
+                    text = jogo.local,
                     fontFamily = Geist,
                     fontSize = 11.sp,
                     color = Color.White.copy(alpha = 0.55f)
@@ -361,7 +362,7 @@ private fun ScoreboardHeaderCard(
 }
 
 @Composable
-private fun EstatisticasDiretoSection(estatisticas: List<EstatisticaJogo>) {
+private fun EstatisticasDiretoSection(estatisticas: List<EstatisticaJogo>, modalidade: String = "Futebol") {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -381,32 +382,28 @@ private fun EstatisticasDiretoSection(estatisticas: List<EstatisticaJogo>) {
                 letterSpacing = 0.4.sp
             )
 
-            if (estatisticas.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Sem estatísticas registadas de momento.",
-                        fontFamily = Geist,
-                        fontSize = 12.sp,
-                        color = LMGray500
+            val estatisticasExibicao = if (estatisticas.isEmpty()) {
+                com.leaguematch.ui.organizer.estatisticasPorModalidade(modalidade).flatMap {
+                    listOf(
+                        EstatisticaJogo(tipo = it.titulo, equipa = "casa", valor = it.casa),
+                        EstatisticaJogo(tipo = it.titulo, equipa = "fora", valor = it.fora)
                     )
                 }
             } else {
-                // Group by statistical metric (e.g. "Posse de Bola", "Remates", etc.)
-                val groupedStats = estatisticas.groupBy { it.tipo }
-                groupedStats.forEach { (tipo, list) ->
-                    val casaVal = list.firstOrNull { it.equipa == "casa" }?.valor ?: 0
-                    val foraVal = list.firstOrNull { it.equipa == "fora" }?.valor ?: 0
+                estatisticas
+            }
 
-                    val total = (casaVal + foraVal).coerceAtLeast(1)
-                    val casaPeso = casaVal.toFloat() / total
-                    val foraPeso = foraVal.toFloat() / total
+            // Group by statistical metric (e.g. "Posse de Bola", "Remates", etc.)
+            val groupedStats = estatisticasExibicao.groupBy { it.tipo }
+            groupedStats.forEach { (tipo, list) ->
+                val casaVal = list.firstOrNull { it.equipa == "casa" }?.valor ?: 0
+                val foraVal = list.firstOrNull { it.equipa == "fora" }?.valor ?: 0
 
-                    val suffix = if (tipo.contains("Posse", ignoreCase = true)) "%" else ""
+                val total = (casaVal + foraVal).coerceAtLeast(1)
+                val casaPeso = casaVal.toFloat() / total
+                val foraPeso = foraVal.toFloat() / total
+
+                val suffix = if (tipo.contains("Posse", ignoreCase = true)) "%" else ""
 
                     Column(
                         verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -465,7 +462,6 @@ private fun EstatisticasDiretoSection(estatisticas: List<EstatisticaJogo>) {
                                         .background(Color(0xFF0A0A0B))
                                 )
                             }
-                        }
                     }
                 }
             }

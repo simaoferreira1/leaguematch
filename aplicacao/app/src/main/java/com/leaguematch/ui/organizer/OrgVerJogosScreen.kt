@@ -29,7 +29,8 @@ fun OrgVerJogosScreen(
     onBackClick: () -> Unit,
     onCriarJogoClick: () -> Unit,
     onEditarJogo: (Jogo) -> Unit,
-    onRemoverJogo: (Jogo) -> Unit
+    onRemoverJogo: (Jogo) -> Unit,
+    onVerEstatisticas: (Jogo) -> Unit
 ) {
     var jogoParaRemover by remember { mutableStateOf<Jogo?>(null) }
 
@@ -132,7 +133,8 @@ fun OrgVerJogosScreen(
                         JogoOrgCard(
                             jogo = jogo,
                             onEditar = { onEditarJogo(jogo) },
-                            onRemover = { jogoParaRemover = jogo }
+                            onRemover = { jogoParaRemover = jogo },
+                            onCardClick = { onVerEstatisticas(jogo) }
                         )
                     }
                 }
@@ -158,7 +160,8 @@ fun OrgVerJogosScreen(
 private fun JogoOrgCard(
     jogo: Jogo,
     onEditar: () -> Unit,
-    onRemover: () -> Unit
+    onRemover: () -> Unit,
+    onCardClick: () -> Unit
 ) {
     val isFinished = jogo.estado.equals("Finalizado", ignoreCase = true)
     val isOngoing = jogo.estado.equals("A Decorrer", ignoreCase = true)
@@ -175,6 +178,7 @@ private fun JogoOrgCard(
     }
 
     Surface(
+        onClick = onCardClick,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
         color = LMWhite,

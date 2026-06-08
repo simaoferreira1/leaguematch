@@ -55,10 +55,12 @@ class ParticipantViewModel(
     private val _juntarEquipaErro = MutableStateFlow<String?>(null)
     val juntarEquipaErro: StateFlow<String?> = _juntarEquipaErro
 
+
     fun carregarDadosParticipante(utilizadorId: Int) {
         viewModelScope.launch {
             _torneios.value = emptyList()
             _jogos.value = emptyList()
+
 
             val equipaEncontrada = repository.obterEquipaDoParticipante(utilizadorId)
             _equipa.value = equipaEncontrada
@@ -133,6 +135,7 @@ class ParticipantViewModel(
     fun limparErroJuntarEquipa() {
         _juntarEquipaErro.value = null
     }
+
 
     fun atualizarConfiguracaoNotificacoes(configuracao: ConfiguracaoNotificacoes) {
         viewModelScope.launch {

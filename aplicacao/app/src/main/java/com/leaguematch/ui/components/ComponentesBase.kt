@@ -687,7 +687,8 @@ fun AdminBottomBar(
 fun OrganizerBottomBar(
     selectedItem: String,
     onTorneiosClick: () -> Unit,
-    onPerfilClick: () -> Unit
+    onPerfilClick: () -> Unit,
+    accentColor: Color = LMRed
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -714,8 +715,8 @@ fun OrganizerBottomBar(
                     ) 
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = LMRed,
-                    selectedTextColor = LMRed,
+                    selectedIconColor = accentColor,
+                    selectedTextColor = accentColor,
                     unselectedIconColor = LMGray500,
                     unselectedTextColor = LMGray500,
                     indicatorColor = Color.Transparent
@@ -725,19 +726,19 @@ fun OrganizerBottomBar(
                 selected = selectedItem == "perfil",
                 onClick = onPerfilClick,
                 icon = { Icon(Icons.Rounded.Person, contentDescription = "Perfil") },
-                label = { 
+                label = {
                     Text(
-                        text = "Perfil", 
-                        fontSize = 9.5.sp, 
-                        fontFamily = Geist, 
-                        maxLines = 1, 
+                        text = "Perfil",
+                        fontSize = 9.5.sp,
+                        fontFamily = Geist,
+                        maxLines = 1,
                         softWrap = false,
                         overflow = TextOverflow.Clip
-                    ) 
+                    )
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = LMRed,
-                    selectedTextColor = LMRed,
+                    selectedIconColor = accentColor,
+                    selectedTextColor = accentColor,
                     unselectedIconColor = LMGray500,
                     unselectedTextColor = LMGray500,
                     indicatorColor = Color.Transparent
@@ -752,7 +753,8 @@ fun OrganizerBottomBar(
 fun SpectatorBottomBar(
     selectedItem: String,
     onTorneiosClick: () -> Unit,
-    onPerfilClick: () -> Unit
+    onPerfilClick: () -> Unit,
+    accentColor: Color = LMRed
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -779,8 +781,8 @@ fun SpectatorBottomBar(
                     ) 
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = LMRed,
-                    selectedTextColor = LMRed,
+                    selectedIconColor = accentColor,
+                    selectedTextColor = accentColor,
                     unselectedIconColor = LMGray500,
                     unselectedTextColor = LMGray500,
                     indicatorColor = Color.Transparent
@@ -790,19 +792,19 @@ fun SpectatorBottomBar(
                 selected = selectedItem == "perfil",
                 onClick = onPerfilClick,
                 icon = { Icon(Icons.Rounded.Person, contentDescription = "Perfil") },
-                label = { 
+                label = {
                     Text(
-                        text = "Perfil", 
-                        fontSize = 9.5.sp, 
-                        fontFamily = Geist, 
-                        maxLines = 1, 
+                        text = "Perfil",
+                        fontSize = 9.5.sp,
+                        fontFamily = Geist,
+                        maxLines = 1,
                         softWrap = false,
                         overflow = TextOverflow.Clip
-                    ) 
+                    )
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = LMRed,
-                    selectedTextColor = LMRed,
+                    selectedIconColor = accentColor,
+                    selectedTextColor = accentColor,
                     unselectedIconColor = LMGray500,
                     unselectedTextColor = LMGray500,
                     indicatorColor = Color.Transparent

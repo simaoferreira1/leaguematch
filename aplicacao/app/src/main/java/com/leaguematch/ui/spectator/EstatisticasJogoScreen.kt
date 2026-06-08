@@ -33,8 +33,8 @@ fun EstatisticasJogoScreen(
     jogo: Jogo,
     estatisticas: List<EstatisticaJogo>,
     onBackClick: () -> Unit,
+    modalidade: String = "Futebol",
     strings: AppStrings = StringsPt
-
 ) {
     Scaffold(
         topBar = {
@@ -53,50 +53,24 @@ fun EstatisticasJogoScreen(
         ) {
             EstatisticasHeaderCard(jogo = jogo)
 
-            if (estatisticas.isEmpty()) {
-                SemEstatisticasCard()
+            val estatisticasExibicao = if (estatisticas.isEmpty()) {
+                com.leaguematch.ui.organizer.estatisticasPorModalidade(modalidade).flatMap {
+                    listOf(
+                        EstatisticaJogo(tipo = it.titulo, equipa = "casa", valor = it.casa),
+                        EstatisticaJogo(tipo = it.titulo, equipa = "fora", valor = it.fora)
+                    )
+                }
             } else {
-                EstatisticaComparativaCard(
-                    titulo = "Posse de bola",
-                    tipo = "Posse de Bola",
-                    estatisticas = estatisticas,
-                    percentagem = true
-                )
+                estatisticas
+            }
 
+            val groupedStats = estatisticasExibicao.groupBy { it.tipo }
+            groupedStats.forEach { (tipo, _) ->
                 EstatisticaComparativaCard(
-                    titulo = "Remates",
-                    tipo = "Remates",
-                    estatisticas = estatisticas
-                )
-
-                EstatisticaComparativaCard(
-                    titulo = "Remates à baliza",
-                    tipo = "Remates à Baliza",
-                    estatisticas = estatisticas
-                )
-
-                EstatisticaComparativaCard(
-                    titulo = "Cantos",
-                    tipo = "Cantos",
-                    estatisticas = estatisticas
-                )
-
-                EstatisticaComparativaCard(
-                    titulo = "Faltas",
-                    tipo = "Faltas",
-                    estatisticas = estatisticas
-                )
-
-                EstatisticaComparativaCard(
-                    titulo = "Cartões amarelos",
-                    tipo = "Amarelos",
-                    estatisticas = estatisticas
-                )
-
-                EstatisticaComparativaCard(
-                    titulo = "Cartões vermelhos",
-                    tipo = "Vermelhos",
-                    estatisticas = estatisticas
+                    titulo = tipo,
+                    tipo = tipo,
+                    estatisticas = estatisticasExibicao,
+                    percentagem = tipo.contains("Posse", ignoreCase = true)
                 )
             }
         }
