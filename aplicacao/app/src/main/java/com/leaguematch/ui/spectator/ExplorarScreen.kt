@@ -53,9 +53,9 @@ fun ExplorarScreen(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 18.dp, vertical = 14.dp)
+            .padding(horizontal = 18.dp)
+            .padding(top = 54.dp, bottom = 14.dp)
     ) {
-        Spacer(modifier = Modifier.height(8.dp))
 
         // Header
         Row(
@@ -77,20 +77,6 @@ fun ExplorarScreen(
                     fontSize = 13.sp,
                     color = LMGray500,
                     fontWeight = FontWeight.Medium
-                )
-            }
-
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(Color(0xFFF3F3F5), shape = RoundedCornerShape(12.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = "Notificações",
-                    tint = LMInk,
-                    modifier = Modifier.size(18.dp)
                 )
             }
         }
@@ -409,29 +395,30 @@ private fun PopularTournamentCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(20.dp),
         color = LMWhite,
-        border = BorderStroke(1.dp, Color(0xFFE2E2E7))
+        shadowElevation = 2.dp,
+        border = BorderStroke(1.dp, Color(0xFFE8E8EC))
     ) {
         Row(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier.padding(14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(56.dp)
-                    .background(brush = gradient, shape = RoundedCornerShape(12.dp)),
+                    .size(58.dp)
+                    .background(brush = gradient, shape = RoundedCornerShape(16.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.EmojiEvents,
                     contentDescription = null,
                     tint = LMWhite,
-                    modifier = Modifier.size(26.dp)
+                    modifier = Modifier.size(28.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(14.dp))
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -443,41 +430,27 @@ private fun PopularTournamentCard(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
                 Text(
                     text = "${torneio.equipas} equipas · ${torneio.modalidade}",
                     fontFamily = Geist,
                     fontSize = 12.sp,
                     color = LMGray500,
-                    modifier = Modifier.padding(top = 2.dp)
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
 
-            Surface(
-                shape = RoundedCornerShape(10.dp),
-                color = LMWhite,
-                border = BorderStroke(1.dp, Color(0xFFE2E2E7)),
-                modifier = Modifier.clickable { /* Seguir */ }
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = null,
-                        tint = LMInk,
-                        modifier = Modifier.size(12.dp)
-                    )
-                    Text(
-                        text = "Seguir",
-                        fontFamily = Geist,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 11.sp,
-                        color = LMInk
-                    )
-                }
-            }
+            Text(
+                text = "›",
+                fontFamily = Bricolage,
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 28.sp,
+                color = LMGray500
+            )
         }
     }
 }
+

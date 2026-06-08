@@ -25,16 +25,21 @@ import com.leaguematch.translations.StringsPt
 import com.leaguematch.ui.components.SpectatorBottomBar
 import com.leaguematch.ui.theme.RedDark
 import com.leaguematch.ui.theme.RedPrimary
+import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.IconButton
 
 @Composable
 fun EquipasScreen(
     torneio: Torneio,
     equipas: List<Equipa>,
+    onBackClick: () -> Unit,
     onHomeClick: () -> Unit,
     onClassificacaoClick: () -> Unit,
     onJogosClick: () -> Unit,
     onEquipasClick: () -> Unit,
     onPerfilClick: () -> Unit,
+    onEquipaClick: (Equipa) -> Unit,
     strings: AppStrings = StringsPt
 ) {
     Scaffold(
@@ -58,7 +63,8 @@ fun EquipasScreen(
         ) {
             TorneioHeaderEquipas(
                 torneio = torneio,
-                strings = strings
+                strings = strings,
+                onBackClick = onBackClick
             )
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -108,7 +114,11 @@ fun EquipasScreen(
                     itemsIndexed(equipas) { index, equipa ->
                         EquipaCard(
                             posicao = index + 1,
-                            equipa = equipa
+                            equipa = equipa,
+                            onClick = {
+                                onEquipaClick(equipa)
+                            }
+
                         )
                     }
                 }
@@ -120,10 +130,15 @@ fun EquipasScreen(
 @Composable
 private fun EquipaCard(
     posicao: Int,
-    equipa: Equipa
+    equipa: Equipa,
+    onClick: () -> Unit
+
+
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1B1B20)),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
@@ -171,7 +186,8 @@ private fun EquipaCard(
 @Composable
 private fun TorneioHeaderEquipas(
     torneio: Torneio,
-    strings: AppStrings
+    strings: AppStrings,
+    onBackClick: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -189,6 +205,22 @@ private fun TorneioHeaderEquipas(
                 .padding(18.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            IconButton(
+                onClick = onBackClick,
+                modifier = Modifier
+                    .size(42.dp)
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.18f))
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Voltar",
+                    tint = Color.White
+                )
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
             Box(
                 modifier = Modifier
                     .size(48.dp)
