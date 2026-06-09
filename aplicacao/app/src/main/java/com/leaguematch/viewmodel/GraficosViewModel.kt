@@ -12,11 +12,11 @@ class GraficosViewModel(private val repository: LeagueMatchRepository) : ViewMod
     private val _estatisticasState = MutableStateFlow<Result<EstatisticasAdmin>?>(null)
     val estatisticasState: StateFlow<Result<EstatisticasAdmin>?> = _estatisticasState
 
-    fun carregarEstatisticas() {
+    fun carregarEstatisticas(periodo: String = "30d") {
         viewModelScope.launch {
             _estatisticasState.value = null
             try {
-                val data = repository.obterEstatisticasAdmin()
+                val data = repository.obterEstatisticasAdmin(periodo)
                 _estatisticasState.value = Result.success(data)
             } catch (e: Exception) {
                 _estatisticasState.value = Result.failure(e)

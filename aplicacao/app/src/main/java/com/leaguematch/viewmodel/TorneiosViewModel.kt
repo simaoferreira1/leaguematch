@@ -168,7 +168,7 @@ class TorneiosViewModel(private val repository: LeagueMatchRepository) : ViewMod
     fun removerTorneio(id: Int) {
         viewModelScope.launch {
             try {
-                repository.removerTorneio(id)
+                repository.desativarTorneio(id)
                 carregarTorneios()
                 carregarTodosTorneios()
             } catch (e: Exception) {

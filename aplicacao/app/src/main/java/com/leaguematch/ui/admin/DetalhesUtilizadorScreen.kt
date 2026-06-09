@@ -26,6 +26,7 @@ fun DetalheUtilizadorScreen(
     nome: String = "Simão Rodrigues Ferreira",
     email: String = "fsimao530@gmail.com",
     tipo: String = "Organizador",
+    ativo: Boolean = true,
     equipas: Int = 2,
     torneios: Int = 1,
     jogos: Int = 18,
@@ -36,10 +37,69 @@ fun DetalheUtilizadorScreen(
     onTorneiosClick: () -> Unit = {},
     onGraficosClick: () -> Unit = {},
     onDefinicoesClick: () -> Unit = {},
-    onRemoverClick: () -> Unit = {},
+    onAlterarEstadoClick: () -> Unit = {},
     onGuardarClick: (String) -> Unit = {}
 ) {
     var tipoSelecionado by remember(tipo) { mutableStateOf(tipo) }
+    var showConfirmEstadoDialog by remember { mutableStateOf(false) }
+
+    val textoAcao = if (ativo) "Desativar" else "Ativar"
+    val tituloDialog = if (ativo) "Desativar utilizador?" else "Ativar utilizador?"
+    val mensagemDialog = if (ativo) {
+        "Tens a certeza que queres desativar \"$nome\"?"
+    } else {
+        "Tens a certeza que queres ativar \"$nome\"?"
+    }
+
+    if (showConfirmEstadoDialog) {
+        AlertDialog(
+            onDismissRequest = { showConfirmEstadoDialog = false },
+            containerColor = LMWhite,
+            shape = RoundedCornerShape(20.dp),
+            title = {
+                Text(
+                    text = tituloDialog,
+                    fontFamily = Bricolage,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = LMInk
+                )
+            },
+            text = {
+                Text(
+                    text = mensagemDialog,
+                    fontFamily = Geist,
+                    color = LMGray600
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showConfirmEstadoDialog = false
+                        onAlterarEstadoClick()
+                    }
+                ) {
+                    Text(
+                        text = textoAcao,
+                        fontFamily = Geist,
+                        fontWeight = FontWeight.Bold,
+                        color = LMRed
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showConfirmEstadoDialog = false }
+                ) {
+                    Text(
+                        text = "Cancelar",
+                        fontFamily = Geist,
+                        fontWeight = FontWeight.SemiBold,
+                        color = LMGray600
+                    )
+                }
+            }
+        )
+    }
 
     Scaffold(
         bottomBar = {
@@ -61,19 +121,25 @@ fun DetalheUtilizadorScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(vertical = 12.dp)
         ) {
-            // Header TopBar
             TopBar(
                 title = "Utilizador",
                 back = true,
                 onBackClick = onBackClick,
                 rightContent = {
-                    TextBtn(onClick = onRemoverClick, color = LMRed) {
-                        Text("Remover", fontFamily = Geist, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                    TextBtn(
+                        onClick = { showConfirmEstadoDialog = true },
+                        color = LMRed
+                    ) {
+                        Text(
+                            text = textoAcao,
+                            fontFamily = Geist,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 14.sp
+                        )
                     }
                 }
             )
 
-            // Profile info
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -85,10 +151,9 @@ fun DetalheUtilizadorScreen(
                     size = 86.dp,
                     color = LMRed
                 )
-                
+
                 Spacer(modifier = Modifier.height(12.dp))
-                
-                // Simão R. Ferreira or name
+
                 Text(
                     text = nome,
                     fontFamily = Bricolage,
@@ -98,9 +163,9 @@ fun DetalheUtilizadorScreen(
                     letterSpacing = (-0.4).sp,
                     textAlign = TextAlign.Center
                 )
-                
+
                 Spacer(modifier = Modifier.height(2.dp))
-                
+
                 Text(
                     text = email,
                     fontFamily = Geist,
@@ -108,9 +173,16 @@ fun DetalheUtilizadorScreen(
                     color = LMGray500,
                     textAlign = TextAlign.Center
                 )
-                
-                Spacer(modifier = Modifier.height(2.dp))
-                
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Pill(
+                    text = if (ativo) "Ativo" else "Desativado",
+                    kind = if (ativo) "live" else "warn"
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
                 Text(
                     text = "Membro desde 12 Mar 2025",
                     fontFamily = Geist,
@@ -120,7 +192,6 @@ fun DetalheUtilizadorScreen(
                 )
             }
 
-            // Stats grid (4 blocks)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -133,7 +204,7 @@ fun DetalheUtilizadorScreen(
                     "Jogos" to jogos,
                     "Golos" to golos
                 )
-                
+
                 stats.forEach { (label, value) ->
                     Column(
                         modifier = Modifier
@@ -150,7 +221,9 @@ fun DetalheUtilizadorScreen(
                             fontWeight = FontWeight.ExtraBold,
                             color = LMInk
                         )
+
                         Spacer(modifier = Modifier.height(2.dp))
+
                         Text(
                             text = label.uppercase(),
                             fontFamily = Geist,
@@ -164,7 +237,6 @@ fun DetalheUtilizadorScreen(
                 }
             }
 
-            // Tipo de Utilizador Selection Section
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -179,16 +251,16 @@ fun DetalheUtilizadorScreen(
                     letterSpacing = 0.4.sp,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
-                
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     val options = listOf("Organizador", "Participante", "Espectador")
-                    
+
                     options.forEach { option ->
                         val isActive = tipoSelecionado.lowercase() == option.lowercase()
-                        
+
                         Box(
                             modifier = Modifier
                                 .weight(1f)
@@ -197,7 +269,10 @@ fun DetalheUtilizadorScreen(
                                     shape = RoundedCornerShape(10.dp)
                                 )
                                 .border(
-                                    BorderStroke(if (isActive) 1.5.dp else 1.dp, if (isActive) LMRed else LMBorder),
+                                    BorderStroke(
+                                        if (isActive) 1.5.dp else 1.dp,
+                                        if (isActive) LMRed else LMBorder
+                                    ),
                                     RoundedCornerShape(10.dp)
                                 )
                                 .clickable { tipoSelecionado = option }
@@ -218,7 +293,6 @@ fun DetalheUtilizadorScreen(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Contactos de Equipa Card Wrapper Section
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -233,7 +307,7 @@ fun DetalheUtilizadorScreen(
                     letterSpacing = 0.4.sp,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
-                
+
                 CardWrapper(
                     modifier = Modifier.fillMaxWidth(),
                     pad = 0.dp
@@ -242,7 +316,7 @@ fun DetalheUtilizadorScreen(
                         "GD Rio Torto" to "Capitão",
                         "Bola Parada FC" to "Membro"
                     )
-                    
+
                     Column {
                         teams.forEachIndexed { index, (teamName, role) ->
                             Row(
@@ -252,7 +326,9 @@ fun DetalheUtilizadorScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 TeamCrest(name = teamName, size = 26.dp)
+
                                 Spacer(modifier = Modifier.width(10.dp))
+
                                 Text(
                                     text = teamName,
                                     fontFamily = Geist,
@@ -261,6 +337,7 @@ fun DetalheUtilizadorScreen(
                                     color = LMInk,
                                     modifier = Modifier.weight(1f)
                                 )
+
                                 Text(
                                     text = role,
                                     fontFamily = Geist,
@@ -268,7 +345,7 @@ fun DetalheUtilizadorScreen(
                                     color = LMGray500
                                 )
                             }
-                            
+
                             if (index < teams.size - 1) {
                                 HorizontalDivider(
                                     modifier = Modifier.padding(start = 50.dp),
@@ -281,7 +358,6 @@ fun DetalheUtilizadorScreen(
                 }
             }
 
-            // Save and Reset Password actions at bottom
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -293,14 +369,8 @@ fun DetalheUtilizadorScreen(
                 ) {
                     Text("Guardar alterações", color = LMWhite)
                 }
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
-                GhostBtn(
-                    onClick = {}
-                ) {
-                    Text("Repor password", color = LMInk)
-                }
             }
         }
     }

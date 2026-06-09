@@ -127,7 +127,7 @@ class SupabaseLeagueMatchRepository(
     }
 
     override suspend fun listarUtilizadores(): List<Utilizador> {
-        return getArray("utilizador", mapOf("select" to "id,nome,email,tipo"))
+        return getArray("utilizador", mapOf("select" to "id,nome,email,tipo,active"))
             .toObjectList()
             .map { it.toUtilizador() }
     }
@@ -135,8 +135,22 @@ class SupabaseLeagueMatchRepository(
     override suspend fun obterUtilizador(id: Int): Utilizador? {
         return getArray(
             "utilizador",
-            mapOf("select" to "id,nome,email,tipo", "id" to "eq.$id", "limit" to "1")
+            mapOf("select" to "id,nome,email,tipo,active", "id" to "eq.$id", "limit" to "1")
         ).optJSONObject(0)?.toUtilizador()
+    }
+
+    override suspend fun alterarEstadoUtilizador(
+        id: Int,
+        ativo: Boolean
+    ): Boolean {
+
+        val json = JSONObject().apply {
+            put("active", ativo)
+        }
+
+        patchObject("utilizador", id, json)
+
+        return true
     }
 
     override suspend fun listarModalidades(): List<ResumoModalidade> {
@@ -373,28 +387,35 @@ class SupabaseLeagueMatchRepository(
     }
 
     override suspend fun obterEstatisticasAdmin(): EstatisticasAdmin {
+        return obterEstatisticasAdmin("30d")
+    }
+
+    override suspend fun obterEstatisticasAdmin(periodo: String): EstatisticasAdmin {
         val utilizadores = listarUtilizadores()
         val torneios = listarTorneios()
         val jogos = listarJogos()
 
         val totalUsers = utilizadores.size.coerceAtLeast(1).toFloat()
 
-        // Dynamic sports breakdown
-        val modalidadesCount = torneios.groupBy { it.modalidade }.map { (modalidade, list) ->
-            ParGrafico(modalidade, list.size.toFloat())
-        }.sortedByDescending { it.valorNormalizado }
+        val modalidadesCount = torneios
+            .groupBy { it.modalidade }
+            .map { (modalidade, lista) ->
+                ParGrafico(modalidade, lista.size.toFloat())
+            }
 
-        // Dynamic user profile breakdown
         val perfilBreakdown = listOf(
             ParGrafico(
                 "Participantes",
-                (utilizadores.count { it.tipo == TipoUtilizador.PARTICIPANTE } / totalUsers) * 100f),
+                (utilizadores.count { it.tipo == TipoUtilizador.PARTICIPANTE } / totalUsers) * 100f
+            ),
             ParGrafico(
                 "Espectadores",
-                (utilizadores.count { it.tipo == TipoUtilizador.ESPECTADOR } / totalUsers) * 100f),
+                (utilizadores.count { it.tipo == TipoUtilizador.ESPECTADOR } / totalUsers) * 100f
+            ),
             ParGrafico(
                 "Organizadores",
-                (utilizadores.count { it.tipo == TipoUtilizador.ORGANIZADOR } / totalUsers) * 100f)
+                (utilizadores.count { it.tipo == TipoUtilizador.ORGANIZADOR } / totalUsers) * 100f
+            )
         )
 
         return EstatisticasAdmin(
@@ -411,11 +432,19 @@ class SupabaseLeagueMatchRepository(
     override suspend fun listarTorneios(): List<Torneio> {
         val equipasPorTorneio = listarEquipasPorTorneio()
         val jogosPorTorneio = listarJogos().groupBy { it.torneioId }
-        return getArray("torneio", mapOf("select" to "id,nome,modalidade,regras,formato,organizador_id"))
+
+        return getArray(
+            "torneio",
+            mapOf(
+                "select" to "id,nome,modalidade,regras,formato,organizador_id,active",
+                "active" to "eq.true"
+            )
+        )
             .toObjectList()
             .map { json ->
                 val id = json.optInt("id")
                 val jogos = jogosPorTorneio[id].orEmpty()
+
                 Torneio(
                     id = id,
                     nome = json.optString("nome"),
@@ -424,7 +453,8 @@ class SupabaseLeagueMatchRepository(
                     formato = json.optString("formato"),
                     estado = inferirEstado(jogos),
                     equipas = equipasPorTorneio[id] ?: 0,
-                    organizadorId = if (json.isNull("organizador_id")) null else json.optInt("organizador_id")
+                    organizadorId = if (json.isNull("organizador_id")) null else json.optInt("organizador_id"),
+                    active = json.optBoolean("active", true)
                 )
             }
     }
@@ -948,7 +978,7 @@ class SupabaseLeagueMatchRepository(
             nome = optString("nome"),
             email = optString("email"),
             tipo = optString("tipo").toTipoUtilizador(),
-            active = true,
+            active = optBoolean("active", true),
             equipas = 0,
             torneios = 0,
             jogos = 0
@@ -1640,6 +1670,16 @@ class SupabaseLeagueMatchRepository(
                 emptyList()
             }
         }
+    }
+
+    override suspend fun desativarTorneio(id: Int): Boolean {
+        val json = JSONObject().apply {
+            put("active", false)
+        }
+
+        patchObject("torneio", id, json)
+
+        return true
     }
 }
 

@@ -37,7 +37,8 @@ fun GraficosScreen(
     onHomeClick: () -> Unit,
     onUtilizadoresClick: () -> Unit,
     onTorneiosClick: () -> Unit,
-    onDefinicoesClick: () -> Unit
+    onDefinicoesClick: () -> Unit,
+    onPeriodChange: (String) -> Unit
 ) {
     var selectedPeriod by remember { mutableStateOf("30d") }
 
@@ -99,7 +100,10 @@ fun GraficosScreen(
                                 color = if (isSelected) LMInk else LMGray100,
                                 shape = RoundedCornerShape(8.dp)
                             )
-                            .clickable { selectedPeriod = period }
+                            .clickable {
+                                selectedPeriod = period
+                                onPeriodChange(period)
+                            }
                             .padding(vertical = 8.dp),
                         contentAlignment = Alignment.Center
                     ) {

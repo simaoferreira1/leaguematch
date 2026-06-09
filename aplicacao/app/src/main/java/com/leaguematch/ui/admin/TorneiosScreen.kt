@@ -80,7 +80,7 @@ fun TorneiosScreen(
 
             title = {
                 Text(
-                    text = "Remover torneio?",
+                    text = "Desativar torneio?",
                     fontFamily = Geist,
                     fontWeight = FontWeight.ExtraBold,
                     color = LMInk
@@ -89,7 +89,7 @@ fun TorneiosScreen(
 
             text = {
                 Text(
-                    text = "Tens a certeza que queres remover \"${torneio.nome}\"?",
+                    text = "Tens a certeza que queres desativar \"${torneio.nome}\"?",
                     fontFamily = Geist,
                     color = LMGray500
                 )
@@ -103,7 +103,7 @@ fun TorneiosScreen(
                     }
                 ) {
                     Text(
-                        "Remover",
+                        "Desativar",
                         color = LMRed,
                         fontFamily = Geist,
                         fontWeight = FontWeight.Bold
@@ -387,7 +387,7 @@ private fun TorneioCard(
                     Spacer(modifier = Modifier.width(4.dp))
 
                     Text(
-                        text = "Remover",
+                        text = "Desativar",
                         fontFamily = Geist,
                         fontWeight = FontWeight.Bold,
                         fontSize = 11.sp,

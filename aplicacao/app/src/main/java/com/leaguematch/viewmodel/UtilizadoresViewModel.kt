@@ -38,4 +38,19 @@ class UtilizadoresViewModel(private val repository: LeagueMatchRepository) : Vie
             }
         }
     }
+
+    fun alterarEstadoUtilizador(
+        id: Int,
+        ativo: Boolean
+    ) {
+        viewModelScope.launch {
+            try {
+                repository.alterarEstadoUtilizador(id, ativo)
+                carregarDetalhes(id)
+                carregarUtilizadores()
+            } catch (e: Exception) {
+                _detalheUtilizadorState.value = Result.failure(e)
+            }
+        }
+    }
 }

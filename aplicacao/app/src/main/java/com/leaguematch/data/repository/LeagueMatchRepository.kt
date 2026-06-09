@@ -22,6 +22,10 @@ interface LeagueMatchRepository {
     suspend fun obterDashboard(): ResumoDashboard
     suspend fun listarUtilizadores(): List<Utilizador>
     suspend fun obterUtilizador(id: Int): Utilizador?
+    suspend fun alterarEstadoUtilizador(
+        id: Int,
+        ativo: Boolean
+    ): Boolean
     suspend fun listarModalidades(): List<ResumoModalidade>
     suspend fun listarTorneiosPorModalidade(modalidade: String): List<Torneio>
     suspend fun obterClassificacao(torneioId: Int): List<Classificacao>
@@ -77,11 +81,8 @@ interface LeagueMatchRepository {
     suspend fun atualizarConfiguracaoNotificacoes(
         configuracao: ConfiguracaoNotificacoes
     ): ConfiguracaoNotificacoes?
-
     suspend fun listarTorneios(): List<Torneio>
-
     suspend fun listarTorneiosDoOrganizador(organizadorId: Int): List<Torneio>
-
     suspend fun obterEquipaDoParticipante(utilizadorId: Int): Equipa?
     suspend fun listarJogadoresEquipa(equipaId: Int): List<Utilizador>
     suspend fun obterClassificacaoEquipa(equipaId: Int, torneioId: Int): Classificacao?
@@ -90,10 +91,9 @@ interface LeagueMatchRepository {
         utilizadorId: Int,
         equipaId: Int
     ): ParticipantStatsData
-
     suspend fun juntarEquipaPorCodigo(utilizadorId: Int, codigo: String): Result<Equipa>
-
     suspend fun removerJogadorEquipa(equipaId: Int, utilizadorId: Int): Boolean
-
     suspend fun listarEquipasDoParticipante(utilizadorId: Int): List<Equipa>
+    suspend fun obterEstatisticasAdmin(periodo: String): EstatisticasAdmin
+    suspend fun desativarTorneio(id: Int): Boolean
 }

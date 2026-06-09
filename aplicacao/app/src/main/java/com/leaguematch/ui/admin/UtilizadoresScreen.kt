@@ -258,9 +258,9 @@ fun UtilizadoresScreen(
                                             color = LMGray700
                                         )
                                     }
-                                    
+
                                     Pill(
-                                        text = if (user.active) "Ativo" else "Pendente",
+                                        text = if (user.active) "Ativo" else "Desativo",
                                         kind = if (user.active) "live" else "warn"
                                     )
                                 }

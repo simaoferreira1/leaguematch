@@ -1,19 +1,6 @@
 package com.leaguematch.ui.admin
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import com.leaguematch.data.remote.model.Jogo
-import com.leaguematch.data.remote.model.Torneio
 import com.leaguematch.data.remote.model.Utilizador
 import com.leaguematch.data.repository.LeagueMatchRepository
 import com.leaguematch.ui.components.AdminBottomBar
@@ -100,9 +87,11 @@ fun AdminFlowContainer(
 
         is AdminRoute.DetalheUtilizador -> {
             val utilizador by utilizadoresViewModel.detalheUtilizadorState.collectAsState()
+
             LaunchedEffect(route.id) {
                 utilizadoresViewModel.carregarDetalhes(route.id)
             }
+
             RemoteContent(utilizador) { user ->
                 DetalheUtilizadorScreen(
                     nome = user?.nome.orEmpty(),
@@ -111,6 +100,18 @@ fun AdminFlowContainer(
                     equipas = user?.equipas ?: 0,
                     torneios = user?.torneios ?: 0,
                     jogos = user?.jogos ?: 0,
+                    golos = 0,
+
+                    ativo = user?.active ?: true,
+
+                    onAlterarEstadoClick = {
+                        utilizadoresViewModel.alterarEstadoUtilizador(
+                            route.id,
+                            !(user?.active ?: true)
+                        )
+                        navigate(AdminRoute.Utilizadores)
+                    },
+
                     onBackClick = goUsers,
                     onHomeClick = goHome,
                     onUtilizadoresClick = goUsers,
@@ -131,9 +132,7 @@ fun AdminFlowContainer(
             }
 
             when {
-                dadosModalidades == null || dadosTorneios == null -> {
-                    LoadingScreen()
-                }
+                dadosModalidades == null || dadosTorneios == null -> LoadingScreen()
 
                 dadosModalidades!!.isFailure -> {
                     ErrorScreen(
@@ -180,9 +179,11 @@ fun AdminFlowContainer(
 
         is AdminRoute.TorneiosModalidade -> {
             val torneios by torneiosViewModel.torneiosState.collectAsState()
+
             LaunchedEffect(route.modalidade) {
                 torneiosViewModel.carregarTorneiosPorModalidade(route.modalidade)
             }
+
             RemoteContent(torneios) {
                 ListaTorneiosModalidadeScreen(
                     modalidade = route.modalidade,
@@ -202,9 +203,11 @@ fun AdminFlowContainer(
 
         is AdminRoute.DetalheTorneio -> {
             val detalhe by torneiosViewModel.detalheTorneioState.collectAsState()
+
             LaunchedEffect(route.id) {
                 torneiosViewModel.carregarDetalheTorneio(route.id)
             }
+
             RemoteContent(detalhe) {
                 DetalheTorneioScreen(
                     detalhe = it,
@@ -225,16 +228,21 @@ fun AdminFlowContainer(
 
         AdminRoute.Graficos -> {
             val estatisticas by graficosViewModel.estatisticasState.collectAsState()
+
             LaunchedEffect(Unit) {
-                graficosViewModel.carregarEstatisticas()
+                graficosViewModel.carregarEstatisticas("30d")
             }
-            RemoteContent(estatisticas) {
+
+            RemoteContent(estatisticas) { dados ->
                 GraficosScreen(
-                    estatisticas = it,
+                    estatisticas = dados,
                     onHomeClick = goHome,
                     onUtilizadoresClick = goUsers,
                     onTorneiosClick = goTournaments,
-                    onDefinicoesClick = goSettings
+                    onDefinicoesClick = goSettings,
+                    onPeriodChange = { periodo ->
+                        graficosViewModel.carregarEstatisticas(periodo)
+                    }
                 )
             }
         }
@@ -270,5 +278,3 @@ fun AdminFlowContainer(
         }
     }
 }
-
-

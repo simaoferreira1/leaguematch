@@ -343,15 +343,6 @@ fun DefinicoesScreen(
                         label = "Nome completo",
                         placeholder = "Nome completo"
                     )
-
-                    LeagueMatchTextField(
-                        value = newPassword,
-                        onValueChange = { newPassword = it },
-                        label = "Nova palavra-passe (opcional)",
-                        placeholder = "Mudar palavra-passe",
-                        isPassword = true,
-                        hint = "Deixa em branco para manter a atual."
-                    )
                 }
             },
             confirmButton = {
