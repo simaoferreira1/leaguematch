@@ -40,7 +40,7 @@ class GraficosViewModelTest {
 
     @Test
     fun `carregarEstatisticas success updates estatisticasState with Success`() = runTest {
-        coEvery { repository.obterEstatisticasAdmin() } returns mockStats
+        coEvery { repository.obterEstatisticasAdmin(any()) } returns mockStats
 
         viewModel.carregarEstatisticas()
 
@@ -53,7 +53,7 @@ class GraficosViewModelTest {
     @Test
     fun `carregarEstatisticas error updates estatisticasState with Failure`() = runTest {
         val exception = RuntimeException("Database error")
-        coEvery { repository.obterEstatisticasAdmin() } throws exception
+        coEvery { repository.obterEstatisticasAdmin(any()) } throws exception
 
         viewModel.carregarEstatisticas()
 

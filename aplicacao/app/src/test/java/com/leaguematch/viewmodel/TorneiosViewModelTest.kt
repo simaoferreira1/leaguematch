@@ -165,12 +165,12 @@ class TorneiosViewModelTest {
 
     @Test
     fun `removerTorneio calls repository and reloads list`() = runTest {
-        coEvery { repository.removerTorneio(1) } returns true
+        coEvery { repository.desativarTorneio(1) } returns true
         coEvery { repository.listarModalidades() } returns emptyList()
 
         viewModel.removerTorneio(1)
 
-        coVerify { repository.removerTorneio(1) }
+        coVerify { repository.desativarTorneio(1) }
     }
 
     @Test
