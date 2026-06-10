@@ -1,14 +1,17 @@
 package com.leaguematch
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModelProvider
 import com.leaguematch.data.remote.model.TipoUtilizador
 import com.leaguematch.data.repository.SupabaseLeagueMatchRepository
 import com.leaguematch.ui.admin.AdminFlowContainer
+import com.leaguematch.ui.auth.IntroSliderScreen
 import com.leaguematch.ui.auth.LoginScreen
 import com.leaguematch.ui.auth.RegisterScreen
 import com.leaguematch.ui.components.LoadingScreen
@@ -51,7 +54,22 @@ class MainActivity : ComponentActivity() {
                 val registerSuccess by authViewModel.registerSuccess.collectAsState()
                 var showRegisterScreen by remember { mutableStateOf(false) }
 
-                if (!isLoggedIn) {
+                val context = LocalContext.current
+                val prefs = remember {
+                    context.getSharedPreferences("lm_prefs", Context.MODE_PRIVATE)
+                }
+                var introVisto by remember {
+                    mutableStateOf(prefs.getBoolean("intro_seen", false))
+                }
+
+                if (!isLoggedIn && !introVisto) {
+                    IntroSliderScreen(
+                        onConcluir = {
+                            prefs.edit().putBoolean("intro_seen", true).apply()
+                            introVisto = true
+                        }
+                    )
+                } else if (!isLoggedIn) {
                     if (showRegisterScreen) {
                         RegisterScreen(
                             erro = loginError,
