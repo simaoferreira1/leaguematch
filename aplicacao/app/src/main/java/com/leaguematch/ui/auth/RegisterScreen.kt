@@ -7,12 +7,26 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,8 +35,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.leaguematch.ui.components.*
-import com.leaguematch.ui.theme.*
+import com.leaguematch.ui.components.LocalLanguage
+import com.leaguematch.ui.components.LocalTranslationRepository
+import com.leaguematch.ui.components.PrimaryBtn
+import com.leaguematch.ui.components.TopBar
+import com.leaguematch.ui.components.TranslatedLeagueMatchTextField
+import com.leaguematch.ui.components.TranslatedText
+import com.leaguematch.ui.components.showTranslatedToast
+import com.leaguematch.ui.theme.Bricolage
+import com.leaguematch.ui.theme.Geist
+import com.leaguematch.ui.theme.LMBorder
+import com.leaguematch.ui.theme.LMGray500
+import com.leaguematch.ui.theme.LMGray600
+import com.leaguematch.ui.theme.LMGray700
+import com.leaguematch.ui.theme.LMInk
+import com.leaguematch.ui.theme.LMRed
+import com.leaguematch.ui.theme.LMRed50
+import com.leaguematch.ui.theme.LMRed700
+import com.leaguematch.ui.theme.LMWhite
+import com.leaguematch.ui.theme.LeagueMatchTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun RegisterScreen(
@@ -33,6 +65,9 @@ fun RegisterScreen(
     onSuccessRedirect: () -> Unit
 ) {
     val context = LocalContext.current
+    val language = LocalLanguage.current
+    val translationRepository = LocalTranslationRepository.current
+    val scope = rememberCoroutineScope()
 
     var nome by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -42,7 +77,13 @@ fun RegisterScreen(
 
     LaunchedEffect(sucesso) {
         if (sucesso) {
-            Toast.makeText(context, "Conta criada com sucesso!", Toast.LENGTH_SHORT).show()
+            showTranslatedToast(
+                context = context,
+                text = "Conta criada com sucesso!",
+                language = language,
+                translationRepository = translationRepository,
+                duration = Toast.LENGTH_SHORT
+            )
             onSuccessRedirect()
         }
     }
@@ -71,7 +112,7 @@ fun RegisterScreen(
                     .padding(bottom = 28.dp)
             ) {
                 // Title & Subtitle
-                Text(
+                TranslatedText(
                     text = "Criar conta.",
                     fontFamily = Bricolage,
                     fontSize = 30.sp,
@@ -81,7 +122,7 @@ fun RegisterScreen(
                     lineHeight = 34.sp,
                     modifier = Modifier.padding(top = 8.dp)
                 )
-                Text(
+                TranslatedText(
                     text = "Junta-te ao LeagueMatch e começa a competir.",
                     fontFamily = Geist,
                     fontSize = 14.sp,
@@ -91,7 +132,7 @@ fun RegisterScreen(
 
                 // Error message banner
                 if (erro != null) {
-                    Text(
+                    TranslatedText(
                         text = erro,
                         fontFamily = Geist,
                         fontSize = 13.sp,
@@ -102,7 +143,7 @@ fun RegisterScreen(
                 }
 
                 // Input Nome completo
-                LeagueMatchTextField(
+                TranslatedLeagueMatchTextField(
                     value = nome,
                     onValueChange = { nome = it },
                     label = "Nome completo",
@@ -110,7 +151,7 @@ fun RegisterScreen(
                 )
 
                 // Input Email
-                LeagueMatchTextField(
+                TranslatedLeagueMatchTextField(
                     value = email,
                     onValueChange = { email = it },
                     label = "Email",
@@ -118,7 +159,7 @@ fun RegisterScreen(
                 )
 
                 // Input Palavra-passe
-                LeagueMatchTextField(
+                TranslatedLeagueMatchTextField(
                     value = password,
                     onValueChange = { password = it },
                     label = "Palavra-passe",
@@ -127,7 +168,7 @@ fun RegisterScreen(
                 )
 
                 // Input Repetir password
-                LeagueMatchTextField(
+                TranslatedLeagueMatchTextField(
                     value = repeatPassword,
                     onValueChange = { repeatPassword = it },
                     label = "Repetir password",
@@ -139,7 +180,7 @@ fun RegisterScreen(
                 Spacer(modifier = Modifier.height(6.dp))
 
                 // Perfil / Role Title
-                Text(
+                TranslatedText(
                     text = "PERFIL",
                     fontFamily = Geist,
                     fontWeight = FontWeight.SemiBold,
@@ -194,7 +235,7 @@ fun RegisterScreen(
                                 .padding(vertical = 10.dp, horizontal = 4.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(
+                            TranslatedText(
                                 text = label,
                                 fontFamily = Geist,
                                 fontSize = 12.sp,
@@ -212,13 +253,37 @@ fun RegisterScreen(
                     onClick = {
                         when {
                             nome.isBlank() || email.isBlank() || password.isBlank() || repeatPassword.isBlank() -> {
-                                Toast.makeText(context, "Por favor, preencha todos os campos.", Toast.LENGTH_SHORT).show()
+                                scope.launch {
+                                    showTranslatedToast(
+                                        context = context,
+                                        text = "Por favor, preencha todos os campos.",
+                                        language = language,
+                                        translationRepository = translationRepository,
+                                        duration = Toast.LENGTH_SHORT
+                                    )
+                                }
                             }
                             password.length < 8 -> {
-                                Toast.makeText(context, "A password deve ter pelo menos 8 caracteres.", Toast.LENGTH_SHORT).show()
+                                scope.launch {
+                                    showTranslatedToast(
+                                        context = context,
+                                        text = "A password deve ter pelo menos 8 caracteres.",
+                                        language = language,
+                                        translationRepository = translationRepository,
+                                        duration = Toast.LENGTH_SHORT
+                                    )
+                                }
                             }
                             password != repeatPassword -> {
-                                Toast.makeText(context, "As passwords introduzidas não coincidem.", Toast.LENGTH_SHORT).show()
+                                scope.launch {
+                                    showTranslatedToast(
+                                        context = context,
+                                        text = "As passwords introduzidas não coincidem.",
+                                        language = language,
+                                        translationRepository = translationRepository,
+                                        duration = Toast.LENGTH_SHORT
+                                    )
+                                }
                             }
                             else -> {
                                 onRegisterClick(nome, email, password, selectedPerfil)
@@ -227,7 +292,7 @@ fun RegisterScreen(
                     },
                     size = "lg"
                 ) {
-                    Text("Registar")
+                    TranslatedText("Registar")
                 }
             }
         }
