@@ -25,6 +25,7 @@ import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
+import org.mindrot.jbcrypt.BCrypt
 import java.security.MessageDigest
 import com.leaguematch.viewmodel.ParticipantStatsData
 
@@ -71,16 +72,33 @@ class SupabaseLeagueMatchRepository(
             )
         }
 
-        val users = getArray(
+        val candidates = getArray(
             table = "utilizador",
             query = mapOf(
-                "select" to "id,nome,email,tipo",
+                "select" to "id,nome,email,tipo,active,password",
                 "email" to "eq.$trimmedEmail",
-                "password" to "eq.${password.toSha256()}",
                 "limit" to "1"
             )
         )
-        return users.optJSONObject(0)?.toUtilizador()
+        val row = candidates.optJSONObject(0) ?: return null
+        val storedHash = row.optString("password")
+        if (storedHash.isBlank()) return null
+
+        val isBcrypt = storedHash.startsWith("\$2a\$") ||
+            storedHash.startsWith("\$2b\$") ||
+            storedHash.startsWith("\$2y\$")
+
+        val matches = if (isBcrypt) {
+            try {
+                BCrypt.checkpw(password, storedHash)
+            } catch (e: IllegalArgumentException) {
+                false
+            }
+        } else {
+            // Legacy fallback: SHA-256 puro (users antigos).
+            sha256(password).equals(storedHash, ignoreCase = true)
+        }
+        return if (matches) row.toUtilizador() else null
     }
 
     override suspend fun registar(
@@ -93,7 +111,7 @@ class SupabaseLeagueMatchRepository(
         val json = JSONObject().apply {
             put("nome", nome.trim())
             put("email", trimmedEmail)
-            put("password", password.toSha256())
+            put("password", BCrypt.hashpw(password, BCrypt.gensalt(BCRYPT_COST)))
             put("tipo", tipo)
         }
         val response = postObject("utilizador", json)
@@ -108,7 +126,7 @@ class SupabaseLeagueMatchRepository(
         val json = JSONObject().apply {
             put("nome", nome.trim())
             if (!password.isNullOrBlank()) {
-                put("password", password.toSha256())
+                put("password", BCrypt.hashpw(password, BCrypt.gensalt(BCRYPT_COST)))
             }
         }
         val response = patchObject("utilizador", id, json)
@@ -967,9 +985,13 @@ class SupabaseLeagueMatchRepository(
             if (array.length() > 0) array.getJSONObject(0) else null
         }
 
-    private fun String.toSha256(): String {
-        val bytes = MessageDigest.getInstance("SHA-256").digest(this.toByteArray())
+    private fun sha256(input: String): String {
+        val bytes = MessageDigest.getInstance("SHA-256").digest(input.toByteArray())
         return bytes.joinToString("") { "%02x".format(it) }
+    }
+
+    private companion object {
+        const val BCRYPT_COST = 10
     }
 
     private fun JSONObject.toUtilizador(): Utilizador {

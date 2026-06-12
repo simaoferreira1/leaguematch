@@ -98,4 +98,7 @@ dependencies {
     implementation("io.github.jan-tennert.supabase:auth-kt:3.1.4")
     implementation("io.github.jan-tennert.supabase:realtime-kt:3.1.4")
     implementation("io.ktor:ktor-client-android:3.0.3")
+
+    // Password hashing
+    implementation("org.mindrot:jbcrypt:0.4")
 }
