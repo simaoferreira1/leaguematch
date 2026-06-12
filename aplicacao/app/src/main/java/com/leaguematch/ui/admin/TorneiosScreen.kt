@@ -32,6 +32,7 @@ import com.leaguematch.data.remote.model.Torneio
 import com.leaguematch.ui.components.AdminBottomBar
 import com.leaguematch.ui.theme.*
 
+// Ecrã principal de gestão e consulta dos torneios
 @Composable
 fun TorneiosScreen(
     modalidades: List<ResumoModalidade>,
@@ -44,10 +45,14 @@ fun TorneiosScreen(
     onTorneioClick: (Int) -> Unit,
     onRemoverTorneioClick: (Int) -> Unit
 ) {
+    // Guarda o texto introduzido na pesquisa
     var pesquisa by remember { mutableStateOf("") }
+    // Guarda a modalidade atualmente selecionada
     var modalidadeSelecionada by remember(torneios) { mutableStateOf("Todos") }
+    // Guarda o torneio que o utilizador pretende desativar
     var torneioParaRemover by remember { mutableStateOf<Torneio?>(null) }
 
+    // Garante que a modalidade selecionada continua válida após atualizações
     LaunchedEffect(torneios) {
         if (modalidadeSelecionada != "Todos" &&
             torneios.none { it.modalidade == modalidadeSelecionada }
@@ -56,12 +61,16 @@ fun TorneiosScreen(
         }
     }
 
+    // Adiciona a opção "Todos" às modalidades disponíveis
     val modalidadesFiltro = listOf("Todos") + modalidades.map { it.nome }
 
+    // Filtra os torneios pela modalidade e pela pesquisa efetuada
     val torneiosFiltrados = torneios.filter { torneio ->
+        // Verifica se o torneio pertence à modalidade selecionada
         val modalidadeOk =
             modalidadeSelecionada == "Todos" || torneio.modalidade == modalidadeSelecionada
 
+        // Verifica se o texto pesquisado existe no nome ou modalidade
         val pesquisaOk =
             pesquisa.isBlank() ||
                     torneio.nome.contains(pesquisa, ignoreCase = true) ||
@@ -71,6 +80,7 @@ fun TorneiosScreen(
     }
 
     torneioParaRemover?.let { torneio ->
+        // Caixa de diálogo para confirmar a desativação do torneio
         AlertDialog(
             onDismissRequest = { torneioParaRemover = null },
 
@@ -97,6 +107,7 @@ fun TorneiosScreen(
 
             confirmButton = {
                 TextButton(
+                    // Desativa o torneio selecionado
                     onClick = {
                         onRemoverTorneioClick(torneio.id)
                         torneioParaRemover = null
@@ -113,6 +124,7 @@ fun TorneiosScreen(
 
             dismissButton = {
                 TextButton(
+                    // Fecha a janela sem realizar alterações
                     onClick = {
                         torneioParaRemover = null
                     }
@@ -128,6 +140,7 @@ fun TorneiosScreen(
         )
     }
 
+    // Estrutura principal do ecrã com barra de navegação inferior
     Scaffold(
         bottomBar = {
             AdminBottomBar(
@@ -142,6 +155,7 @@ fun TorneiosScreen(
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
 
+        // Conteúdo principal da página
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -151,6 +165,7 @@ fun TorneiosScreen(
         ) {
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Cabeçalho com campo de pesquisa
             SearchHeader(
                 pesquisa = pesquisa,
                 onPesquisaChange = { pesquisa = it },
@@ -159,6 +174,7 @@ fun TorneiosScreen(
 
             Spacer(modifier = Modifier.height(18.dp))
 
+            // Lista de modalidades para filtrar os torneios
             ModalidadeChips(
                 modalidades = modalidadesFiltro,
                 selecionada = modalidadeSelecionada,
@@ -167,6 +183,7 @@ fun TorneiosScreen(
 
             Spacer(modifier = Modifier.height(14.dp))
 
+            // Mostra quantos torneios estão visíveis após os filtros
             Text(
                 text = "${torneiosFiltrados.size} de $totalTorneios torneios",
                 fontFamily = Geist,
@@ -177,12 +194,15 @@ fun TorneiosScreen(
 
             Spacer(modifier = Modifier.height(10.dp))
 
+            // Apresenta os torneios filtrados
             Column(
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
+                // Mostra mensagem caso não existam torneios correspondentes aos filtros
                 if (torneiosFiltrados.isEmpty()) {
                     EmptyTorneiosMessage()
                 } else {
+                    // Percorre todos os torneios filtrados para criar os cartões
                     torneiosFiltrados.forEachIndexed { index, torneio ->
                         TorneioCard(
                             torneio = torneio,
@@ -197,6 +217,7 @@ fun TorneiosScreen(
     }
 }
 
+// Componente responsável pela pesquisa de torneios
 @Composable
 private fun SearchHeader(
     pesquisa: String,
@@ -213,6 +234,7 @@ private fun SearchHeader(
             .padding(horizontal = 12.dp, vertical = 2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // Ícone visual da barra de pesquisa
         Icon(
             imageVector = Icons.Default.Search,
             contentDescription = null,
@@ -220,6 +242,7 @@ private fun SearchHeader(
             modifier = Modifier.size(20.dp)
         )
 
+        // Campo onde o utilizador escreve o texto de pesquisa
         TextField(
             value = pesquisa,
             onValueChange = onPesquisaChange,
@@ -245,6 +268,7 @@ private fun SearchHeader(
     }
 }
 
+// Cria os botões de seleção das modalidades
 @Composable
 private fun ModalidadeChips(
     modalidades: List<String>,
@@ -257,10 +281,13 @@ private fun ModalidadeChips(
             .horizontalScroll(rememberScrollState()),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        // Percorre todas as modalidades disponíveis
         modalidades.forEach { modalidade ->
+            // Verifica se esta modalidade está selecionada
             val ativo = modalidade == selecionada
 
             Surface(
+                // Atualiza a modalidade selecionada
                 modifier = Modifier.clickable { onSelecionar(modalidade) },
                 shape = RoundedCornerShape(22.dp),
                 color = if (ativo) LMInk else LMWhite,
@@ -295,6 +322,7 @@ private fun ModalidadeChips(
     }
 }
 
+// Cartão que apresenta a informação resumida de um torneio
 @Composable
 private fun TorneioCard(
     torneio: Torneio,
@@ -305,6 +333,7 @@ private fun TorneioCard(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
+            // Abre os detalhes do torneio ao clicar no cartão
             .clickable { onClick() },
         shape = RoundedCornerShape(18.dp),
         color = LMWhite,
@@ -316,6 +345,7 @@ private fun TorneioCard(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Área gráfica com o ícone do troféu
             Box(
                 modifier = Modifier
                     .size(60.dp)
@@ -327,6 +357,7 @@ private fun TorneioCard(
                     ),
                 contentAlignment = Alignment.Center
             ) {
+                // Ícone representativo do torneio
                 Icon(
                     imageVector = Icons.Default.EmojiEvents,
                     contentDescription = null,
@@ -340,6 +371,7 @@ private fun TorneioCard(
             Column(
                 modifier = Modifier.weight(1f)
             ) {
+                // Mostra a modalidade do torneio
                 Text(
                     text = torneio.modalidade.uppercase(),
                     fontFamily = Geist,
@@ -350,6 +382,7 @@ private fun TorneioCard(
 
                 Spacer(modifier = Modifier.height(3.dp))
 
+                // Nome do torneio
                 Text(
                     text = torneio.nome,
                     fontFamily = Geist,
@@ -360,6 +393,7 @@ private fun TorneioCard(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
+                // Mostra o número de equipas e o estado atual do torneio
                 Text(
                     text = "${torneio.equipas} equipas • ${torneio.estado}",
                     fontFamily = Geist,
@@ -368,6 +402,7 @@ private fun TorneioCard(
                 )
             }
 
+            // Botão para desativar o torneio
             Surface(
                 modifier = Modifier.clickable { onRemoverClick() },
                 shape = RoundedCornerShape(18.dp),
@@ -399,6 +434,7 @@ private fun TorneioCard(
     }
 }
 
+// Mensagem apresentada quando não existem torneios para mostrar
 @Composable
 private fun EmptyTorneiosMessage() {
     Box(
@@ -416,6 +452,7 @@ private fun EmptyTorneiosMessage() {
     }
 }
 
+// Devolve o ícone correspondente a cada modalidade
 private fun iconForModalidade(modalidade: String): ImageVector {
     return when (modalidade) {
         "Futebol" -> Icons.Default.SportsSoccer
@@ -425,6 +462,7 @@ private fun iconForModalidade(modalidade: String): ImageVector {
     }
 }
 
+// Define as cores do cartão conforme a modalidade do torneio
 private fun colorsForTorneio(torneio: Torneio, index: Int): List<Color> {
     return when {
         torneio.modalidade == "Futebol" && index % 3 == 0 -> listOf(LMRed, LMRed700)

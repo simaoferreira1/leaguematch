@@ -28,6 +28,7 @@ import com.leaguematch.ui.theme.*
 import com.leaguematch.data.remote.model.TipoUtilizador
 import com.leaguematch.data.remote.model.Utilizador
 
+// Ecrã que apresenta e permite filtrar os utilizadores
 @Composable
 fun UtilizadoresScreen(
     utilizadores: List<Utilizador> = listOf(
@@ -43,20 +44,25 @@ fun UtilizadoresScreen(
     onGraficosClick: () -> Unit = {},
     onDefinicoesClick: () -> Unit = {}
 ) {
+    // Guarda o texto escrito na barra de pesquisa
     var searchQuery by remember { mutableStateOf("") }
+    // Guarda o filtro de tipo de utilizador selecionado
     var selectedFilter by remember { mutableStateOf("Todos") }
 
-    // Count statistics
+    // Conta o número total de utilizadores
     val totalCount = utilizadores.size
+    // Conta quantos utilizadores existem de cada tipo
     val adminCount = utilizadores.count { it.tipo == TipoUtilizador.ADMIN }
     val organizerCount = utilizadores.count { it.tipo == TipoUtilizador.ORGANIZADOR }
     val participantCount = utilizadores.count { it.tipo == TipoUtilizador.PARTICIPANTE }
     val spectatorCount = utilizadores.count { it.tipo == TipoUtilizador.ESPECTADOR }
 
-    // Filtering logic
+    // Filtra os utilizadores pela pesquisa e pelo tipo selecionado
     val filteredUtilizadores = utilizadores.filter { user ->
+        // Verifica se o nome ou email corresponde ao texto pesquisado
         val matchesSearch = user.nome.contains(searchQuery, ignoreCase = true) || 
                             user.email.contains(searchQuery, ignoreCase = true)
+        // Verifica se o utilizador corresponde ao filtro escolhido
         val matchesFilter = when (selectedFilter) {
             "Admin" -> user.tipo == TipoUtilizador.ADMIN
             "Organizador" -> user.tipo == TipoUtilizador.ORGANIZADOR
@@ -67,8 +73,10 @@ fun UtilizadoresScreen(
         matchesSearch && matchesFilter
     }
 
+    // Estrutura principal do ecrã com barra inferior
     Scaffold(
         bottomBar = {
+            // Barra de navegação inferior do administrador
             AdminBottomBar(
                 selectedItem = "utilizadores",
                 onHomeClick = onHomeClick,
@@ -80,6 +88,7 @@ fun UtilizadoresScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
+        // Conteúdo principal da página
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -87,7 +96,7 @@ fun UtilizadoresScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(vertical = 12.dp)
         ) {
-            // Header TopBar
+            // Cabeçalho da página com título, subtítulo e botão de adicionar
             TopBar(
                 title = "Utilizadores",
                 big = true,
@@ -100,6 +109,7 @@ fun UtilizadoresScreen(
                             .clickable {},
                         contentAlignment = Alignment.Center
                     ) {
+                        // Botão visual para adicionar novo utilizador
                         Icon(
                             imageVector = Icons.Default.Add,
                             contentDescription = "Adicionar Utilizador",
@@ -116,6 +126,7 @@ fun UtilizadoresScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 18.dp, vertical = 6.dp)
             ) {
+                // Campo de pesquisa dos utilizadores
                 LeagueMatchTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
@@ -124,7 +135,6 @@ fun UtilizadoresScreen(
                 )
             }
 
-            // Role Filter Chips Row
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -132,6 +142,7 @@ fun UtilizadoresScreen(
                     .padding(horizontal = 18.dp, vertical = 6.dp),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
+                // Lista de filtros disponíveis com a contagem de utilizadores
                 val filters = listOf(
                     "Todos" to "Todos · $totalCount",
                     "Admin" to "Admin · $adminCount",
@@ -140,7 +151,9 @@ fun UtilizadoresScreen(
                     "Espectador" to "Espectador · $spectatorCount"
                 )
 
+                // Percorre todos os filtros e cria um botão para cada um
                 filters.forEach { (filterKey, filterLabel) ->
+                    // Verifica se este filtro está selecionado
                     val isSelected = selectedFilter == filterKey
                     Box(
                         modifier = Modifier
@@ -154,6 +167,7 @@ fun UtilizadoresScreen(
                                     RoundedCornerShape(99.dp)
                                 )
                             }
+                            // Atualiza o filtro quando o utilizador clica
                             .clickable { selectedFilter = filterKey }
                             .padding(horizontal = 12.dp, vertical = 7.dp)
                     ) {
@@ -170,14 +184,16 @@ fun UtilizadoresScreen(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Users List
+            // Lista de utilizadores filtrados
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 18.dp, end = 18.dp, bottom = 18.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                // Percorre os utilizadores filtrados e cria um cartão para cada um
                 filteredUtilizadores.forEach { user ->
+                    // Cartão clicável de cada utilizador
                     CardWrapper(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -187,6 +203,7 @@ fun UtilizadoresScreen(
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
+                            // Avatar com as iniciais/nome do utilizador
                             Avatar(
                                 name = user.nome,
                                 size = 38.dp,
@@ -194,7 +211,8 @@ fun UtilizadoresScreen(
                             )
                             
                             Spacer(modifier = Modifier.width(12.dp))
-                            
+
+                            // Informação principal do utilizador
                             Column(
                                 modifier = Modifier
                                     .weight(1f)
@@ -205,6 +223,7 @@ fun UtilizadoresScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                                 ) {
+                                    // Nome do utilizador
                                     Text(
                                         text = user.nome,
                                         fontFamily = Geist,
@@ -215,6 +234,7 @@ fun UtilizadoresScreen(
                                         overflow = TextOverflow.Ellipsis,
                                         modifier = Modifier.weight(1f, fill = false)
                                     )
+                                    // Mostra etiqueta especial caso o utilizador seja administrador
                                     if (user.tipo == TipoUtilizador.ADMIN) {
                                         Box(
                                             modifier = Modifier
@@ -233,6 +253,7 @@ fun UtilizadoresScreen(
                                 }
                                 
                                 Text(
+                                    // Email do utilizador
                                     text = user.email,
                                     fontFamily = Geist,
                                     fontSize = 11.sp,
@@ -250,6 +271,7 @@ fun UtilizadoresScreen(
                                             .background(LMGray100, RoundedCornerShape(99.dp))
                                             .padding(horizontal = 6.dp, vertical = 2.dp)
                                     ) {
+                                        // Etiqueta com o tipo de utilizador
                                         Text(
                                             text = user.tipo.descricao,
                                             fontFamily = Geist,
@@ -259,13 +281,15 @@ fun UtilizadoresScreen(
                                         )
                                     }
 
+                                    // Mostra se o utilizador está ativo ou desativado
                                     Pill(
                                         text = if (user.active) "Ativo" else "Desativo",
                                         kind = if (user.active) "live" else "warn"
                                     )
                                 }
                             }
-                            
+
+                            // Botão para abrir mais opções ou detalhes do utilizador
                             IconButton(
                                 onClick = { onUtilizadorClick(user.id) },
                                 modifier = Modifier.size(30.dp)
