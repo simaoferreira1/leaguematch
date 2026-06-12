@@ -26,7 +26,6 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
 import org.mindrot.jbcrypt.BCrypt
-import java.security.MessageDigest
 import com.leaguematch.viewmodel.ParticipantStatsData
 
 class SupabaseLeagueMatchRepository(
@@ -84,19 +83,10 @@ class SupabaseLeagueMatchRepository(
         val storedHash = row.optString("password")
         if (storedHash.isBlank()) return null
 
-        val isBcrypt = storedHash.startsWith("\$2a\$") ||
-            storedHash.startsWith("\$2b\$") ||
-            storedHash.startsWith("\$2y\$")
-
-        val matches = if (isBcrypt) {
-            try {
-                BCrypt.checkpw(password, storedHash)
-            } catch (e: IllegalArgumentException) {
-                false
-            }
-        } else {
-            // Legacy fallback: SHA-256 puro (users antigos).
-            sha256(password).equals(storedHash, ignoreCase = true)
+        val matches = try {
+            BCrypt.checkpw(password, storedHash)
+        } catch (e: IllegalArgumentException) {
+            false
         }
         return if (matches) row.toUtilizador() else null
     }
@@ -984,11 +974,6 @@ class SupabaseLeagueMatchRepository(
             val array = JSONArray(responseBody)
             if (array.length() > 0) array.getJSONObject(0) else null
         }
-
-    private fun sha256(input: String): String {
-        val bytes = MessageDigest.getInstance("SHA-256").digest(input.toByteArray())
-        return bytes.joinToString("") { "%02x".format(it) }
-    }
 
     private companion object {
         const val BCRYPT_COST = 10
