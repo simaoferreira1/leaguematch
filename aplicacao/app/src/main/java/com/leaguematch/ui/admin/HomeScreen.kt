@@ -26,6 +26,7 @@ import com.leaguematch.ui.components.*
 import com.leaguematch.ui.theme.*
 import com.leaguematch.data.remote.model.ResumoDashboard
 
+// Ecrã inicial do administrador com resumo geral da plataforma
 @Composable
 fun HomeScreen(
     dashboard: ResumoDashboard = ResumoDashboard(150, 12, 3, 0),
@@ -34,6 +35,7 @@ fun HomeScreen(
     onGraficosClick: () -> Unit = {},
     onDefinicoesClick: () -> Unit = {}
 ) {
+    // Estrutura principal do ecrã com barra de navegação inferior
     Scaffold(
         bottomBar = {
             AdminBottomBar(
@@ -54,7 +56,7 @@ fun HomeScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(vertical = 12.dp)
         ) {
-            // Header TopBar
+            // Barra superior com ícone de notificações e avatar do administrador
             TopBar(
                 title = "",
                 rightContent = {
@@ -80,7 +82,7 @@ fun HomeScreen(
                 }
             )
 
-            // Greeting & Title
+            // Área de saudação e título do painel administrativo
             Column(modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp)) {
                 Text(
                     text = "Bom dia,",
@@ -105,7 +107,7 @@ fun HomeScreen(
                 )
             }
 
-            // KPIs Grid
+            // Grelha com os principais indicadores do sistema
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -116,6 +118,7 @@ fun HomeScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
+                    // Cartão que apresenta um indicador estatístico resumido
                     KPIBlock(
                         label = "Utilizadores",
                         value = dashboard.totalUtilizadores.toString(),
@@ -164,7 +167,7 @@ fun HomeScreen(
                 }
             }
 
-            // Chart Card
+            // Cartão com gráfico simples da atividade dos últimos 7 dias
             CardWrapper(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -187,7 +190,7 @@ fun HomeScreen(
                                 color = Color.White.copy(alpha = 0.6f)
                             )
                             Text(
-                                text = "1 247 eventos",
+                                text = "15 eventos",
                                 fontFamily = Bricolage,
                                 fontSize = 22.sp,
                                 fontWeight = FontWeight.ExtraBold,
@@ -220,8 +223,10 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                         verticalAlignment = Alignment.Bottom
                     ) {
+                        // Dados usados para desenhar as barras do gráfico
                         val chartData = listOf(22, 38, 30, 52, 44, 70, 62)
                         val maxVal = 80
+                        // Cria uma barra proporcional ao valor de cada dia
                         chartData.forEachIndexed { index, value ->
                             val heightFraction = value.toFloat() / maxVal
                             Box(
@@ -240,6 +245,7 @@ fun HomeScreen(
                             .padding(top = 6.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
+                        // Legenda inferior do gráfico com os dias da semana
                         val days = listOf("Q", "S", "S", "D", "S", "T", "Q")
                         days.forEach { day ->
                             Text(
@@ -256,7 +262,7 @@ fun HomeScreen(
                 }
             }
 
-            // Activity Log Section
+            // Secção que apresenta as ações recentes efetuadas na plataforma
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -286,6 +292,7 @@ fun HomeScreen(
                     pad = 0.dp
                 ) {
                     Column {
+                        // Lista temporária de atividades recentes apresentadas no painel
                         val activities = listOf(
                             ActivityItem("Simão Ferreira", "criou o torneio MinhoFut Cup", "agora", Icons.Default.EmojiEvents, LMRed),
                             ActivityItem("Diogo Gomes", "registou-se na aplicação", "5 min", Icons.Default.Person, LMInfo),
@@ -293,6 +300,7 @@ fun HomeScreen(
                             ActivityItem("Rúben Ferreira", "denunciou conteúdo inadequado", "1 h", Icons.Default.Flag, LMWarn)
                         )
 
+                        // Apresenta cada atividade com ícone, descrição e tempo decorrido
                         activities.forEachIndexed { index, act ->
                             Row(
                                 modifier = Modifier
@@ -352,6 +360,7 @@ fun HomeScreen(
     }
 }
 
+// Componente reutilizável para mostrar indicadores do dashboard
 @Composable
 private fun KPIBlock(
     label: String,
@@ -373,6 +382,7 @@ private fun KPIBlock(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                // Caixa visual com o ícone representativo do indicador
                 Box(
                     modifier = Modifier
                         .size(32.dp)
@@ -386,6 +396,7 @@ private fun KPIBlock(
                         modifier = Modifier.size(16.dp)
                     )
                 }
+                // Badge que mostra se o valor aumentou ou se manteve estável
                 Box(
                     modifier = Modifier
                         .background(
@@ -425,6 +436,7 @@ private fun KPIBlock(
     }
 }
 
+// Modelo local utilizado para representar uma atividade recente
 private data class ActivityItem(
     val who: String,
     val what: String,

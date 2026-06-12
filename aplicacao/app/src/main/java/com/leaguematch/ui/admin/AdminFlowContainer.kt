@@ -13,6 +13,7 @@ import com.leaguematch.viewmodel.HomeViewModel
 import com.leaguematch.viewmodel.TorneiosViewModel
 import com.leaguematch.viewmodel.UtilizadoresViewModel
 
+//Rotas disponveis no administrador
 sealed interface AdminRoute {
     data object Home : AdminRoute
     data object Utilizadores : AdminRoute
@@ -25,6 +26,7 @@ sealed interface AdminRoute {
     data object Notificacoes : AdminRoute
 }
 
+//contentor principal, responsável por gerir a navegação entre ecrãs e ligar
 @Composable
 fun AdminFlowContainer(
     homeViewModel: HomeViewModel,
@@ -36,18 +38,22 @@ fun AdminFlowContainer(
     usuarioLogado: Utilizador?,
     onTerminarSessao: () -> Unit
 ) {
+    //Guarda o ecrã apresentado ao administrador
     var currentRoute by remember { mutableStateOf<AdminRoute>(AdminRoute.Home) }
 
+    //função auxiliar para alterar a rota atual
     fun navigate(route: AdminRoute) {
         currentRoute = route
     }
 
+    //Atalhos de navegação utilizados pelos vários ecrãs
     val goHome = { navigate(AdminRoute.Home) }
     val goUsers = { navigate(AdminRoute.Utilizadores) }
     val goTournaments = { navigate(AdminRoute.Torneios) }
     val goCharts = { navigate(AdminRoute.Graficos) }
     val goSettings = { navigate(AdminRoute.Definicoes) }
 
+    // Seleciona qual o ecrã a apresentar com base na rota atual.
     when (val route = currentRoute) {
         AdminRoute.Home -> {
             val dashboard by homeViewModel.dashboardState.collectAsState()

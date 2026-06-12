@@ -31,19 +31,23 @@ import com.leaguematch.ui.components.AdminBottomBar
 import com.leaguematch.ui.components.Avatar
 import com.leaguematch.ui.theme.*
 
+// Ecrã que apresenta os detalhes e estatísticas de um torneio
 @Composable
 fun DetalheTorneioScreen(
     detalhe: DetalheTorneio?,
     onBackClick: () -> Unit,
     bottomBar: @Composable () -> Unit
 ) {
+    // Obtém o torneio recebido através do objeto de detalhe
     val torneio = detalhe?.torneio
 
+    // Estrutura principal da página com conteúdo e barra inferior
     Scaffold(
         bottomBar = bottomBar,
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
 
+        // Caso o torneio não exista, apresenta uma mensagem ao utilizador
         if (torneio == null) {
             Box(
                 modifier = Modifier
@@ -56,7 +60,9 @@ fun DetalheTorneioScreen(
             return@Scaffold
         }
 
+        // Carrega configurações específicas da modalidade (ícone, cores e textos)
         val config = modalidadeConfig(torneio.modalidade)
+        // Obtém os jogos, ranking e estatísticas do torneio
         val jogos = detalhe.jogos
         val goleadores = detalhe.goleadores
         val totalEventos = detalhe.totalGolos
@@ -68,6 +74,7 @@ fun DetalheTorneioScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 18.dp, vertical = 14.dp)
         ) {
+            // Cabeçalho com botão de voltar e título da página
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onBackClick) {
                     Icon(
@@ -88,6 +95,7 @@ fun DetalheTorneioScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // Cartão com informações gerais do torneio
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(22.dp),
@@ -99,6 +107,7 @@ fun DetalheTorneioScreen(
                     modifier = Modifier.padding(14.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // Área visual que representa a modalidade do torneio
                     Box(
                         modifier = Modifier
                             .size(64.dp)
@@ -151,6 +160,7 @@ fun DetalheTorneioScreen(
 
             Spacer(modifier = Modifier.height(14.dp))
 
+            // Resumo rápido das principais estatísticas do torneio
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -179,12 +189,15 @@ fun DetalheTorneioScreen(
 
             Spacer(modifier = Modifier.height(22.dp))
 
+            // Secção que apresenta os melhores jogadores da competição
             SectionTitle(config.rankingTitle)
 
+            // Caso não existam estatísticas registadas
             if (goleadores.isEmpty()) {
                 EmptyCard(config.emptyRankingText)
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    // Percorre e apresenta cada jogador do ranking
                     goleadores.forEach { jogador ->
                         Surface(
                             modifier = Modifier.fillMaxWidth(),
@@ -228,12 +241,14 @@ fun DetalheTorneioScreen(
 
             Spacer(modifier = Modifier.height(22.dp))
 
+            // Secção com os jogos já realizados no torneio
             SectionTitle(config.gamesSectionTitle)
 
             if (jogos.isEmpty()) {
                 EmptyCard("Sem ${config.gamesLabel.lowercase()} registados.")
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    // Percorre todos os jogos associados ao torneio
                     jogos.forEach { jogo ->
                         Surface(
                             modifier = Modifier.fillMaxWidth(),
@@ -288,6 +303,7 @@ fun DetalheTorneioScreen(
     }
 }
 
+// Estrutura que guarda informações específicas de cada modalidade
 private data class ModalidadeConfig(
     val icon: ImageVector,
     val colors: List<Color>,
@@ -299,6 +315,7 @@ private data class ModalidadeConfig(
     val emptyRankingText: String
 )
 
+// Define cores, textos e ícones de acordo com a modalidade selecionada
 private fun modalidadeConfig(modalidade: String): ModalidadeConfig {
     return when (modalidade.lowercase()) {
         "futebol" -> ModalidadeConfig(
@@ -369,6 +386,7 @@ private fun modalidadeConfig(modalidade: String): ModalidadeConfig {
     }
 }
 
+// Cartão reutilizável para apresentar estatísticas resumidas
 @Composable
 private fun MiniStatCard(
     label: String,
@@ -415,6 +433,7 @@ private fun MiniStatCard(
     }
 }
 
+// Título padronizado utilizado nas várias secções da página
 @Composable
 private fun SectionTitle(text: String) {
     Text(
@@ -428,6 +447,7 @@ private fun SectionTitle(text: String) {
     )
 }
 
+// Cartão apresentado quando não existem dados para mostrar
 @Composable
 private fun EmptyCard(text: String) {
     Surface(

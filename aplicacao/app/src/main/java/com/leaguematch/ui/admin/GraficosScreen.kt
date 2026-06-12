@@ -31,6 +31,7 @@ import com.leaguematch.ui.components.Pill
 import com.leaguematch.ui.components.TopBar
 import com.leaguematch.ui.theme.*
 
+// Ecrã que apresenta gráficos e estatísticas gerais da plataforma
 @Composable
 fun GraficosScreen(
     estatisticas: EstatisticasAdmin,
@@ -40,8 +41,10 @@ fun GraficosScreen(
     onDefinicoesClick: () -> Unit,
     onPeriodChange: (String) -> Unit
 ) {
+    // Guarda o período atualmente selecionado para análise dos dados
     var selectedPeriod by remember { mutableStateOf("30d") }
 
+    // Estrutura principal da página com barra de navegação inferior
     Scaffold(
         bottomBar = {
             AdminBottomBar(
@@ -63,6 +66,7 @@ fun GraficosScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(vertical = 12.dp)
         ) {
+            // Cabeçalho da página de estatísticas
             TopBar(
                 title = "Gráficos",
                 big = true,
@@ -74,16 +78,12 @@ fun GraficosScreen(
                             .background(LMGray100, RoundedCornerShape(10.dp)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = null,
-                            tint = LMGray600,
-                            modifier = Modifier.size(16.dp)
-                        )
+
                     }
                 }
             )
 
+            // Seleção do período temporal para visualização dos dados
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -100,6 +100,7 @@ fun GraficosScreen(
                                 color = if (isSelected) LMInk else LMGray100,
                                 shape = RoundedCornerShape(8.dp)
                             )
+                            // Atualiza o período selecionado e recarrega os dados
                             .clickable {
                                 selectedPeriod = period
                                 onPeriodChange(period)
@@ -120,11 +121,13 @@ fun GraficosScreen(
 
             Spacer(modifier = Modifier.height(10.dp))
 
+            // Cartão com resumo geral da plataforma
             CardWrapper(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 18.dp, vertical = 6.dp)
             ) {
+                // Apresenta o número total de utilizadores, torneios e jogos
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -171,12 +174,15 @@ fun GraficosScreen(
 
                     Spacer(modifier = Modifier.height(18.dp))
 
+                    // Gráfico de evolução dos jogos ao longo do tempo
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(110.dp)
                     ) {
+                        // Desenho manual do gráfico de linha utilizando Canvas
                         Canvas(modifier = Modifier.fillMaxSize()) {
+                            // Dados utilizados para construir a linha do gráfico
                             val data = estatisticas.jogosPorPeriodo.ifEmpty { listOf(0.05f) }
                             val w = size.width
                             val h = size.height
@@ -184,6 +190,7 @@ fun GraficosScreen(
                             val step = if (data.size > 1) w / (data.size - 1) else w
                             val strokeColor = LMRed
 
+                            // Criação da linha principal e da área preenchida do gráfico
                             val path = Path()
                             val fillPath = Path()
 
@@ -234,6 +241,7 @@ fun GraficosScreen(
                                 center = Offset(endX, endY)
                             )
 
+                            // Destaca visualmente o último valor do gráfico
                             drawCircle(
                                 color = strokeColor,
                                 radius = 3.5.dp.toPx(),
@@ -246,6 +254,7 @@ fun GraficosScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Distribuição dos torneios por categoria
             CardWrapper(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -261,6 +270,7 @@ fun GraficosScreen(
                         modifier = Modifier.padding(bottom = 12.dp)
                     )
 
+                    // Cores utilizadas para representar cada categoria
                     val colors = listOf(
                         LMRed,
                         LMInk,
@@ -269,6 +279,7 @@ fun GraficosScreen(
                         Color(0xFFCA8A04)
                     )
 
+                    // Converte os dados recebidos para o formato utilizado pelo gráfico
                     val breakdown = estatisticas.torneiosPorEstado.mapIndexed { index, item ->
                         Triple(
                             item.legenda,
@@ -277,6 +288,7 @@ fun GraficosScreen(
                         )
                     }
 
+                    // Mensagem apresentada caso não existam torneios registados
                     if (breakdown.isEmpty()) {
                         Text(
                             text = "Sem torneios registados.",
@@ -287,6 +299,7 @@ fun GraficosScreen(
                     } else {
                         val maxValue = breakdown.maxOf { it.second }.coerceAtLeast(1)
 
+                        // Apresenta uma barra proporcional ao valor de cada categoria
                         breakdown.forEachIndexed { index, (modalidade, value, color) ->
                             Column(
                                 modifier = Modifier
@@ -341,6 +354,7 @@ fun GraficosScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Distribuição percentual dos diferentes perfis de utilizador
             CardWrapper(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -351,6 +365,7 @@ fun GraficosScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
+                    // Constrói os dados utilizados no gráfico circular
                     val profiles = estatisticas.topTorneios.mapIndexed { index, item ->
                         val color = when (item.legenda.lowercase()) {
                             "participantes" -> LMRed
@@ -370,6 +385,7 @@ fun GraficosScreen(
                         modifier = Modifier.size(76.dp),
                         contentAlignment = Alignment.Center
                     ) {
+                        // Gráfico circular que representa a distribuição dos utilizadores
                         Canvas(modifier = Modifier.fillMaxSize()) {
                             val strokeWidth = 10.dp.toPx()
                             val sizeOffset = strokeWidth
@@ -387,6 +403,7 @@ fun GraficosScreen(
 
                             var startAngle = -90f
 
+                            // Calcula a dimensão de cada setor do gráfico circular
                             values.forEachIndexed { index, value ->
                                 if (value > 0f) {
                                     val color = when (index) {
@@ -415,6 +432,7 @@ fun GraficosScreen(
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
+                            // Valor total apresentado no centro do gráfico
                             Text(
                                 text = estatisticas.totalUtilizadores.toString(),
                                 fontFamily = Bricolage,
@@ -453,6 +471,7 @@ fun GraficosScreen(
                                 color = LMGray500
                             )
                         } else {
+                            // Legenda que identifica cada categoria representada no gráfico
                             profiles.forEach { (label, value, color) ->
                                 Row(
                                     modifier = Modifier

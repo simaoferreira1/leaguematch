@@ -1,7 +1,5 @@
 package com.leaguematch.ui.admin
 
-import com.leaguematch.data.remote.model.Utilizador
-
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -13,9 +11,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
-import androidx.compose.runtime.*
 import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,12 +23,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.leaguematch.data.remote.model.ConfiguracaoNotificacoes
+import com.leaguematch.data.remote.model.Utilizador
+import com.leaguematch.translations.Language
 import com.leaguematch.ui.components.*
 import com.leaguematch.ui.theme.*
-import com.leaguematch.translations.Language
 
 @Composable
 fun DefinicoesScreen(
@@ -36,7 +37,11 @@ fun DefinicoesScreen(
     language: Language = Language.PT,
     onLanguageChange: (Language) -> Unit = {},
     primaryColor: Color = LMRed,
-    onPrimaryColorChange: (Color) -> Unit = { com.leaguematch.ui.theme.BrandTheme.primaryColor = it },
+    onPrimaryColorChange: (Color) -> Unit = { BrandTheme.primaryColor = it },
+
+    configuracaoNotificacoes: ConfiguracaoNotificacoes? = null,
+    onGuardarConfiguracaoNotificacoes: ((ConfiguracaoNotificacoes) -> Unit)? = null,
+
     onTerminarSessaoClick: () -> Unit = {},
     onEditarPerfilClick: (String, String?) -> Unit = { _, _ -> },
     onGerirNotificacoesClick: () -> Unit = {},
@@ -55,15 +60,26 @@ fun DefinicoesScreen(
         )
     }
 ) {
+    // Controla a abertura do diálogo de edição de perfil.
     var showEditDialog by remember { mutableStateOf(false) }
+    // Guarda temporariamente os dados introduzidos pelo utilizador.
     var newNome by remember(utilizadorLogado) { mutableStateOf(utilizadorLogado?.nome.orEmpty()) }
     var newPassword by remember { mutableStateOf("") }
+    // Controla a abertura do seletor de idioma.
     var showLanguageDialog by remember { mutableStateOf(false) }
+    // Estados locais das preferências de notificações.
+    var notificacoesJogos by rememberSaveable { mutableStateOf(configuracaoNotificacoes?.notificacoesJogos ?: true) }
+    var notificacoesGolos by rememberSaveable { mutableStateOf(configuracaoNotificacoes?.notificacoesGolos ?: true) }
+    var notificacoesCartoes by rememberSaveable { mutableStateOf(configuracaoNotificacoes?.notificacoesCartoes ?: true) }
+    var notificacoesFimPartida by rememberSaveable { mutableStateOf(configuracaoNotificacoes?.notificacoesFimPartida ?: true) }
+    var somNotificacao by rememberSaveable { mutableStateOf(configuracaoNotificacoes?.somNotificacao ?: true) }
 
+    // Conteúdo e barra de navegação inferior.
     Scaffold(
         bottomBar = bottomBar,
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -71,7 +87,6 @@ fun DefinicoesScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(vertical = 12.dp)
         ) {
-            // Header TopBar
             TopBar(
                 title = "Perfil",
                 big = true,
@@ -79,13 +94,12 @@ fun DefinicoesScreen(
                     Box(
                         modifier = Modifier
                             .size(36.dp)
-                            .background(LMGray100, RoundedCornerShape(10.dp))
-                            .clickable {},
+                            .background(LMGray100, RoundedCornerShape(10.dp)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings",
+                            contentDescription = null,
                             tint = LMGray600,
                             modifier = Modifier.size(16.dp)
                         )
@@ -93,7 +107,7 @@ fun DefinicoesScreen(
                 }
             )
 
-            // Black Elevated Profile Card
+            // Cartão de apresentação do utilizador.
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -104,20 +118,16 @@ fun DefinicoesScreen(
                 val nomeExibido = utilizadorLogado?.nome ?: "Utilizador LeagueMatch"
                 val tipoExibido = utilizadorLogado?.tipo?.descricao ?: "Participante"
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Avatar(
                         name = nomeExibido,
                         size = 56.dp,
                         color = primaryColor
                     )
-                    
+
                     Spacer(modifier = Modifier.width(14.dp))
-                    
-                    Column(
-                        modifier = Modifier.weight(1f)
-                    ) {
+
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = nomeExibido,
                             fontFamily = Bricolage,
@@ -125,7 +135,7 @@ fun DefinicoesScreen(
                             fontWeight = FontWeight.ExtraBold,
                             color = LMWhite
                         )
-                        
+
                         Text(
                             text = "$tipoExibido · LeagueMatch",
                             fontFamily = Geist,
@@ -133,10 +143,9 @@ fun DefinicoesScreen(
                             color = LMWhite.copy(alpha = 0.6f),
                             modifier = Modifier.padding(top = 1.dp)
                         )
-                        
+
                         Spacer(modifier = Modifier.height(6.dp))
-                        
-                        // Mini outline edit profile button
+
                         Box(
                             modifier = Modifier
                                 .background(LMWhite.copy(alpha = 0.1f), RoundedCornerShape(99.dp))
@@ -161,7 +170,7 @@ fun DefinicoesScreen(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Options Group 1 Card Wrapper
+            // Secção de gestão de notificações
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -172,23 +181,131 @@ fun DefinicoesScreen(
                     pad = 0.dp
                 ) {
                     Column {
-                        // Notificações Row
-                        ProfileRow(
+                        Text(
+                            text = "Notificações",
+                            fontFamily = Geist,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = LMInk,
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)
+                        )
+
+                        ProfileSwitchRow(
                             icon = Icons.Default.Notifications,
-                            label = "Notificações",
-                            onClick = onGerirNotificacoesClick,
-                            rightContent = {
-                                Icon(
-                                    imageVector = Icons.Default.ChevronRight,
-                                    contentDescription = null,
-                                    tint = LMGray400,
-                                    modifier = Modifier.size(16.dp)
-                                )
+                            label = "Notificações dos jogos",
+                            description = "Alertas sobre novos jogos agendados",
+                            checked = notificacoesJogos,
+                            // Atualiza o estado local e envia a alteração para persistência.
+                            onCheckedChange = {
+                                notificacoesJogos = it
+                                configuracaoNotificacoes?.let { config ->
+                                    onGuardarConfiguracaoNotificacoes?.invoke(
+                                        config.copy(notificacoesJogos = it)
+                                    )
+                                }
                             }
                         )
-                        HorizontalDivider(modifier = Modifier.padding(start = 58.dp), color = LMBorder, thickness = 1.dp)
-                        
-                        // Idioma Row
+
+                        HorizontalDivider(
+                            modifier = Modifier.padding(start = 58.dp),
+                            color = LMBorder,
+                            thickness = 1.dp
+                        )
+
+                        ProfileSwitchRow(
+                            icon = Icons.Default.SportsSoccer,
+                            label = "Notificações de golos",
+                            description = "Receber aviso quando houver golos",
+                            checked = notificacoesGolos,
+                            onCheckedChange = {
+                                notificacoesGolos = it
+                                configuracaoNotificacoes?.let { config ->
+                                    onGuardarConfiguracaoNotificacoes?.invoke(
+                                        config.copy(notificacoesGolos = it)
+                                    )
+                                }
+                            }
+                        )
+
+                        HorizontalDivider(
+                            modifier = Modifier.padding(start = 58.dp),
+                            color = LMBorder,
+                            thickness = 1.dp
+                        )
+
+                        ProfileSwitchRow(
+                            icon = Icons.Default.Notifications,
+                            label = "Notificações de cartões",
+                            description = "Alertas de cartões durante os jogos",
+                            checked = notificacoesCartoes,
+                            onCheckedChange = {
+                                notificacoesCartoes = it
+                                configuracaoNotificacoes?.let { config ->
+                                    onGuardarConfiguracaoNotificacoes?.invoke(
+                                        config.copy(notificacoesCartoes = it)
+                                    )
+                                }
+                            }
+                        )
+
+                        HorizontalDivider(
+                            modifier = Modifier.padding(start = 58.dp),
+                            color = LMBorder,
+                            thickness = 1.dp
+                        )
+
+                        ProfileSwitchRow(
+                            icon = Icons.Default.Notifications,
+                            label = "Fim de partida",
+                            description = "Aviso quando um jogo terminar",
+                            checked = notificacoesFimPartida,
+                            onCheckedChange = {
+                                notificacoesFimPartida = it
+                                configuracaoNotificacoes?.let { config ->
+                                    onGuardarConfiguracaoNotificacoes?.invoke(
+                                        config.copy(notificacoesFimPartida = it)
+                                    )
+                                }
+                            }
+                        )
+
+                        HorizontalDivider(
+                            modifier = Modifier.padding(start = 58.dp),
+                            color = LMBorder,
+                            thickness = 1.dp
+                        )
+
+                        ProfileSwitchRow(
+                            icon = Icons.AutoMirrored.Filled.VolumeUp,
+                            label = "Som da notificação",
+                            description = "Ativar som nos alertas recebidos",
+                            checked = somNotificacao,
+                            onCheckedChange = {
+                                somNotificacao = it
+                                configuracaoNotificacoes?.let { config ->
+                                    onGuardarConfiguracaoNotificacoes?.invoke(
+                                        config.copy(somNotificacao = it)
+                                    )
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Configurações gerais da aplicação.
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 18.dp, vertical = 6.dp)
+            ) {
+                CardWrapper(
+                    modifier = Modifier.fillMaxWidth(),
+                    pad = 0.dp
+                ) {
+                    Column {
                         ProfileRow(
                             icon = Icons.Default.Language,
                             label = "Idioma",
@@ -202,9 +319,13 @@ fun DefinicoesScreen(
                                 )
                             }
                         )
-                        HorizontalDivider(modifier = Modifier.padding(start = 58.dp), color = LMBorder, thickness = 1.dp)
 
-                        // Aparência Row
+                        HorizontalDivider(
+                            modifier = Modifier.padding(start = 58.dp),
+                            color = LMBorder,
+                            thickness = 1.dp
+                        )
+
                         ProfileRow(
                             icon = Icons.Default.BrightnessMedium,
                             label = "Aparência",
@@ -217,9 +338,13 @@ fun DefinicoesScreen(
                                 )
                             }
                         )
-                        HorizontalDivider(modifier = Modifier.padding(start = 58.dp), color = LMBorder, thickness = 1.dp)
 
-                        // Cor da aplicação Row
+                        HorizontalDivider(
+                            modifier = Modifier.padding(start = 58.dp),
+                            color = LMBorder,
+                            thickness = 1.dp
+                        )
+
                         ProfileRow(
                             icon = Icons.Default.Palette,
                             label = "Cor da aplicação",
@@ -260,7 +385,7 @@ fun DefinicoesScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Options Group 2 Card Wrapper
+            // Permite verificar o estado da sincronização e terminar sessão.
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -271,7 +396,6 @@ fun DefinicoesScreen(
                     pad = 0.dp
                 ) {
                     Column {
-                        // Sincronização offline Row
                         ProfileRow(
                             icon = Icons.Default.Sync,
                             label = "Sincronização offline",
@@ -279,9 +403,13 @@ fun DefinicoesScreen(
                                 Pill(text = "Ativa", kind = "live")
                             }
                         )
-                        HorizontalDivider(modifier = Modifier.padding(start = 58.dp), color = LMBorder, thickness = 1.dp)
 
-                        // Terminar sessão Row (Red)
+                        HorizontalDivider(
+                            modifier = Modifier.padding(start = 58.dp),
+                            color = LMBorder,
+                            thickness = 1.dp
+                        )
+
                         ProfileRow(
                             icon = Icons.AutoMirrored.Filled.Logout,
                             label = "Terminar sessão",
@@ -301,7 +429,6 @@ fun DefinicoesScreen(
                 }
             }
 
-            // Footer version
             Text(
                 text = "LeagueMatch v1.0.0 · EI-3A-Grupo C · 2025/2026",
                 fontFamily = Geist,
@@ -315,10 +442,11 @@ fun DefinicoesScreen(
         }
     }
 
+    // Janela modal utilizada para editar os dados do perfil.
     if (showEditDialog) {
         AlertDialog(
-            onDismissRequest = { 
-                showEditDialog = false 
+            onDismissRequest = {
+                showEditDialog = false
                 newPassword = ""
             },
             title = {
@@ -367,8 +495,8 @@ fun DefinicoesScreen(
             },
             dismissButton = {
                 TextButton(
-                    onClick = { 
-                        showEditDialog = false 
+                    onClick = {
+                        showEditDialog = false
                         newPassword = ""
                     }
                 ) {
@@ -385,6 +513,7 @@ fun DefinicoesScreen(
         )
     }
 
+    // Janela modal para seleção do idioma da aplicação.
     if (showLanguageDialog) {
         AlertDialog(
             onDismissRequest = {
@@ -437,6 +566,70 @@ fun DefinicoesScreen(
     }
 }
 
+// Componente reutilizável para apresentar uma preferência
+@Composable
+fun ProfileSwitchRow(
+    icon: ImageVector,
+    label: String,
+    description: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 14.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .background(LMGray100, RoundedCornerShape(9.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = LMRed,
+                modifier = Modifier.size(16.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = label,
+                fontFamily = Geist,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = LMInk
+            )
+
+            Text(
+                text = description,
+                fontFamily = Geist,
+                fontSize = 10.sp,
+                color = LMGray500
+            )
+        }
+
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = LMWhite,
+                checkedTrackColor = Color(0xFF22C55E),
+                uncheckedThumbColor = LMWhite,
+                uncheckedTrackColor = Color(0xFFE0E0E5),
+                checkedBorderColor = Color(0xFF22C55E),
+                uncheckedBorderColor = Color(0xFFE0E0E5)
+            )
+        )
+    }
+}
+
+// Linha reutilizável utilizada nas definições.
 @Composable
 fun ProfileRow(
     icon: ImageVector,
@@ -454,7 +647,6 @@ fun ProfileRow(
             .padding(horizontal = 14.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Icon wrapper
         Box(
             modifier = Modifier
                 .size(32.dp)
@@ -468,9 +660,9 @@ fun ProfileRow(
                 modifier = Modifier.size(16.dp)
             )
         }
-        
+
         Spacer(modifier = Modifier.width(12.dp))
-        
+
         Text(
             text = label,
             fontFamily = Geist,
@@ -479,11 +671,12 @@ fun ProfileRow(
             color = labelColor,
             modifier = Modifier.weight(1f)
         )
-        
+
         rightContent()
     }
 }
 
+// Representa uma cor selecionável para personalizar
 @Composable
 fun ColorOption(
     color: Color,
@@ -504,12 +697,4 @@ fun ColorOption(
             )
             .clickable { onClick() }
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefinicoesScreenPreview() {
-    LeagueMatchTheme {
-        DefinicoesScreen()
-    }
 }

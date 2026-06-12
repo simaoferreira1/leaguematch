@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.leaguematch.ui.components.*
 import com.leaguematch.ui.theme.*
 
+// Ecrã de gestão das preferências de notificações do administrador
 @Composable
 fun GestaoNotificacoesScreen(
     onBackClick: () -> Unit = {},
@@ -33,11 +34,13 @@ fun GestaoNotificacoesScreen(
     onGraficosClick: () -> Unit = {},
     onDefinicoesClick: () -> Unit = {}
 ) {
+    // Estados que controlam quais os tipos de notificações ativos
     var notificacoesGerais by remember { mutableStateOf(true) }
     var notificacoesTorneios by remember { mutableStateOf(true) }
     var notificacoesJogos by remember { mutableStateOf(true) }
     var notificacoesAlertas by remember { mutableStateOf(false) }
 
+    // Calcula quantas categorias de notificações estão atualmente ativadas
     val totalAtivas = listOf(
         notificacoesGerais,
         notificacoesTorneios,
@@ -45,6 +48,7 @@ fun GestaoNotificacoesScreen(
         notificacoesAlertas
     ).count { it }
 
+    // Estrutura principal da página com barra de navegação inferior
     Scaffold(
         bottomBar = {
             AdminBottomBar(
@@ -65,14 +69,14 @@ fun GestaoNotificacoesScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(vertical = 12.dp)
         ) {
-            // Header TopBar
+            // Barra superior com título da página e botão de voltar
             TopBar(
                 title = "Notificações",
                 back = true,
                 onBackClick = onBackClick
             )
 
-            // Total Notifications active category capsule
+            // Cartão que apresenta o número total de notificações ativas
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -130,6 +134,7 @@ fun GestaoNotificacoesScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 18.dp)
             ) {
+                // Área onde são apresentadas todas as opções de notificações
                 Text(
                     text = "CANAIS E PREFERÊNCIAS",
                     fontFamily = Geist,
@@ -145,7 +150,7 @@ fun GestaoNotificacoesScreen(
                     pad = 0.dp
                 ) {
                     Column {
-                        // Notificações gerais
+                        // Ativa ou desativa notificações gerais da aplicação
                         SwitchRow(
                             icon = Icons.Default.Notifications,
                             title = "Notificações gerais",
@@ -155,7 +160,7 @@ fun GestaoNotificacoesScreen(
                         )
                         HorizontalDivider(modifier = Modifier.padding(start = 58.dp), color = LMBorder, thickness = 1.dp)
 
-                        // Torneios
+                        // Controla notificações relacionadas com torneios
                         SwitchRow(
                             icon = Icons.Default.SportsSoccer,
                             title = "Torneios",
@@ -165,7 +170,7 @@ fun GestaoNotificacoesScreen(
                         )
                         HorizontalDivider(modifier = Modifier.padding(start = 58.dp), color = LMBorder, thickness = 1.dp)
 
-                        // Jogos
+                        // Controla notificações relacionadas com jogos e resultados
                         SwitchRow(
                             icon = Icons.Default.NotificationsActive,
                             title = "Jogos",
@@ -175,7 +180,7 @@ fun GestaoNotificacoesScreen(
                         )
                         HorizontalDivider(modifier = Modifier.padding(start = 58.dp), color = LMBorder, thickness = 1.dp)
 
-                        // Alertas do sistema
+                        // Controla notificações críticas e alertas do sistema
                         SwitchRow(
                             icon = Icons.Default.Warning,
                             title = "Alertas do sistema",
@@ -187,12 +192,13 @@ fun GestaoNotificacoesScreen(
                 }
             }
 
-            // Save actions at bottom
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 18.dp, vertical = 24.dp)
             ) {
+                // Guarda as preferências selecionadas pelo utilizador
                 PrimaryBtn(
                     onClick = { },
                     size = "lg"
@@ -204,6 +210,7 @@ fun GestaoNotificacoesScreen(
     }
 }
 
+// Componente reutilizável que apresenta uma opção com descrição e interruptor
 @Composable
 fun SwitchRow(
     icon: ImageVector,
@@ -213,13 +220,14 @@ fun SwitchRow(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Estrutura horizontal que organiza ícone, texto e switch
     Row(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 14.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Icon Box
+        // Área visual que apresenta o ícone da categoria
         Box(
             modifier = Modifier
                 .size(32.dp)
@@ -235,7 +243,8 @@ fun SwitchRow(
         }
         
         Spacer(modifier = Modifier.width(12.dp))
-        
+
+        // Informações da categoria de notificações
         Column(
             modifier = Modifier.weight(1f)
         ) {
@@ -256,7 +265,8 @@ fun SwitchRow(
         }
         
         Spacer(modifier = Modifier.width(10.dp))
-        
+
+        // Interruptor responsável por ativar ou desativar a opção
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,

@@ -31,6 +31,7 @@ import com.leaguematch.ui.components.*
 import com.leaguematch.ui.theme.*
 import com.leaguematch.data.remote.model.Torneio
 
+// Ecrã que apresenta a lista de torneios filtrados por modalidade
 @Composable
 fun ListaTorneiosModalidadeScreen(
     modalidade: String = "Futebol",
@@ -49,17 +50,23 @@ fun ListaTorneiosModalidadeScreen(
     onDefinicoesClick: () -> Unit = {},
     onRemoveTorneioClick: (Int) -> Unit = {}
 ) {
+    // Guarda o texto introduzido na barra de pesquisa
     var searchQuery by remember { mutableStateOf("") }
+    // Guarda a modalidade atualmente selecionada nos separadores
     var selectedModalidadeTab by remember { mutableStateOf(modalidade) }
 
-    // Filter tournaments based on search and selected sport modality tab
+    // Filtra os torneios com base na pesquisa e na modalidade selecionada
     val filteredTorneios = torneios.filter { t ->
+        // Verifica se o nome do torneio contém o texto pesquisado
         val matchesSearch = t.nome.contains(searchQuery, ignoreCase = true)
+        // Verifica se a modalidade corresponde à aba selecionada
         val matchesTab = t.modalidade.lowercase() == selectedModalidadeTab.lowercase()
         matchesSearch && matchesTab
     }
 
+    // Estrutura principal do ecrã com barra inferior de navegação
     Scaffold(
+        // Barra de navegação do administrador
         bottomBar = {
             AdminBottomBar(
                 selectedItem = "torneios",
@@ -72,6 +79,7 @@ fun ListaTorneiosModalidadeScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
+        // Conteúdo principal do ecrã
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -79,7 +87,7 @@ fun ListaTorneiosModalidadeScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(vertical = 12.dp)
         ) {
-            // Header TopBar
+            // Cabeçalho da página
             TopBar(
                 title = "Torneios",
                 big = true,
@@ -88,7 +96,7 @@ fun ListaTorneiosModalidadeScreen(
                 sub = "Moderação global"
             )
 
-            // Search Bar
+            // Campo de pesquisa de torneios
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -110,9 +118,11 @@ fun ListaTorneiosModalidadeScreen(
                     .padding(horizontal = 18.dp, vertical = 6.dp),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
+                // Lista de modalidades disponíveis para filtrar torneios
                 val sportTabs = listOf("Futebol", "Ténis", "Padel", "Basquetebol", "Andebol")
                 
                 sportTabs.forEach { sport ->
+                    // Verifica se esta modalidade está atualmente selecionada
                     val isSelected = selectedModalidadeTab.lowercase() == sport.lowercase()
                     Box(
                         modifier = Modifier
@@ -126,6 +136,7 @@ fun ListaTorneiosModalidadeScreen(
                                     RoundedCornerShape(99.dp)
                                 )
                             }
+                            // Seleciona a modalidade quando o utilizador clica
                             .clickable { selectedModalidadeTab = sport }
                             .padding(horizontal = 14.dp, vertical = 8.dp)
                     ) {
@@ -142,13 +153,14 @@ fun ListaTorneiosModalidadeScreen(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Tournaments List Section
+            // Secção que apresenta os torneios encontrados
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 18.dp, end = 18.dp, bottom = 18.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
+                // Mensagem apresentada quando não existem torneios para mostrar
                 if (filteredTorneios.isEmpty()) {
                     Box(
                         modifier = Modifier
@@ -165,8 +177,9 @@ fun ListaTorneiosModalidadeScreen(
                     }
                 }
 
+                // Percorre todos os torneios filtrados
                 filteredTorneios.forEach { t ->
-                    // Set gradients depending on tournament name (as defined in screens-admin.jsx)
+                    // Define as cores do cartão consoante o nome do torneio
                     val gradient = when {
                         t.nome.contains("Carabao", ignoreCase = true) -> listOf(LMRed, LMRed700)
                         t.nome.contains("Minho", ignoreCase = true) -> listOf(Color(0xFF166534), Color(0xFF22C55E))
@@ -174,14 +187,15 @@ fun ListaTorneiosModalidadeScreen(
                         t.nome.contains("Norte", ignoreCase = true) -> listOf(Color(0xFF1E3A8A), Color(0xFF2563EB))
                         else -> listOf(LMInk, LMGray700)
                     }
-                    
-                    // Set reports warning alert simulating JSX mockups
+
+                    // Simulação do número de alertas associados ao torneio
                     val reports = when {
                         t.nome.contains("Barca", ignoreCase = true) -> 1
                         t.nome.contains("Norte", ignoreCase = true) -> 2
                         else -> 0
                     }
 
+                    // Cartão com informação resumida do torneio
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -193,13 +207,14 @@ fun ListaTorneiosModalidadeScreen(
                                 ),
                                 RoundedCornerShape(16.dp)
                             )
+                            // Abre os detalhes do torneio ao clicar
                             .clickable { onTorneioClick(t.id) }
                             .padding(12.dp)
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // Gradient box containing trophy icon
+                            // Área gráfica que identifica visualmente o torneio
                             Box(
                                 modifier = Modifier
                                     .size(60.dp)
@@ -207,6 +222,7 @@ fun ListaTorneiosModalidadeScreen(
                                     .background(brush = Brush.linearGradient(colors = gradient)),
                                 contentAlignment = Alignment.Center
                             ) {
+                                // Ícone representativo de torneios
                                 Icon(
                                     imageVector = Icons.Default.EmojiEvents,
                                     contentDescription = "Trophy Icon",
@@ -224,6 +240,7 @@ fun ListaTorneiosModalidadeScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                                 ) {
+                                    // Mostra a modalidade do torneio
                                     Text(
                                         text = t.modalidade.uppercase(),
                                         fontFamily = Geist,
@@ -232,7 +249,8 @@ fun ListaTorneiosModalidadeScreen(
                                         color = LMGray500,
                                         letterSpacing = 0.4.sp
                                     )
-                                    
+
+                                    // Mostra aviso caso existam alertas associados ao torneio
                                     if (reports > 0) {
                                         Pill(
                                             text = "$reports alerta${if (reports > 1) "s" else ""}",
@@ -242,7 +260,8 @@ fun ListaTorneiosModalidadeScreen(
                                 }
                                 
                                 Spacer(modifier = Modifier.height(2.dp))
-                                
+
+                                // Nome do torneio
                                 Text(
                                     text = t.nome,
                                     fontFamily = Bricolage,
@@ -261,17 +280,19 @@ fun ListaTorneiosModalidadeScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
+                                    // Número de equipas inscritas no torneio
                                     Text(
                                         text = "${t.equipas} equipas",
                                         fontFamily = Geist,
                                         fontSize = 11.sp,
                                         color = LMGray500
                                     )
-                                    
-                                    // Remove capsule button
+
+                                    // Botão para remover o torneio
                                     Box(
                                         modifier = Modifier
                                             .background(LMRed50, CircleShape)
+                                            // Executa a remoção do torneio selecionado
                                             .clickable { onRemoveTorneioClick(t.id) }
                                             .padding(horizontal = 10.dp, vertical = 5.dp)
                                     ) {

@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import com.leaguematch.ui.components.*
 import com.leaguematch.ui.theme.*
 
+// Ecrã que permite ao administrador visualizar e editar informações de um utilizador
 @Composable
 fun DetalheUtilizadorScreen(
     nome: String = "Simão Rodrigues Ferreira",
@@ -40,9 +41,11 @@ fun DetalheUtilizadorScreen(
     onAlterarEstadoClick: () -> Unit = {},
     onGuardarClick: (String) -> Unit = {}
 ) {
+    // Guarda o tipo de utilizador atualmente selecionado
     var tipoSelecionado by remember(tipo) { mutableStateOf(tipo) }
+    // Controla a visibilidade da janela de confirmação
     var showConfirmEstadoDialog by remember { mutableStateOf(false) }
-
+    // Define os textos apresentados conforme o estado atual do utilizador
     val textoAcao = if (ativo) "Desativar" else "Ativar"
     val tituloDialog = if (ativo) "Desativar utilizador?" else "Ativar utilizador?"
     val mensagemDialog = if (ativo) {
@@ -50,7 +53,7 @@ fun DetalheUtilizadorScreen(
     } else {
         "Tens a certeza que queres ativar \"$nome\"?"
     }
-
+    // Janela de confirmação antes de alterar o estado do utilizador
     if (showConfirmEstadoDialog) {
         AlertDialog(
             onDismissRequest = { showConfirmEstadoDialog = false },
@@ -101,6 +104,7 @@ fun DetalheUtilizadorScreen(
         )
     }
 
+    // Estrutura principal da página com barra de navegação inferior
     Scaffold(
         bottomBar = {
             AdminBottomBar(
@@ -121,6 +125,7 @@ fun DetalheUtilizadorScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(vertical = 12.dp)
         ) {
+            // Barra superior com botão voltar e ação de ativar/desativar utilizador
             TopBar(
                 title = "Utilizador",
                 back = true,
@@ -140,12 +145,14 @@ fun DetalheUtilizadorScreen(
                 }
             )
 
+            // Área de apresentação das informações principais do utilizador
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 18.dp, vertical = 14.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // Avatar gerado automaticamente a partir do nome do utilizador
                 Avatar(
                     name = nome,
                     size = 86.dp,
@@ -176,6 +183,7 @@ fun DetalheUtilizadorScreen(
 
                 Spacer(modifier = Modifier.height(6.dp))
 
+                // Indicador visual do estado da conta (ativo ou desativado)
                 Pill(
                     text = if (ativo) "Ativo" else "Desativado",
                     kind = if (ativo) "live" else "warn"
@@ -192,12 +200,14 @@ fun DetalheUtilizadorScreen(
                 )
             }
 
+            // Estatísticas resumidas da atividade do utilizador
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 18.dp, vertical = 14.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                // Lista de métricas apresentadas no painel de estatísticas
                 val stats = listOf(
                     "Equipas" to equipas,
                     "Torneios" to torneios,
@@ -256,6 +266,7 @@ fun DetalheUtilizadorScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
+                    // Permite alterar o tipo de utilizador através de seleção visual
                     val options = listOf("Organizador", "Participante", "Espectador")
 
                     options.forEach { option ->
@@ -275,6 +286,7 @@ fun DetalheUtilizadorScreen(
                                     ),
                                     RoundedCornerShape(10.dp)
                                 )
+                                // Atualiza o tipo de utilizador selecionado
                                 .clickable { tipoSelecionado = option }
                                 .padding(vertical = 9.dp),
                             contentAlignment = Alignment.Center
@@ -312,12 +324,14 @@ fun DetalheUtilizadorScreen(
                     modifier = Modifier.fillMaxWidth(),
                     pad = 0.dp
                 ) {
+                    // Lista de equipas às quais o utilizador pertence
                     val teams = listOf(
                         "GD Rio Torto" to "Capitão",
                         "Bola Parada FC" to "Membro"
                     )
 
                     Column {
+                        // Apresentação de cada equipa e respetiva função do utilizador
                         teams.forEachIndexed { index, (teamName, role) ->
                             Row(
                                 modifier = Modifier
@@ -363,6 +377,7 @@ fun DetalheUtilizadorScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 18.dp, vertical = 18.dp)
             ) {
+                // Guarda as alterações efetuadas pelo administrador
                 PrimaryBtn(
                     onClick = { onGuardarClick(tipoSelecionado) },
                     size = "lg"
