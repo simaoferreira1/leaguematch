@@ -45,8 +45,8 @@ import com.leaguematch.ui.theme.LMWhite
 data class ParticipantStats(
     val jogos: Int = 0,
     val golos: Int = 0,
-    val assistencias: Int = 0,
-    val mvp: Int = 0
+    val faltas: Int = 0,
+    val cartoes: Int = 0
 )
 
 @Composable
@@ -62,7 +62,7 @@ fun ParticipantStatsScreen(
     onPerfilClick: () -> Unit
 ) {
     val golosPorJogo = if (stats.jogos > 0) stats.golos.toDouble() / stats.jogos else 0.0
-    val assistPorJogo = if (stats.jogos > 0) stats.assistencias.toDouble() / stats.jogos else 0.0
+    val assistPorJogo = if (stats.jogos > 0) stats.faltas.toDouble() / stats.jogos else 0.0
 
     Scaffold(
         bottomBar = {
@@ -129,7 +129,7 @@ fun ParticipantStatsScreen(
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 StatCard(
                     label = strings.assistsStat,
-                    value = stats.assistencias.toString(),
+                    value = stats.faltas.toString(),
                     icon = Icons.Default.EmojiEvents,
                     primaryColor = primaryColor,
                     modifier = Modifier.weight(1f)
@@ -137,7 +137,7 @@ fun ParticipantStatsScreen(
 
                 StatCard(
                     label = strings.mvpStat,
-                    value = stats.mvp.toString(),
+                    value = stats.cartoes.toString(),
                     icon = Icons.Default.Star,
                     primaryColor = primaryColor,
                     modifier = Modifier.weight(1f)
@@ -255,8 +255,8 @@ private fun PerformanceChartCard(
     val maxValue = listOf(
         stats.jogos,
         stats.golos,
-        stats.assistencias,
-        stats.mvp
+        stats.faltas,
+        stats.cartoes
     ).maxOrNull()?.coerceAtLeast(1) ?: 1
 
     Surface(
@@ -294,12 +294,12 @@ private fun PerformanceChartCard(
             ChartBar(strings.goalsStat, stats.golos, maxValue, primaryColor)
             Spacer(modifier = Modifier.height(10.dp))
 
-            ChartBar(strings.assistsStat, stats.assistencias, maxValue, primaryColor)
+            ChartBar(strings.assistsStat, stats.faltas, maxValue, primaryColor)
             Spacer(modifier = Modifier.height(10.dp))
 
-            ChartBar(strings.mvpStat, stats.mvp, maxValue, primaryColor)
+            ChartBar(strings.mvpStat, stats.cartoes, maxValue, primaryColor)
 
-            if (stats.jogos == 0 && stats.golos == 0 && stats.assistencias == 0 && stats.mvp == 0) {
+            if (stats.jogos == 0 && stats.golos == 0 && stats.faltas == 0 && stats.cartoes == 0) {
                 Spacer(modifier = Modifier.height(14.dp))
 
                 Text(

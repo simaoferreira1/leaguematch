@@ -32,6 +32,7 @@ import kotlinx.coroutines.launch
         data object Equipas : SpectatorRoute
         data object Perfil : SpectatorRoute
         data object Notificacoes : SpectatorRoute
+        data object InboxNotificacoes : SpectatorRoute
 
         data class JogoEmDireto(val jogo: Jogo, val voltarPara: SpectatorRoute) : SpectatorRoute
         data class EstatisticasJogo(val jogo: Jogo) : SpectatorRoute
@@ -366,6 +367,34 @@ import kotlinx.coroutines.launch
                 }
             }
 
+            SpectatorRoute.InboxNotificacoes -> {
+                val utilizador = usuarioLogado
+                if (utilizador == null) {
+                    currentSpectatorRoute = SpectatorRoute.Perfil
+                } else {
+                    var notificacoes by remember { mutableStateOf<List<com.leaguematch.data.remote.model.NotificacaoItem>>(emptyList()) }
+                    LaunchedEffect(utilizador.id) {
+                        notificacoes = repository.listarNotificacoes(utilizador.id)
+                    }
+                    InboxNotificacoesScreen(
+                        notificacoes = notificacoes,
+                        onBackClick = { currentSpectatorRoute = SpectatorRoute.Perfil },
+                        onMarcarTodasLidas = {
+                            coroutineScope.launch {
+                                repository.marcarTodasNotificacoesLidas(utilizador.id)
+                                notificacoes = repository.listarNotificacoes(utilizador.id)
+                            }
+                        },
+                        onNotificacaoClick = { item ->
+                            coroutineScope.launch {
+                                repository.marcarNotificacaoLida(item.id)
+                                notificacoes = repository.listarNotificacoes(utilizador.id)
+                            }
+                        }
+                    )
+                }
+            }
+
             SpectatorRoute.Notificacoes -> {
                 val utilizador = usuarioLogado
 
@@ -400,6 +429,9 @@ import kotlinx.coroutines.launch
                             },
                             onPerfilClick = {
                                 currentSpectatorRoute = SpectatorRoute.Perfil
+                            },
+                            onAbrirInbox = {
+                                currentSpectatorRoute = SpectatorRoute.InboxNotificacoes
                             }
                         )
                     }

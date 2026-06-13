@@ -14,6 +14,7 @@ import com.leaguematch.data.remote.model.EventoJogo
 import com.leaguematch.ui.spectator.JogoResumoItem
 import com.leaguematch.ui.spectator.MelhorMarcadorItem
 import com.leaguematch.data.remote.model.ConfiguracaoNotificacoes
+import com.leaguematch.data.remote.model.NotificacaoItem
 import com.leaguematch.viewmodel.ParticipantStatsData
 
 interface LeagueMatchRepository {
@@ -32,6 +33,7 @@ interface LeagueMatchRepository {
     suspend fun obterDetalheTorneio(id: Int): DetalheTorneio?
     suspend fun obterEstatisticasAdmin(): EstatisticasAdmin
     suspend fun atualizarUtilizador(id: Int, nome: String, password: String?): Utilizador?
+    suspend fun redefinirPasswordPorEmail(email: String, novaPassword: String): Boolean
     suspend fun removerTorneio(id: Int): Boolean
     suspend fun atualizarTorneio(
         id: Int,
@@ -84,6 +86,12 @@ interface LeagueMatchRepository {
         userId: Int?
     ): Boolean
     suspend fun obterConfiguracaoNotificacoes(utilizadorId: Int): ConfiguracaoNotificacoes
+    suspend fun listarNotificacoes(utilizadorId: Int): List<NotificacaoItem>
+    suspend fun marcarNotificacaoLida(notificacaoId: Int): Boolean
+    suspend fun marcarTodasNotificacoesLidas(utilizadorId: Int): Boolean
+    suspend fun criarNotificacaoParaTodos(mensagem: String): Boolean
+    suspend fun contarAlteracoesPendentes(): Int
+    suspend fun sincronizarPendentes(): Int
 
     suspend fun atualizarConfiguracaoNotificacoes(
         configuracao: ConfiguracaoNotificacoes

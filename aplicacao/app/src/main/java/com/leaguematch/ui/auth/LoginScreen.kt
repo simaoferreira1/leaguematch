@@ -177,9 +177,9 @@ fun LoginScreen(
                         Toast.makeText(
                             context,
                             if (language == Language.PT)
-                                "Recuperação de password em desenvolvimento."
+                                "Contacte o administrador para repor a sua palavra-passe."
                             else
-                                "Password recovery under development.",
+                                "Please contact the administrator to reset your password.",
                             Toast.LENGTH_LONG
                         ).show()
                     },
@@ -215,68 +215,6 @@ fun LoginScreen(
                 TranslatedText(
                     text = "Entrar",
                 )
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 22.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                HorizontalDivider(
-                    modifier = Modifier.weight(1f),
-                    color = LMBorder
-                )
-
-                TranslatedText(
-                    text = "OU",
-                    color = LMGray400,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = Geist,
-                    modifier = Modifier.padding(horizontal = 10.dp)
-                )
-
-                HorizontalDivider(
-                    modifier = Modifier.weight(1f),
-                    color = LMBorder
-                )
-            }
-
-            GhostBtn(
-                onClick = {
-                    Toast.makeText(
-                        context,
-                        if (language == Language.PT)
-                            "A autenticar via Google (Bypass Dev)..."
-                        else
-                            "Authenticating with Google (Dev Bypass)...",
-                        Toast.LENGTH_SHORT
-                    ).show()
-
-                    onLoginClick("simao@leaguematch.com", "password")
-                }
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_google),
-                        contentDescription = "Google Logo",
-                        modifier = Modifier.size(16.dp),
-                        tint = Color.Unspecified
-                    )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    TranslatedText(
-                        text = "Continuar com Google",
-                        fontFamily = Geist,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
             }
 
             Spacer(modifier = Modifier.height(28.dp))

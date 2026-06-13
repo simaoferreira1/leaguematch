@@ -325,15 +325,7 @@ private fun JogoOrgCard(
                 LaunchedEffect(jogo.iniciado_em) {
                     while (true) {
 
-                        val inicioMillis = jogo.iniciado_em?.let {
-                            runCatching {
-                                java.time.LocalDateTime
-                                    .parse(it.replace(" ", "T"))
-                                    .atZone(java.time.ZoneId.systemDefault())
-                                    .toInstant()
-                                    .toEpochMilli()
-                            }.getOrNull()
-                        }
+                        val inicioMillis = com.leaguematch.util.parseIniciadoEmEpochMillis(jogo.iniciado_em)
 
                         elapsedSeconds = if (inicioMillis != null) {
                             val agoraMillis = System.currentTimeMillis()

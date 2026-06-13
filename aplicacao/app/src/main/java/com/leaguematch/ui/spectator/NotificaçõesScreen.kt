@@ -59,7 +59,8 @@ fun NotificacoesScreen(
     onClassificacaoClick: () -> Unit,
     onJogosClick: () -> Unit,
     onEquipasClick: () -> Unit,
-    onPerfilClick: () -> Unit
+    onPerfilClick: () -> Unit,
+    onAbrirInbox: () -> Unit = {}
 ) {
     var configuracaoAtual by remember(configuracao) {
         mutableStateOf(configuracao)
@@ -93,7 +94,36 @@ fun NotificacoesScreen(
         ) {
             NotificacoesHeader()
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // Botão para abrir a caixa de entrada
+            androidx.compose.material3.Button(
+                onClick = onAbrirInbox,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                    containerColor = RedPrimary
+                )
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    TranslatedText(
+                        text = "Ver caixa de entrada",
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
 
             NotificationSectionCard(title = "Configuração Geral") {
                 NotificationSwitchRow(

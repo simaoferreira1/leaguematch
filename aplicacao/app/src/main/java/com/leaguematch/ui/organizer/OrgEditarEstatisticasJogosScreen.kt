@@ -326,15 +326,7 @@ private fun JogoHeaderCard(
 
                 LaunchedEffect(iniciadoEm, estadoJogo) {
                     while (true) {
-                        val inicioMillis = iniciadoEm?.let {
-                            runCatching {
-                                java.time.LocalDateTime
-                                    .parse(it.replace(" ", "T"))
-                                    .atZone(java.time.ZoneId.systemDefault())
-                                    .toInstant()
-                                    .toEpochMilli()
-                            }.getOrNull()
-                        }
+                        val inicioMillis = com.leaguematch.util.parseIniciadoEmEpochMillis(iniciadoEm)
 
                         elapsedSeconds = if (inicioMillis != null) {
                             val agoraMillis = java.time.Instant.now().toEpochMilli()
@@ -742,15 +734,7 @@ private fun EventosJogoContent(
 
     LaunchedEffect(jogo.iniciado_em) {
         while (true) {
-            val inicioMillis = jogo.iniciado_em?.let {
-                runCatching {
-                    java.time.LocalDateTime
-                        .parse(it.replace(" ", "T"))
-                        .atZone(java.time.ZoneId.systemDefault())
-                        .toInstant()
-                        .toEpochMilli()
-                }.getOrNull()
-            }
+            val inicioMillis = com.leaguematch.util.parseIniciadoEmEpochMillis(jogo.iniciado_em)
 
             minutoAtual = if (inicioMillis != null) {
                 (((java.time.Instant.now().toEpochMilli() - inicioMillis) / 1000) / 60)

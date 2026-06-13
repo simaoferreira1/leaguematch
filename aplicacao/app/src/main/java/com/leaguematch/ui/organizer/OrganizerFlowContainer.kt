@@ -209,6 +209,10 @@ fun OrganizerFlowContainer(
         }
 
         OrganizerRoute.Perfil -> {
+            var pendentes by remember { mutableStateOf(0) }
+            LaunchedEffect(Unit) {
+                pendentes = repository.contarAlteracoesPendentes()
+            }
             DefinicoesScreen(
                 utilizadorLogado = usuarioLogado,
                 configuracaoNotificacoes = ConfiguracaoNotificacoes(
@@ -229,6 +233,18 @@ fun OrganizerFlowContainer(
                 },
                 onEditarPerfilClick = { nome, password ->
                     authViewModel.atualizarUtilizador(nome, password)
+                },
+                alteracoesPendentes = pendentes,
+                onSincronizarPendentesClick = {
+                    coroutineScope.launch {
+                        val n = repository.sincronizarPendentes()
+                        pendentes = repository.contarAlteracoesPendentes()
+                        android.widget.Toast.makeText(
+                            context,
+                            if (n > 0) "$n alterações sincronizadas." else "Nada para sincronizar.",
+                            android.widget.Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 },
                 bottomBar = {
                     OrganizerBottomBar(

@@ -11,8 +11,8 @@ import kotlinx.coroutines.launch
 data class ParticipantStatsData(
     val jogos: Int = 0,
     val golos: Int = 0,
-    val assistencias: Int = 0,
-    val mvp: Int = 0
+    val faltas: Int = 0,
+    val cartoes: Int = 0
 )
 
 class ParticipantViewModel(

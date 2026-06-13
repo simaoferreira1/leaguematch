@@ -231,8 +231,8 @@ fun HomeScreen(
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color.White.copy(alpha = 0.6f)
                             )
-                            TranslatedText(
-                                text = "15 eventos",
+                            Text(
+                                text = "${dashboard.totalEventos7Dias} eventos",
                                 fontFamily = Bricolage,
                                 fontSize = 22.sp,
                                 fontWeight = FontWeight.ExtraBold,
@@ -257,7 +257,7 @@ fun HomeScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // MiniChart
+                    // MiniChart com dados reais dos últimos 7 dias
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -265,12 +265,10 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                         verticalAlignment = Alignment.Bottom
                     ) {
-                        // Dados usados para desenhar as barras do gráfico
-                        val chartData = listOf(22, 38, 30, 52, 44, 70, 62)
-                        val maxVal = 80
-                        // Cria uma barra proporcional ao valor de cada dia
+                        val chartData = dashboard.atividadeUltimos7Dias
+                        val maxVal = (chartData.maxOrNull() ?: 0).coerceAtLeast(1)
                         chartData.forEachIndexed { index, value ->
-                            val heightFraction = value.toFloat() / maxVal
+                            val heightFraction = (value.toFloat() / maxVal).coerceAtLeast(0.04f)
                             Box(
                                 modifier = Modifier
                                     .weight(1f)
@@ -334,15 +332,21 @@ fun HomeScreen(
                     pad = 0.dp
                 ) {
                     Column {
-                        // Lista temporária de atividades recentes apresentadas no painel
-                        val activities = listOf(
-                            ActivityItem("Simão Ferreira", "criou o torneio MinhoFut Cup", "agora", Icons.Default.EmojiEvents, LMRed),
-                            ActivityItem("Diogo Gomes", "registou-se na aplicação", "5 min", Icons.Default.Person, LMInfo),
-                            ActivityItem("João Fernandes", "atualizou resultado de Prata 2-1", "12 min", Icons.Default.Refresh, LMLive),
-                            ActivityItem("Rúben Ferreira", "denunciou conteúdo inadequado", "1 h", Icons.Default.Flag, LMWarn)
-                        )
+                        val activities = dashboard.atividadeRecente.map { item ->
+                            val (icon, color) = when (item.categoria) {
+                                "JOGO" -> Icons.Default.Refresh to LMLive
+                                "REGISTO" -> Icons.Default.Person to LMInfo
+                                "TORNEIO" -> Icons.Default.EmojiEvents to LMRed
+                                else -> Icons.Default.Notifications to LMWarn
+                            }
+                            ActivityItem(item.who, item.what, item.whenLabel, icon, color)
+                        }.ifEmpty {
+                            // Fallback se a BD estiver vazia
+                            listOf(
+                                ActivityItem("Sistema", "sem atividade recente", "-", Icons.Default.Notifications, LMGray400)
+                            )
+                        }
 
-                        // Apresenta cada atividade com ícone, descrição e tempo decorrido
                         activities.forEachIndexed { index, act ->
                             Row(
                                 modifier = Modifier

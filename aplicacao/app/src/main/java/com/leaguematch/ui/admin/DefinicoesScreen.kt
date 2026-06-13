@@ -92,6 +92,8 @@ fun DefinicoesScreen(
     onTerminarSessaoClick: () -> Unit = {},
     onEditarPerfilClick: (String, String?) -> Unit = { _, _ -> },
     onGerirNotificacoesClick: () -> Unit = {},
+    alteracoesPendentes: Int = 0,
+    onSincronizarPendentesClick: () -> Unit = {},
     onHomeClick: () -> Unit = {},
     onUtilizadoresClick: () -> Unit = {},
     onTorneiosClick: () -> Unit = {},
@@ -152,18 +154,35 @@ fun DefinicoesScreen(
                 title = "Perfil",
                 big = true,
                 rightContent = {
-                    Box(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .background(LMGray100, RoundedCornerShape(10.dp)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = null,
-                            tint = LMGray600,
-                            modifier = Modifier.size(16.dp)
-                        )
+                    if (utilizadorLogado?.tipo?.name != "ORGANIZADOR") {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .background(LMGray100, RoundedCornerShape(10.dp))
+                                .clickable { onGerirNotificacoesClick() },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Notifications,
+                                contentDescription = "Notificações",
+                                tint = LMGray600,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .background(LMGray100, RoundedCornerShape(10.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = null,
+                                tint = LMGray600,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
                     }
                 }
             )
@@ -460,9 +479,16 @@ fun DefinicoesScreen(
                     Column {
                         ProfileRow(
                             icon = Icons.Default.Sync,
-                            label = "Sincronização offline",
+                            label = if (alteracoesPendentes > 0)
+                                "Sincronizar ($alteracoesPendentes pendentes)"
+                            else
+                                "Sincronização offline",
+                            onClick = { if (alteracoesPendentes > 0) onSincronizarPendentesClick() },
                             rightContent = {
-                                Pill(text = "Ativa", kind = "live")
+                                Pill(
+                                    text = if (alteracoesPendentes > 0) "$alteracoesPendentes" else "Ativa",
+                                    kind = if (alteracoesPendentes > 0) "warn" else "live"
+                                )
                             }
                         )
 
@@ -532,6 +558,14 @@ fun DefinicoesScreen(
                         onValueChange = { newNome = it },
                         label = "Nome completo",
                         placeholder = "Nome completo"
+                    )
+
+                    LeagueMatchTextField(
+                        value = newPassword,
+                        onValueChange = { newPassword = it },
+                        label = if (language == Language.PT) "Nova palavra-passe (opcional)" else "New password (optional)",
+                        placeholder = "••••••••",
+                        isPassword = true
                     )
                 }
             },

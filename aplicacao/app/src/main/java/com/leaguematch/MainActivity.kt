@@ -49,9 +49,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        val syncQueue = com.leaguematch.data.sync.SyncQueueStore(applicationContext)
         val repository = SupabaseLeagueMatchRepository(
             supabaseUrl = BuildConfig.SUPABASE_URL,
-            anonKey = BuildConfig.SUPABASE_ANON_KEY
+            anonKey = BuildConfig.SUPABASE_ANON_KEY,
+            syncQueue = syncQueue
         )
 
         val translationRepository = TranslationRepository(

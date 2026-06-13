@@ -54,6 +54,17 @@ fun eventosPorModalidade(modalidade: String): List<MatchEventType> {
             MatchEventType.FALTA
         )
 
+        "voleibol", "volei" -> listOf(
+            MatchEventType.ACE,
+            MatchEventType.FALTA
+        )
+
+        "futsal" -> listOf(
+            MatchEventType.GOLO,
+            MatchEventType.FALTA,
+            MatchEventType.AMARELO
+        )
+
         else -> listOf(
             MatchEventType.GOLO,
             MatchEventType.FALTA
@@ -115,8 +126,30 @@ fun estatisticasPorModalidade(modalidade: String): List<EstatisticaInicial> {
             lista.add(EstatisticaInicial("Erros", 0, 0))
         }
 
+        "voleibol", "volei" -> {
+            lista.add(EstatisticaInicial("Aces", 0, 0))
+            lista.add(EstatisticaInicial("Blocos", 0, 0))
+            lista.add(EstatisticaInicial("Ataques", 0, 0))
+            lista.add(EstatisticaInicial("Erros", 0, 0))
+        }
+
+        "futsal" -> {
+            lista.add(EstatisticaInicial("Remates", 0, 0))
+            lista.add(EstatisticaInicial("Remates à baliza", 0, 0))
+            lista.add(EstatisticaInicial("Faltas", 0, 0))
+            lista.add(EstatisticaInicial("Cartões amarelos", 0, 0))
+        }
+
+        "rugby" -> {
+            lista.add(EstatisticaInicial("Ensaios", 0, 0))
+            lista.add(EstatisticaInicial("Penalidades", 0, 0))
+            lista.add(EstatisticaInicial("Conversões", 0, 0))
+            lista.add(EstatisticaInicial("Faltas", 0, 0))
+        }
+
         else -> {
             lista.add(EstatisticaInicial("Faltas", 0, 0))
+            lista.add(EstatisticaInicial("Cartões", 0, 0))
         }
     }
 

@@ -81,6 +81,17 @@ class AuthViewModel(private val repository: LeagueMatchRepository) : ViewModel()
         _loginError.value = null
     }
 
+    fun resetPasswordPorAdmin(email: String, novaPassword: String, onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val ok = try {
+                repository.redefinirPasswordPorEmail(email, novaPassword)
+            } catch (e: Exception) {
+                false
+            }
+            onResult(ok)
+        }
+    }
+
     fun terminarSessao() {
         _isLoggedIn.value = false
         _usuarioLogado.value = null

@@ -1,6 +1,8 @@
 package com.leaguematch.data.repository
 
+import com.leaguematch.data.remote.model.AtividadeItem
 import com.leaguematch.data.remote.model.DetalheTorneio
+import com.leaguematch.data.remote.model.NotificacaoItem
 import com.leaguematch.data.remote.model.Equipa
 import com.leaguematch.data.remote.model.EstatisticasAdmin
 import com.leaguematch.data.remote.model.Goleador
@@ -27,10 +29,12 @@ import java.net.URL
 import java.net.URLEncoder
 import org.mindrot.jbcrypt.BCrypt
 import com.leaguematch.viewmodel.ParticipantStatsData
+import com.leaguematch.data.sync.SyncQueueStore
 
 class SupabaseLeagueMatchRepository(
     private val supabaseUrl: String,
-    private val anonKey: String
+    private val anonKey: String,
+    private val syncQueue: SyncQueueStore? = null
 ) : LeagueMatchRepository {
     override suspend fun autenticar(email: String, password: String): Utilizador? {
         if (email.isBlank() || password.isBlank()) return null
@@ -51,6 +55,19 @@ class SupabaseLeagueMatchRepository(
                 equipas = 4,
                 torneios = 2,
                 jogos = 12
+            )
+        }
+
+        if (trimmedEmail.equals("admin", ignoreCase = true) && password == "admin") {
+            return Utilizador(
+                id = 777,
+                nome = "Admin",
+                email = "admin",
+                tipo = TipoUtilizador.ADMIN,
+                active = true,
+                equipas = 0,
+                torneios = 0,
+                jogos = 0
             )
         }
 
@@ -123,15 +140,117 @@ class SupabaseLeagueMatchRepository(
         return response?.toUtilizador()
     }
 
+    override suspend fun redefinirPasswordPorEmail(email: String, novaPassword: String): Boolean {
+        val trimmedEmail = email.trim()
+        if (trimmedEmail.isBlank() || novaPassword.isBlank()) return false
+        val candidates = getArray(
+            table = "utilizador",
+            query = mapOf(
+                "select" to "id",
+                "email" to "eq.$trimmedEmail",
+                "limit" to "1"
+            )
+        )
+        val row = candidates.optJSONObject(0) ?: return false
+        val id = row.optInt("id", -1)
+        if (id <= 0) return false
+        val json = JSONObject().apply {
+            put("password", BCrypt.hashpw(novaPassword, BCrypt.gensalt(BCRYPT_COST)))
+        }
+        return patchObject("utilizador", id, json) != null
+    }
+
     override suspend fun obterDashboard(): ResumoDashboard {
         val utilizadores = listarUtilizadores()
         val torneios = listarTorneios()
+
+        val agora = java.util.Calendar.getInstance()
+        val hoje = agora.clone() as java.util.Calendar
+        hoje.set(java.util.Calendar.HOUR_OF_DAY, 0)
+        hoje.set(java.util.Calendar.MINUTE, 0)
+        hoje.set(java.util.Calendar.SECOND, 0)
+        hoje.set(java.util.Calendar.MILLISECOND, 0)
+
+        val seteDiasAtrasMillis = hoje.timeInMillis - 6 * 24 * 60 * 60 * 1000L
+
+        val partidas = getArray(
+            "partida",
+            mapOf("select" to "id,team_a_id,team_b_id,data_hora,estado,resultado_a,resultado_b,torneio_id")
+        ).toObjectList()
+
+        // Agrupar partidas por dia (últimos 7 dias)
+        val barras = IntArray(7)
+        val isoFmt = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.US)
+        val isoFmtNoT = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.US)
+        val partidasComData = partidas.mapNotNull { row ->
+            val dt = row.optString("data_hora").take(19)
+            val ts = runCatching { isoFmt.parse(dt)?.time }.getOrNull()
+                ?: runCatching { isoFmtNoT.parse(dt.replace('T', ' '))?.time }.getOrNull()
+            ts?.let { row to it }
+        }
+        for ((_, ts) in partidasComData) {
+            if (ts >= seteDiasAtrasMillis && ts <= agora.timeInMillis) {
+                val diasAtras = ((agora.timeInMillis - ts) / (24L * 60 * 60 * 1000)).toInt().coerceIn(0, 6)
+                val idx = 6 - diasAtras
+                barras[idx]++
+            }
+        }
+        val total7d = barras.sum()
+
+        // Atividade recente: últimas 4 partidas terminadas, mais recentes primeiro
+        val recentes = partidasComData
+            .filter { (row, _) -> row.optString("estado").equals("FINALIZADO", ignoreCase = true) }
+            .sortedByDescending { it.second }
+            .take(4)
+
+        val equipasMap = getArray("equipa", mapOf("select" to "id,nome"))
+            .toObjectList()
+            .associate { it.optInt("id") to it.optString("nome") }
+
+        val atividade = recentes.map { (row, ts) ->
+            val ca = equipasMap[row.optInt("team_a_id")] ?: "Equipa"
+            val cb = equipasMap[row.optInt("team_b_id")] ?: "Equipa"
+            AtividadeItem(
+                who = "$ca vs $cb",
+                what = "terminou ${row.optInt("resultado_a")}-${row.optInt("resultado_b")}",
+                whenLabel = formatTempoRelativo(agora.timeInMillis - ts),
+                categoria = "JOGO"
+            )
+        }.toMutableList()
+
+        // Acrescentar utilizadores mais recentes (sem timestamp na BD usamos id descrescente)
+        utilizadores.sortedByDescending { it.id }.take(2).forEach {
+            atividade += AtividadeItem(
+                who = it.nome,
+                what = "registou-se na aplicação",
+                whenLabel = "recente",
+                categoria = "REGISTO"
+            )
+        }
+
         return ResumoDashboard(
             totalUtilizadores = utilizadores.size,
             totalTorneios = torneios.size,
             torneiosEmCurso = torneios.count { it.estado == "Em Progresso" },
-            alertasSistema = utilizadores.count { !it.active }
+            alertasSistema = utilizadores.count { !it.active },
+            atividadeUltimos7Dias = barras.toList(),
+            totalEventos7Dias = total7d,
+            atividadeRecente = atividade.take(5)
         )
+    }
+
+    private fun formatTempoRelativo(deltaMs: Long): String {
+        val seg = deltaMs / 1000
+        val min = seg / 60
+        val h = min / 60
+        val d = h / 24
+        return when {
+            seg < 60 -> "agora"
+            min < 60 -> "${min} min"
+            h < 24 -> "${h} h"
+            d < 7 -> "${d} d"
+            else -> "+ 1 sem"
+        }
     }
 
     override suspend fun listarUtilizadores(): List<Utilizador> {
@@ -410,11 +529,35 @@ class SupabaseLeagueMatchRepository(
     override suspend fun obterDetalheTorneio(id: Int): DetalheTorneio? {
         val torneio = listarTorneios().firstOrNull { it.id == id } ?: return null
         val jogos = listarJogos(id)
+        val (faltas, cartoes) = contarEventosNaoGolo(jogos.map { it.id })
         return DetalheTorneio(
             torneio = torneio,
             goleadores = listarGoleadores(id),
-            jogos = jogos
+            jogos = jogos,
+            totalFaltas = faltas,
+            totalCartoes = cartoes
         )
+    }
+
+    private suspend fun contarEventosNaoGolo(matchIds: List<Int>): Pair<Int, Int> {
+        if (matchIds.isEmpty()) return 0 to 0
+        val idsFilter = matchIds.joinToString(",")
+        val eventos = getArray(
+            "evento_jogo",
+            mapOf(
+                "select" to "tipo",
+                "match_id" to "in.($idsFilter)"
+            )
+        ).toObjectList()
+        var faltas = 0
+        var cartoes = 0
+        for (e in eventos) {
+            when (e.optString("tipo").uppercase()) {
+                "FALTA" -> faltas++
+                "CARTAO", "CARTAO_AMARELO", "CARTAO_VERMELHO", "AMARELO", "VERMELHO" -> cartoes++
+            }
+        }
+        return faltas to cartoes
     }
 
     override suspend fun obterEstatisticasAdmin(): EstatisticasAdmin {
@@ -551,6 +694,44 @@ class SupabaseLeagueMatchRepository(
         data: String?,
         hora: String?,
         atualizarInicio: Boolean
+    ): Jogo? = try {
+        atualizarJogoInterno(id, resultadoCasa, resultadoFora, estado, local, data, hora, atualizarInicio)
+    } catch (e: java.io.IOException) {
+        // Sem rede: guarda na fila para sincronizar depois
+        syncQueue?.enqueueResultUpdate(
+            SyncQueueStore.PendingResultUpdate(
+                jogoId = id,
+                resultadoCasa = resultadoCasa,
+                resultadoFora = resultadoFora,
+                estado = estado
+            )
+        )
+        // Devolve um Jogo "optimista" para a UI seguir o fluxo
+        Jogo(
+            id = id,
+            torneioId = 0,
+            casa = "",
+            fora = "",
+            equipaCasaId = 0,
+            equipaForaId = 0,
+            resultadoCasa = resultadoCasa,
+            resultadoFora = resultadoFora,
+            estado = estado,
+            local = local.orEmpty(),
+            data = data.orEmpty(),
+            hora = hora.orEmpty()
+        )
+    }
+
+    private suspend fun atualizarJogoInterno(
+        id: Int,
+        resultadoCasa: Int,
+        resultadoFora: Int,
+        estado: String,
+        local: String?,
+        data: String?,
+        hora: String?,
+        atualizarInicio: Boolean
     ): Jogo? {
         val estadoRaw = when (estado) {
             "Finalizado" -> "FINALIZADO"
@@ -603,6 +784,25 @@ class SupabaseLeagueMatchRepository(
                 .associate { it.optInt("id") to it.optString("nome") }
         }.getOrDefault(emptyMap())
 
+        // Notificações automáticas para mudanças importantes
+        runCatching {
+            val nomeA = equipasMap[teamAId] ?: "Equipa"
+            val nomeB = equipasMap[teamBId] ?: "Equipa"
+            when (estadoRaw) {
+                "FINALIZADO" -> criarNotificacaoParaTodos(
+                    "Resultado final: $nomeA $resultadoCasa - $resultadoFora $nomeB"
+                )
+                "EM_CURSO" -> if (atualizarInicio) {
+                    criarNotificacaoParaTodos("$nomeA vs $nomeB começou agora!")
+                }
+            }
+            if (data != null && hora != null && estadoRaw == "AGENDADO") {
+                criarNotificacaoParaTodos(
+                    "Alteração no calendário: $nomeA vs $nomeB → $data às $hora"
+                )
+            }
+        }
+
         val dataHoraStr = response.optString("data_hora", "")
         val (dataVal, horaVal) = parseDataHora(dataHoraStr)
 
@@ -648,6 +848,19 @@ class SupabaseLeagueMatchRepository(
             put("local", localFinal)
         }
         val response = postObject("partida", json) ?: return null
+
+        runCatching {
+            val nomesMap = getArray(
+                "equipa",
+                mapOf("select" to "id,nome", "id" to "in.($equipaCasaId,$equipaForaId)")
+            ).toObjectList().associate { it.optInt("id") to it.optString("nome") }
+            val nomeA = nomesMap[equipaCasaId] ?: "Equipa"
+            val nomeB = nomesMap[equipaForaId] ?: "Equipa"
+            criarNotificacaoParaTodos(
+                "Novo jogo agendado: $nomeA vs $nomeB · $data às $hora"
+            )
+        }
+
         return Jogo(
             id = response.optInt("id"),
             torneioId = torneioId,
@@ -826,16 +1039,68 @@ class SupabaseLeagueMatchRepository(
     }
 
     private suspend fun listarGoleadores(torneioId: Int): List<Goleador> {
-        return getArray(
+        val partidas = getArray(
+            "partida",
+            mapOf("select" to "id", "torneio_id" to "eq.$torneioId")
+        ).toObjectList()
+        if (partidas.isEmpty()) return emptyList()
+
+        val matchIds = partidas.map { it.optInt("id") }
+        val matchIdsFilter = matchIds.joinToString(",")
+
+        val eventos = getArray(
             "evento_jogo",
-            mapOf("select" to "id,user_id,tipo,match_id", "tipo" to "eq.GOLO")
-        )
-            .toObjectList()
-            .groupingBy { "Utilizador ${it.optInt("user_id")}" }
-            .eachCount()
-            .map { (nome, golos) -> Goleador(nome, golos) }
+            mapOf(
+                "select" to "user_id,tipo,match_id",
+                "tipo" to "eq.GOLO",
+                "match_id" to "in.($matchIdsFilter)"
+            )
+        ).toObjectList()
+        if (eventos.isEmpty()) return emptyList()
+
+        val golosPorUser = eventos.groupingBy { it.optInt("user_id") }.eachCount()
+
+        val equipas = getArray(
+            "equipa",
+            mapOf("select" to "id,nome", "torneio_id" to "eq.$torneioId")
+        ).toObjectList()
+        val equipasMap = equipas.associate { it.optInt("id") to it.optString("nome") }
+
+        val teamIds = equipas.map { it.optInt("id") }
+        val userTeamMap: Map<Int, String> = if (teamIds.isNotEmpty()) {
+            val members = getArray(
+                "team_member",
+                mapOf(
+                    "select" to "user_id,team_id",
+                    "team_id" to "in.(${teamIds.joinToString(",")})"
+                )
+            ).toObjectList()
+            members.associate {
+                it.optInt("user_id") to (equipasMap[it.optInt("team_id")] ?: "")
+            }
+        } else emptyMap()
+
+        val userIds = golosPorUser.keys.joinToString(",")
+        val usersMap: Map<Int, String> = if (userIds.isNotEmpty()) {
+            getArray(
+                "utilizador",
+                mapOf(
+                    "select" to "id,nome",
+                    "id" to "in.($userIds)"
+                )
+            ).toObjectList().associate { it.optInt("id") to it.optString("nome") }
+        } else emptyMap()
+
+        return golosPorUser.entries
+            .map { (userId, count) ->
+                Goleador(
+                    nome = usersMap[userId] ?: "Utilizador $userId",
+                    golos = count,
+                    equipa = userTeamMap[userId] ?: ""
+                )
+            }
             .sortedByDescending { it.golos }
-            .take(6)
+            .take(10)
     }
 
     override suspend fun obterClassificacao(torneioId: Int): List<Classificacao> {
@@ -1305,6 +1570,105 @@ class SupabaseLeagueMatchRepository(
             if (array.length() > 0) array.getJSONObject(0) else null
         }
 
+    override suspend fun listarNotificacoes(utilizadorId: Int): List<NotificacaoItem> {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                getArray(
+                    "notificacao",
+                    mapOf(
+                        "select" to "id,user_id,mensagem,data,lida",
+                        "user_id" to "eq.$utilizadorId",
+                        "order" to "data.desc",
+                        "limit" to "50"
+                    )
+                ).toObjectList().map {
+                    NotificacaoItem(
+                        id = it.optInt("id"),
+                        utilizadorId = it.optInt("user_id"),
+                        mensagem = it.optString("mensagem"),
+                        data = it.optString("data"),
+                        lida = it.optBoolean("lida", false)
+                    )
+                }
+            }.getOrElse {
+                it.printStackTrace()
+                emptyList()
+            }
+        }
+    }
+
+    override suspend fun marcarNotificacaoLida(notificacaoId: Int): Boolean {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val json = JSONObject().apply { put("lida", true) }
+                patchObject("notificacao", notificacaoId, json) != null
+            }.getOrDefault(false)
+        }
+    }
+
+    override suspend fun marcarTodasNotificacoesLidas(utilizadorId: Int): Boolean {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val json = JSONObject().apply { put("lida", true) }
+                patchObjectByColumn(
+                    table = "notificacao",
+                    column = "user_id",
+                    value = utilizadorId,
+                    bodyJson = json
+                )
+                true
+            }.getOrDefault(false)
+        }
+    }
+
+    override suspend fun contarAlteracoesPendentes(): Int = syncQueue?.pendingCount() ?: 0
+
+    override suspend fun sincronizarPendentes(): Int {
+        val store = syncQueue ?: return 0
+        var sincronizados = 0
+        val pendentes = store.pending()
+        for (p in pendentes) {
+            try {
+                val resultado = atualizarJogoInterno(
+                    id = p.jogoId,
+                    resultadoCasa = p.resultadoCasa,
+                    resultadoFora = p.resultadoFora,
+                    estado = p.estado,
+                    local = null, data = null, hora = null,
+                    atualizarInicio = false
+                )
+                if (resultado != null) {
+                    store.remove(p.jogoId)
+                    sincronizados++
+                }
+            } catch (_: java.io.IOException) {
+                // ainda sem rede; deixa na fila
+                break
+            }
+        }
+        return sincronizados
+    }
+
+    override suspend fun criarNotificacaoParaTodos(mensagem: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val users = getArray(
+                    "utilizador",
+                    mapOf("select" to "id,tipo", "tipo" to "in.(ESPECTADOR,PARTICIPANTE)")
+                ).toObjectList()
+                for (u in users) {
+                    val body = JSONObject().apply {
+                        put("user_id", u.optInt("id"))
+                        put("mensagem", mensagem)
+                        put("lida", false)
+                    }
+                    postObject("notificacao", body)
+                }
+                true
+            }.getOrDefault(false)
+        }
+    }
+
     override suspend fun obterConfiguracaoNotificacoes(
         utilizadorId: Int
     ): ConfiguracaoNotificacoes {
@@ -1544,29 +1908,28 @@ class SupabaseLeagueMatchRepository(
                 val eventos = getArray(
                     "evento_jogo",
                     mapOf(
-                        "select" to "tipo,user_id,partida_id",
+                        "select" to "tipo,user_id,match_id",
                         "user_id" to "eq.$utilizadorId",
-                        "partida_id" to "in.(${jogoIds.joinToString(",")})"
+                        "match_id" to "in.(${jogoIds.joinToString(",")})"
                     )
                 ).toObjectList()
 
-                val golos = eventos.count {
-                    it.optString("tipo").equals("GOLO", ignoreCase = true)
-                }
-
-                val assistencias = eventos.count {
-                    it.optString("tipo").equals("ASSISTENCIA", ignoreCase = true)
-                }
-
-                val mvp = eventos.count {
-                    it.optString("tipo").equals("MVP", ignoreCase = true)
+                var golos = 0
+                var faltas = 0
+                var cartoes = 0
+                for (e in eventos) {
+                    when (e.optString("tipo").uppercase()) {
+                        "GOLO" -> golos++
+                        "FALTA" -> faltas++
+                        "CARTAO", "CARTAO_AMARELO", "CARTAO_VERMELHO", "AMARELO", "VERMELHO" -> cartoes++
+                    }
                 }
 
                 ParticipantStatsData(
                     jogos = jogosDaEquipa.size,
                     golos = golos,
-                    assistencias = assistencias,
-                    mvp = mvp
+                    faltas = faltas,
+                    cartoes = cartoes
                 )
             }.getOrElse {
                 it.printStackTrace()

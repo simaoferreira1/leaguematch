@@ -22,6 +22,8 @@ import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.QueryStats
 import androidx.compose.material.icons.filled.SportsScore
 import androidx.compose.material.icons.filled.SportsSoccer
+import androidx.compose.material.icons.filled.Style
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -132,6 +134,27 @@ fun OrgEstatisticasTorneioScreen(
                 )
             }
 
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                StatCell(
+                    label = "Faltas",
+                    value = detalhe.totalFaltas.toString(),
+                    icon = Icons.Default.Warning,
+                    color = Color(0xFFD97706),
+                    bg = Color(0xFFFEF3C7),
+                    modifier = Modifier.weight(1f)
+                )
+                StatCell(
+                    label = "Cartões",
+                    value = detalhe.totalCartoes.toString(),
+                    icon = Icons.Default.Style,
+                    color = Color(0xFFDC2626),
+                    bg = Color(0xFFFEE2E2),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
             Spacer(modifier = Modifier.height(20.dp))
 
             TranslatedText(
@@ -195,12 +218,19 @@ fun OrgEstatisticasTorneioScreen(
                                     tint = LMGray400, modifier = Modifier.size(18.dp)
                                 )
                                 Spacer(modifier = Modifier.width(10.dp))
-                                Text(
-                                    text = goleador.nome,
-                                    fontFamily = Geist, fontWeight = FontWeight.SemiBold,
-                                    fontSize = 14.sp, color = LMInk,
-                                    modifier = Modifier.weight(1f)
-                                )
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = goleador.nome,
+                                        fontFamily = Geist, fontWeight = FontWeight.SemiBold,
+                                        fontSize = 14.sp, color = LMInk
+                                    )
+                                    if (goleador.equipa.isNotBlank()) {
+                                        Text(
+                                            text = goleador.equipa,
+                                            fontFamily = Geist, fontSize = 11.sp, color = LMGray500
+                                        )
+                                    }
+                                }
                                 TranslatedText(
                                     text = "${goleador.golos} golos",
                                     fontFamily = Geist, fontWeight = FontWeight.Bold,

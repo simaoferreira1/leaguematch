@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import com.leaguematch.data.remote.model.ConfiguracaoNotificacoes
 import com.leaguematch.data.remote.model.Utilizador
 import com.leaguematch.data.repository.LeagueMatchRepository
@@ -52,6 +53,7 @@ fun AdminFlowContainer(
     //Guarda o ecrã apresentado ao administrador
     var currentRoute by remember { mutableStateOf<AdminRoute>(AdminRoute.Home) }
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
     //função auxiliar para alterar a rota atual
     fun navigate(route: AdminRoute) {
         currentRoute = route
@@ -127,6 +129,19 @@ fun AdminFlowContainer(
                             !(user?.active ?: true)
                         )
                         navigate(AdminRoute.Utilizadores)
+                    },
+
+                    onResetPasswordClick = { novaPass ->
+                        val email = user?.email.orEmpty()
+                        if (email.isNotBlank() && novaPass.isNotBlank()) {
+                            authViewModel.resetPasswordPorAdmin(email, novaPass) { ok ->
+                                android.widget.Toast.makeText(
+                                    context,
+                                    if (ok) "Palavra-passe reposta com sucesso." else "Erro ao repor palavra-passe.",
+                                    android.widget.Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
                     },
 
                     onBackClick = goUsers,

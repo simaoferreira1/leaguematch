@@ -40,12 +40,86 @@ fun DetalheUtilizadorScreen(
     onGraficosClick: () -> Unit = {},
     onDefinicoesClick: () -> Unit = {},
     onAlterarEstadoClick: () -> Unit = {},
-    onGuardarClick: (String) -> Unit = {}
+    onGuardarClick: (String) -> Unit = {},
+    onResetPasswordClick: (String) -> Unit = {}
 ) {
     // Guarda o tipo de utilizador atualmente selecionado
     var tipoSelecionado by remember(tipo) { mutableStateOf(tipo) }
     // Controla a visibilidade da janela de confirmação
     var showConfirmEstadoDialog by remember { mutableStateOf(false) }
+    // Repor password
+    var showResetPasswordDialog by remember { mutableStateOf(false) }
+    var novaPassword by remember { mutableStateOf("") }
+
+    if (showResetPasswordDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showResetPasswordDialog = false
+                novaPassword = ""
+            },
+            containerColor = LMWhite,
+            shape = RoundedCornerShape(20.dp),
+            title = {
+                Text(
+                    text = "Repor palavra-passe",
+                    fontFamily = Bricolage,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = LMInk
+                )
+            },
+            text = {
+                Column {
+                    Text(
+                        text = "Vai definir uma nova palavra-passe para $nome. Comunica-a ao utilizador de forma segura.",
+                        fontFamily = Geist,
+                        color = LMGray600,
+                        fontSize = 13.sp
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    LeagueMatchTextField(
+                        value = novaPassword,
+                        onValueChange = { novaPassword = it },
+                        label = "Nova palavra-passe",
+                        placeholder = "••••••••",
+                        isPassword = true
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (novaPassword.length >= 4) {
+                            onResetPasswordClick(novaPassword)
+                            showResetPasswordDialog = false
+                            novaPassword = ""
+                        }
+                    }
+                ) {
+                    Text(
+                        text = "Repor",
+                        fontFamily = Geist,
+                        fontWeight = FontWeight.Bold,
+                        color = LMRed
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showResetPasswordDialog = false
+                        novaPassword = ""
+                    }
+                ) {
+                    Text(
+                        text = "Cancelar",
+                        fontFamily = Geist,
+                        fontWeight = FontWeight.SemiBold,
+                        color = LMGray600
+                    )
+                }
+            }
+        )
+    }
     // Define os textos apresentados conforme o estado atual do utilizador
     val textoAcao = if (ativo) "Desativar" else "Ativar"
     val tituloDialog = if (ativo) "Desativar utilizador?" else "Ativar utilizador?"
@@ -384,6 +458,22 @@ fun DetalheUtilizadorScreen(
                     size = "lg"
                 ) {
                     Text("Guardar alterações", color = LMWhite)
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                OutlinedButton(
+                    onClick = { showResetPasswordDialog = true },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    border = BorderStroke(1.dp, LMBorder)
+                ) {
+                    Text(
+                        text = "Repor palavra-passe",
+                        fontFamily = Geist,
+                        fontWeight = FontWeight.SemiBold,
+                        color = LMInk
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))

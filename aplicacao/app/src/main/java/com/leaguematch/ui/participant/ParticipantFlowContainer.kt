@@ -222,8 +222,8 @@ fun ParticipantFlowContainer(
                 stats = ParticipantStats(
                     jogos = statsParticipante.jogos,
                     golos = statsParticipante.golos,
-                    assistencias = statsParticipante.assistencias,
-                    mvp = statsParticipante.mvp
+                    faltas = statsParticipante.faltas,
+                    cartoes = statsParticipante.cartoes
                 ),
                 strings = strings,
                 primaryColor = primaryColor,

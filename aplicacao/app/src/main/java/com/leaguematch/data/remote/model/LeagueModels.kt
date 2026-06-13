@@ -74,14 +74,33 @@ data class Classificacao(
 
 data class Goleador(
     val nome: String,
-    val golos: Int
+    val golos: Int,
+    val equipa: String = ""
 )
 
 data class ResumoDashboard(
     val totalUtilizadores: Int,
     val totalTorneios: Int,
     val torneiosEmCurso: Int,
-    val alertasSistema: Int
+    val alertasSistema: Int,
+    val atividadeUltimos7Dias: List<Int> = listOf(0, 0, 0, 0, 0, 0, 0),
+    val totalEventos7Dias: Int = 0,
+    val atividadeRecente: List<AtividadeItem> = emptyList()
+)
+
+data class AtividadeItem(
+    val who: String,
+    val what: String,
+    val whenLabel: String,
+    val categoria: String // "JOGO", "REGISTO", "TORNEIO", "NOTIFICACAO"
+)
+
+data class NotificacaoItem(
+    val id: Int,
+    val utilizadorId: Int,
+    val mensagem: String,
+    val data: String,
+    val lida: Boolean
 )
 
 data class ResumoModalidade(
@@ -114,7 +133,9 @@ data class Equipa(
 data class DetalheTorneio(
     val torneio: Torneio,
     val goleadores: List<Goleador>,
-    val jogos: List<Jogo>
+    val jogos: List<Jogo>,
+    val totalFaltas: Int = 0,
+    val totalCartoes: Int = 0
 ) {
     val totalGolos: Int = jogos.sumOf { it.resultadoCasa + it.resultadoFora }
 }
