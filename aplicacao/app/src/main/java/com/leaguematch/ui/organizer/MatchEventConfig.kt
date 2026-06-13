@@ -89,6 +89,10 @@ data class EstatisticaInicial(
 fun estatisticasPorModalidade(modalidade: String): List<EstatisticaInicial> {
     val lista = mutableListOf<EstatisticaInicial>()
 
+    if (modalidadeUsaPosseBola(modalidade)) {
+        lista.add(EstatisticaInicial("Posse de Bola", 50, 50))
+    }
+
     when (modalidade.trim().lowercase()) {
         "futebol" -> {
             lista.add(EstatisticaInicial("Remates", 0, 0))

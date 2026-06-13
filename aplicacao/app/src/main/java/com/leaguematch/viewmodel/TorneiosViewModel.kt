@@ -369,38 +369,4 @@ class TorneiosViewModel(private val repository: LeagueMatchRepository) : ViewMod
             }
         }
     }
-
-    fun atualizarJogo(
-        id: Int,
-        resultadoCasa: Int,
-        resultadoFora: Int,
-        estado: String,
-        local: String,
-        data: String,
-        hora: String,
-        onSuccess: () -> Unit,
-        onError: (String) -> Unit
-    ) {
-        viewModelScope.launch {
-            try {
-                val result = repository.atualizarJogo(
-                    id = id,
-                    resultadoCasa = resultadoCasa,
-                    resultadoFora = resultadoFora,
-                    estado = estado,
-                    local = local,
-                    data = data,
-                    hora = hora
-                )
-
-                if (result != null) {
-                    onSuccess()
-                } else {
-                    onError("Não foi possível atualizar o jogo.")
-                }
-            } catch (e: Exception) {
-                onError(e.message ?: "Erro ao atualizar jogo.")
-            }
-        }
-    }
 }

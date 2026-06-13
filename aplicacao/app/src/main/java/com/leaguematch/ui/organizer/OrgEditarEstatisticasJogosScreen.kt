@@ -58,9 +58,6 @@ import com.leaguematch.ui.theme.Bricolage
 import com.leaguematch.ui.theme.Geist
 import com.leaguematch.ui.theme.LMRed
 import kotlinx.coroutines.launch
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import com.leaguematch.data.remote.model.Utilizador
 
 @Composable
 fun OrgEditarEstatisticasJogoScreen(
@@ -75,7 +72,6 @@ fun OrgEditarEstatisticasJogoScreen(
     var scoreCasa by remember { mutableStateOf(jogo.resultadoCasa) }
     var scoreFora by remember { mutableStateOf(jogo.resultadoFora) }
     var estadoJogo by remember { mutableStateOf(jogo.estado) }
-    var iniciadoEmJogo by remember { mutableStateOf(jogo.iniciado_em) }
     var dataText by remember { mutableStateOf(jogo.data) }
     var horaText by remember { mutableStateOf(jogo.hora) }
     var isSavingScore by remember { mutableStateOf(false) }
@@ -103,7 +99,6 @@ fun OrgEditarEstatisticasJogoScreen(
                 onDataChange = { dataText = it },
                 horaText = horaText,
                 onHoraChange = { horaText = it },
-                iniciadoEm = iniciadoEmJogo,
                 onSaveScoreClick = {
                     scope.launch {
                         isSavingScore = true
@@ -113,8 +108,7 @@ fun OrgEditarEstatisticasJogoScreen(
                             resultadoFora = scoreFora,
                             estado = estadoJogo,
                             data = dataText,
-                            hora = horaText,
-                            atualizarInicio = false
+                            hora = horaText
                         )
                         isSavingScore = false
                         if (result != null) {
@@ -133,15 +127,13 @@ fun OrgEditarEstatisticasJogoScreen(
                             resultadoFora = 0,
                             estado = "A Decorrer",
                             data = dataText,
-                            hora = horaText,
-                            atualizarInicio = true
+                            hora = horaText
                         )
                         isSavingScore = false
                         if (result != null) {
                             scoreCasa = 0
                             scoreFora = 0
                             estadoJogo = "A Decorrer"
-                            iniciadoEmJogo = result.iniciado_em
                             Toast.makeText(context, "O jogo começou a zeros!", Toast.LENGTH_SHORT).show()
                         } else {
                             Toast.makeText(context, "Erro ao começar o jogo.", Toast.LENGTH_SHORT).show()
@@ -157,8 +149,7 @@ fun OrgEditarEstatisticasJogoScreen(
                             resultadoFora = scoreFora,
                             estado = "Finalizado",
                             data = dataText,
-                            hora = horaText,
-                            atualizarInicio = false
+                            hora = horaText
                         )
                         isSavingScore = false
                         if (result != null) {
@@ -182,7 +173,6 @@ fun OrgEditarEstatisticasJogoScreen(
                     jogo = jogo,
                     modalidade = modalidade,
                     repository = repository,
-                    bloqueado = estadoJogo.equals("Finalizado", ignoreCase = true),
                     onEventRegistered = { tipo, equipa ->
                         val tipoUpper = tipo.uppercase()
                         val incremento = when (tipoUpper) {
@@ -270,8 +260,7 @@ private fun JogoHeaderCard(
     onSaveScoreClick: () -> Unit,
     onStartGameClick: () -> Unit,
     onFinishGameClick: () -> Unit,
-    isSavingScore: Boolean,
-    iniciadoEm: String?,
+    isSavingScore: Boolean
 ) {
     val isAgendado = estadoJogo.uppercase() == "AGENDADO" || estadoJogo.uppercase() == "AGENDADO"
     val isLive = estadoJogo.uppercase() == "EM_CURSO" || estadoJogo.uppercase() == "A DECORRER" || estadoJogo.uppercase() == "EM DIRETO"
@@ -319,39 +308,25 @@ private fun JogoHeaderCard(
             // Dynamic ticking clock for active match (Football / Handball / Basketball)
             if (isLive) {
                 val isBasquetebol = modalidade.lowercase() == "basquetebol"
-
-                var elapsedSeconds by remember(iniciadoEm) {
-                    mutableStateOf(0)
-                }
-
-                LaunchedEffect(iniciadoEm, estadoJogo) {
+                var elapsedSeconds by remember { mutableStateOf(if (isBasquetebol) 2400 else 0) }
+                
+                LaunchedEffect(Unit) {
                     while (true) {
-                        val inicioMillis = com.leaguematch.util.parseIniciadoEmEpochMillis(iniciadoEm)
-
-                        elapsedSeconds = if (inicioMillis != null) {
-                            val agoraMillis = java.time.Instant.now().toEpochMilli()
-                            ((agoraMillis - inicioMillis) / 1000).toInt().coerceAtLeast(0)
-                        } else {
-                            0
-                        }
 
                         kotlinx.coroutines.delay(1000)
+                        if (isBasquetebol) {
+                            elapsedSeconds = (elapsedSeconds - 1).coerceAtLeast(0)
+                        } else {
+                            elapsedSeconds++
+                        }
                     }
                 }
-
-                val secondsToShow =
-                    if (isBasquetebol) {
-                        (2400 - elapsedSeconds).coerceAtLeast(0)
-                    } else {
-                        elapsedSeconds
-                    }
-
-                val min = secondsToShow / 60
-                val sec = secondsToShow % 60
+                
+                val min = elapsedSeconds / 60
+                val sec = elapsedSeconds % 60
                 val clockText = String.format("%02d:%02d", min, sec)
-
+                
                 Spacer(modifier = Modifier.height(6.dp))
-
                 Surface(
                     shape = RoundedCornerShape(50),
                     color = Color.White.copy(alpha = 0.12f),
@@ -721,54 +696,19 @@ private fun EventosJogoContent(
     jogo: Jogo,
     modalidade: String,
     repository: LeagueMatchRepository,
-    bloqueado: Boolean,
     onEventRegistered: (String, String) -> Unit
 ) {
     var eventoSelecionado by remember { mutableStateOf<MatchEventType?>(null) }
     var equipaSelecionada by remember { mutableStateOf("casa") }
     var tipoAlvo by remember { mutableStateOf("equipa") }
-    var jogadorSelecionado by remember { mutableStateOf<Utilizador?>(null) }
-    var jogadoresEquipa by remember { mutableStateOf<List<Utilizador>>(emptyList()) }
-    var jogadoresExpanded by remember { mutableStateOf(false) }
-    var minutoAtual by remember { mutableStateOf(0) }
-
-    LaunchedEffect(jogo.iniciado_em) {
-        while (true) {
-            val inicioMillis = com.leaguematch.util.parseIniciadoEmEpochMillis(jogo.iniciado_em)
-
-            minutoAtual = if (inicioMillis != null) {
-                (((java.time.Instant.now().toEpochMilli() - inicioMillis) / 1000) / 60)
-                    .toInt()
-                    .coerceAtLeast(0)
-            } else {
-                0
-            }
-
-            kotlinx.coroutines.delay(1000)
-        }
-    }
+    var jogador by remember { mutableStateOf("") }
+    var minuto by remember { mutableStateOf("60") }
 
     var isSaving by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val context = androidx.compose.ui.platform.LocalContext.current
 
     val eventos = eventosPorModalidade(modalidade)
-
-    LaunchedEffect(equipaSelecionada, jogo.equipaCasaId, jogo.equipaForaId) {
-        jogadorSelecionado = null
-
-        val equipaId = if (equipaSelecionada == "casa") {
-            jogo.equipaCasaId
-        } else {
-            jogo.equipaForaId
-        }
-
-        jogadoresEquipa = if (equipaId != null) {
-            repository.listarJogadoresEquipa(equipaId)
-        } else {
-            emptyList()
-        }
-    }
 
     Column(
         modifier = Modifier
@@ -854,51 +794,46 @@ private fun EventosJogoContent(
         }
 
         if (tipoAlvo == "jogador") {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = jogadorSelecionado?.nome ?: "",
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Jogador") },
-                    placeholder = { Text("Selecionar jogador") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { jogadoresExpanded = true },
-                    shape = RoundedCornerShape(12.dp),
-                    singleLine = true,
-                    enabled = false,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        disabledBorderColor = Color(0xFFD1D5DB),
-                        disabledLabelColor = Color(0xFF6B7280),
-                        disabledTextColor = Color.Black,
-                        disabledContainerColor = Color.White
-                    )
+            OutlinedTextField(
+                value = jogador,
+                onValueChange = { jogador = it },
+                label = { Text("Jogador") },
+                placeholder = { Text("Nome do jogador") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = LMRed,
+                    unfocusedBorderColor = Color(0xFFD1D5DB),
+                    focusedLabelColor = LMRed,
+                    unfocusedLabelColor = Color(0xFF6B7280),
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black
                 )
-
-                DropdownMenu(
-                    expanded = jogadoresExpanded,
-                    onDismissRequest = { jogadoresExpanded = false },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    if (jogadoresEquipa.isEmpty()) {
-                        DropdownMenuItem(
-                            text = { Text("Sem jogadores nesta equipa") },
-                            onClick = { jogadoresExpanded = false }
-                        )
-                    } else {
-                        jogadoresEquipa.forEach { jogador ->
-                            DropdownMenuItem(
-                                text = { Text(jogador.nome) },
-                                onClick = {
-                                    jogadorSelecionado = jogador
-                                    jogadoresExpanded = false
-                                }
-                            )
-                        }
-                    }
-                }
-            }
+            )
         }
+
+        OutlinedTextField(
+            value = minuto,
+            onValueChange = { minuto = it },
+            label = { Text("Minuto") },
+            leadingIcon = {
+                Icon(Icons.Default.Schedule, contentDescription = null)
+            },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = LMRed,
+                unfocusedBorderColor = Color(0xFFD1D5DB),
+                focusedLabelColor = LMRed,
+                unfocusedLabelColor = Color(0xFF6B7280),
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                focusedLeadingIconColor = LMRed,
+                unfocusedLeadingIconColor = Color(0xFF6B7280)
+            )
+        )
 
         Button(
             onClick = {
@@ -907,13 +842,9 @@ private fun EventosJogoContent(
                     Toast.makeText(context, "Por favor, selecione um tipo de evento.", Toast.LENGTH_SHORT).show()
                     return@Button
                 }
-
-                if (tipoAlvo == "jogador" && jogadorSelecionado == null) {
-                    Toast.makeText(
-                        context,
-                        "Selecione um jogador.",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                val minInt = minuto.toIntOrNull()
+                if (minInt == null || minInt < 0) {
+                    Toast.makeText(context, "Por favor, insira um minuto válido.", Toast.LENGTH_SHORT).show()
                     return@Button
                 }
 
@@ -923,21 +854,21 @@ private fun EventosJogoContent(
                         partidaId = jogo.id,
                         tipo = ev.name,
                         equipa = equipaSelecionada,
-                        tempo = minutoAtual,
-                        userId = if (tipoAlvo == "jogador") jogadorSelecionado?.id else null
+                        tempo = minInt,
+                        jogadorNome = if (tipoAlvo == "jogador" && jogador.isNotBlank()) jogador.trim() else null
                     )
                     isSaving = false
 
                     if (success) {
                         Toast.makeText(context, "Evento registado com sucesso!", Toast.LENGTH_SHORT).show()
                         onEventRegistered(ev.name, equipaSelecionada)
-                        jogadorSelecionado = null
+                        jogador = ""
                     } else {
                         Toast.makeText(context, "Erro ao registar o evento.", Toast.LENGTH_SHORT).show()
                     }
                 }
             },
-            enabled = !isSaving && !bloqueado,
+            enabled = !isSaving,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
@@ -1010,8 +941,6 @@ private fun EstatisticasJogoContent(
 
     var isSaving by remember { mutableStateOf(false) }
     var mensagem by remember { mutableStateOf<String?>(null) }
-    val jogoFinalizado = jogo.estado.equals("Finalizado", ignoreCase = true) ||
-            jogo.estado.equals("FINALIZADO", ignoreCase = true)
 
     val estatisticas = remember(modalidade) {
         mutableStateListOf<EstatisticaEditavel>().apply {
@@ -1072,7 +1001,6 @@ private fun EstatisticasJogoContent(
                 titulo = stat.titulo,
                 casa = stat.casa,
                 fora = stat.fora,
-                bloqueado = jogoFinalizado,
                 onCasaChange = { novoValor ->
                     estatisticas[index] = stat.copy(casa = novoValor.coerceAtLeast(0))
                 },
@@ -1125,7 +1053,7 @@ private fun EstatisticasJogoContent(
                     }
                 }
             },
-            enabled = !isSaving && !jogoFinalizado,
+            enabled = !isSaving,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
@@ -1165,7 +1093,6 @@ private fun StatBarEditable(
     titulo: String,
     casa: Int,
     fora: Int,
-    bloqueado: Boolean,
     onCasaChange: (Int) -> Unit,
     onForaChange: (Int) -> Unit
 ) {
@@ -1246,7 +1173,6 @@ private fun StatBarEditable(
                 StatCounterBox(
                     title = "Equipa Casa",
                     value = casa,
-                    bloqueado = bloqueado,
                     onMinusClick = { onCasaChange(casa - 1) },
                     onPlusClick = { onCasaChange(casa + 1) },
                     modifier = Modifier.weight(1f)
@@ -1255,7 +1181,6 @@ private fun StatBarEditable(
                 StatCounterBox(
                     title = "Equipa Fora",
                     value = fora,
-                    bloqueado = bloqueado,
                     onMinusClick = { onForaChange(fora - 1) },
                     onPlusClick = { onForaChange(fora + 1) },
                     modifier = Modifier.weight(1f)
@@ -1269,7 +1194,6 @@ private fun StatBarEditable(
 private fun StatCounterBox(
     title: String,
     value: Int,
-    bloqueado: Boolean,
     onMinusClick: () -> Unit,
     onPlusClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -1298,12 +1222,10 @@ private fun StatCounterBox(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                if (!bloqueado) {
-                    SmallStatButton(
-                        text = "-",
-                        onClick = onMinusClick
-                    )
-                }
+                SmallStatButton(
+                    text = "-",
+                    onClick = onMinusClick
+                )
 
                 Text(
                     text = value.toString(),
@@ -1314,12 +1236,10 @@ private fun StatCounterBox(
                     modifier = Modifier.padding(horizontal = 10.dp)
                 )
 
-                if (!bloqueado) {
-                    SmallStatButton(
-                        text = "+",
-                        onClick = onPlusClick
-                    )
-                }
+                SmallStatButton(
+                    text = "+",
+                    onClick = onPlusClick
+                )
             }
         }
     }

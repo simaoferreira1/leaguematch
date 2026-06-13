@@ -45,26 +45,12 @@ import com.leaguematch.ui.theme.LMGray500
 import com.leaguematch.ui.theme.LMInk
 import com.leaguematch.ui.theme.LMRed
 import com.leaguematch.ui.theme.LMWhite
-import androidx.compose.foundation.clickable
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.material3.rememberTimePickerState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.TimePicker
-import androidx.compose.ui.window.Dialog
 
 @Composable
 fun OrgCalendarioScreen(
     torneio: Torneio,
     jogos: List<Jogo>,
-    onBackClick: () -> Unit,
-    onAtualizarDataHoraJogo: (Jogo, String, String) -> Unit
+    onBackClick: () -> Unit
 ) {
     val agrupados = jogos
         .groupBy { it.data.ifBlank { "Sem data" } }
@@ -103,11 +89,7 @@ fun OrgCalendarioScreen(
                 EmptyCalendarState()
             } else {
                 agrupados.forEach { (data, jogosDoDia) ->
-                    DiaSection(
-                        data = data,
-                        jogos = jogosDoDia,
-                        onAtualizarDataHoraJogo = onAtualizarDataHoraJogo
-                    )
+                    DiaSection(data = data, jogos = jogosDoDia)
                     Spacer(modifier = Modifier.height(14.dp))
                 }
             }
@@ -116,11 +98,7 @@ fun OrgCalendarioScreen(
 }
 
 @Composable
-private fun DiaSection(
-    data: String,
-    jogos: List<Jogo>,
-    onAtualizarDataHoraJogo: (Jogo, String, String) -> Unit
-) {
+private fun DiaSection(data: String, jogos: List<Jogo>) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(bottom = 8.dp)
@@ -153,22 +131,13 @@ private fun DiaSection(
 
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         jogos.sortedBy { it.hora }.forEach { jogo ->
-            JogoCalendarioCard(
-                jogo = jogo,
-                onAtualizarDataHoraJogo = onAtualizarDataHoraJogo
-            )
+            JogoCalendarioCard(jogo)
         }
     }
 }
 
 @Composable
-private fun JogoCalendarioCard(
-    jogo: Jogo,
-    onAtualizarDataHoraJogo: (Jogo, String, String) -> Unit
-) {
-    var mostrarDialog by remember { mutableStateOf(false) }
-    var novaData by remember { mutableStateOf(jogo.data) }
-    var novaHora by remember { mutableStateOf(jogo.hora) }
+private fun JogoCalendarioCard(jogo: Jogo) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
@@ -211,22 +180,7 @@ private fun JogoCalendarioCard(
                     fontFamily = Geist, fontSize = 11.sp, color = LMGray500
                 )
             }
-            if (jogo.estado.equals("Agendado", ignoreCase = true)) {
-                Text(
-                    text = "Alterar data/hora",
-                    fontFamily = Geist,
-                    fontSize = 11.sp,
-                    color = LMRed,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .padding(top = 4.dp)
-                        .clickable {
-                            novaData = jogo.data
-                            novaHora = jogo.hora
-                            mostrarDialog = true
-                        }
-                )
-            }
+
             if (jogo.estado.equals("Finalizado", ignoreCase = true) ||
                 jogo.estado.equals("A Decorrer", ignoreCase = true)) {
                 Text(
@@ -237,214 +191,6 @@ private fun JogoCalendarioCard(
             }
         }
     }
-    if (mostrarDialog) {
-        AlterarDataHoraDialog(
-            dataAtual = novaData,
-            horaAtual = novaHora,
-            onDismiss = { mostrarDialog = false },
-            onGuardar = { dataEscolhida, horaEscolhida ->
-                onAtualizarDataHoraJogo(jogo, dataEscolhida, horaEscolhida)
-                mostrarDialog = false
-            }
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun AlterarDataHoraDialog(
-    dataAtual: String,
-    horaAtual: String,
-    onDismiss: () -> Unit,
-    onGuardar: (String, String) -> Unit
-) {
-    val dataMillis = parseDateToMillis(dataAtual)
-    val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = dataMillis
-    )
-
-    var mostrarTimePicker by remember { mutableStateOf(false) }
-
-    val partesHora = horaAtual.split(":")
-    val horaInicial = partesHora.getOrNull(0)?.toIntOrNull() ?: 12
-    val minutoInicial = partesHora.getOrNull(1)?.toIntOrNull() ?: 0
-
-    val timePickerState = rememberTimePickerState(
-        initialHour = horaInicial,
-        initialMinute = minutoInicial,
-        is24Hour = true
-    )
-
-    Dialog(onDismissRequest = onDismiss) {
-        Surface(
-            shape = RoundedCornerShape(22.dp),
-            color = LMWhite,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(
-                modifier = Modifier.padding(18.dp)
-            ) {
-                Text(
-                    text = "Alterar data e hora",
-                    fontFamily = Geist,
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 20.sp,
-                    color = LMInk
-                )
-
-                Spacer(modifier = Modifier.height(14.dp))
-
-                DatePicker(
-                    state = datePickerState,
-                    title = null,
-                    headline = null,
-                    showModeToggle = false
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { mostrarTimePicker = true },
-                    shape = RoundedCornerShape(14.dp),
-                    color = LMGray50,
-                    border = BorderStroke(1.dp, LMBorder)
-                ) {
-                    Column(modifier = Modifier.padding(14.dp)) {
-                        Text(
-                            text = "Hora",
-                            fontFamily = Geist,
-                            fontSize = 12.sp,
-                            color = LMGray500
-                        )
-
-                        Text(
-                            text = "%02d:%02d".format(
-                                timePickerState.hour,
-                                timePickerState.minute
-                            ),
-                            fontFamily = Geist,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp,
-                            color = LMInk
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(18.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    TextButton(onClick = onDismiss) {
-                        Text("Cancelar")
-                    }
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Button(
-                        onClick = {
-                            val dataEscolhida = formatMillisToDate(
-                                datePickerState.selectedDateMillis
-                            )
-
-                            val horaEscolhida = "%02d:%02d".format(
-                                timePickerState.hour,
-                                timePickerState.minute
-                            )
-
-                            onGuardar(dataEscolhida, horaEscolhida)
-                        }
-                    ) {
-                        Text("Guardar")
-                    }
-                }
-            }
-        }
-    }
-
-    if (mostrarTimePicker) {
-        Dialog(onDismissRequest = { mostrarTimePicker = false }) {
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(18.dp),
-                color = LMWhite
-            ) {
-                Column(
-                    modifier = Modifier.padding(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "Escolher hora",
-                        fontFamily = Geist,
-                        fontWeight = FontWeight.ExtraBold,
-                        fontSize = 20.sp,
-                        color = LMInk
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    TimePicker(state = timePickerState)
-
-                    Spacer(modifier = Modifier.height(18.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        TextButton(onClick = { mostrarTimePicker = false }) {
-                            Text("Cancelar")
-                        }
-
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        Button(onClick = { mostrarTimePicker = false }) {
-                            Text("OK")
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-private fun parseDateToMillis(date: String): Long? {
-    return try {
-        val partes = date.split("/")
-        if (partes.size != 3) return null
-
-        val day = partes[0].toInt()
-        val month = partes[1].toInt() - 1
-        val year = partes[2].toInt()
-
-        java.util.Calendar.getInstance().apply {
-            set(java.util.Calendar.YEAR, year)
-            set(java.util.Calendar.MONTH, month)
-            set(java.util.Calendar.DAY_OF_MONTH, day)
-            set(java.util.Calendar.HOUR_OF_DAY, 0)
-            set(java.util.Calendar.MINUTE, 0)
-            set(java.util.Calendar.SECOND, 0)
-            set(java.util.Calendar.MILLISECOND, 0)
-        }.timeInMillis
-    } catch (e: Exception) {
-        null
-    }
-}
-
-private fun formatMillisToDate(millis: Long?): String {
-    if (millis == null) return ""
-
-    val calendar = java.util.Calendar.getInstance().apply {
-        timeInMillis = millis
-    }
-
-    val day = calendar.get(java.util.Calendar.DAY_OF_MONTH)
-    val month = calendar.get(java.util.Calendar.MONTH) + 1
-    val year = calendar.get(java.util.Calendar.YEAR)
-
-    return "%02d/%02d/%04d".format(day, month, year)
 }
 
 @Composable

@@ -2,6 +2,7 @@ package com.leaguematch.ui.admin
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import com.leaguematch.data.remote.model.EstatisticasAdmin
 import com.leaguematch.ui.components.AdminBottomBar
 import com.leaguematch.ui.components.CardWrapper
+import com.leaguematch.ui.components.Pill
 import com.leaguematch.ui.components.TopBar
 import com.leaguematch.ui.components.TranslatedText
 import com.leaguematch.ui.theme.Bricolage
@@ -53,6 +55,7 @@ import com.leaguematch.ui.theme.LMGray700
 import com.leaguematch.ui.theme.LMInk
 import com.leaguematch.ui.theme.LMLive
 import com.leaguematch.ui.theme.LMRed
+import com.leaguematch.ui.theme.LMWhite
 
 // Ecrã que apresenta gráficos e estatísticas gerais da plataforma
 @Composable
@@ -106,6 +109,44 @@ fun GraficosScreen(
                 }
             )
 
+            // Seleção do período temporal para visualização dos dados
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 18.dp, vertical = 6.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                listOf("7d", "30d", "90d", "Ano").forEach { period ->
+                    val isSelected = selectedPeriod == period
+
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .background(
+                                color = if (isSelected) LMInk else LMGray100,
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            // Atualiza o período selecionado e recarrega os dados
+                            .clickable {
+                                selectedPeriod = period
+                                onPeriodChange(period)
+                            }
+                            .padding(vertical = 8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        TranslatedText(
+                            text = period,
+                            fontFamily = Geist,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isSelected) LMWhite else LMGray700
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
             // Cartão com resumo geral da plataforma
             CardWrapper(
                 modifier = Modifier
@@ -150,6 +191,11 @@ fun GraficosScreen(
                                 color = LMLive
                             )
                         }
+
+                        Pill(
+                            text = selectedPeriod,
+                            kind = "red"
+                        )
                     }
 
                     Spacer(modifier = Modifier.height(18.dp))

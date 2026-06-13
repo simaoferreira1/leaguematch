@@ -404,18 +404,11 @@ class SupabaseLeagueMatchRepository(
             runCatching {
                 val matchesJson = getArray(
                     "partida",
-                    mapOf(
-                        "select" to "id,torneio_id,team_a_id,team_b_id,resultado_a,resultado_b,estado,data_hora,local,iniciado_em",
-                        "estado" to "eq.EM_CURSO"
-                    )
+                    mapOf("select" to "id,torneio_id,team_a_id,team_b_id,resultado_a,resultado_b,estado,data_hora,local", "estado" to "eq.EM_CURSO")
                 ).toObjectList()
 
                 val equipasMap = if (matchesJson.isNotEmpty()) {
-                    val ids = matchesJson
-                        .flatMap { listOf(it.optInt("team_a_id"), it.optInt("team_b_id")) }
-                        .distinct()
-                        .joinToString(",")
-
+                    val ids = matchesJson.flatMap { listOf(it.optInt("team_a_id"), it.optInt("team_b_id")) }.distinct().joinToString(",")
                     getArray(
                         "equipa",
                         mapOf("select" to "id,nome", "id" to "in.($ids)")
@@ -429,22 +422,17 @@ class SupabaseLeagueMatchRepository(
                     val teamBId = json.optInt("team_b_id")
                     val dataHoraStr = json.optString("data_hora", "")
                     val (dataVal, horaVal) = parseDataHora(dataHoraStr)
-
                     Jogo(
                         id = json.optInt("id"),
                         torneioId = json.optInt("torneio_id"),
                         casa = equipasMap[teamAId] ?: "Equipa $teamAId",
                         fora = equipasMap[teamBId] ?: "Equipa $teamBId",
-                        equipaCasaId = teamAId,
-                        equipaForaId = teamBId,
                         resultadoCasa = json.optInt("resultado_a"),
                         resultadoFora = json.optInt("resultado_b"),
                         estado = "A Decorrer",
                         data = dataVal,
                         hora = horaVal,
-                        local = json.optString("local", "A definir"),
-                        iniciado_em = json.optString("iniciado_em")
-                            .takeIf { it.isNotBlank() && it != "null" }
+                        local = json.optString("local", "A definir")
                     )
                 }
             }.getOrElse {
@@ -458,24 +446,20 @@ class SupabaseLeagueMatchRepository(
         return withContext(Dispatchers.IO) {
             runCatching {
                 val matchesJson = getArray(
-                    "partida",
-                    mapOf(
-                        "select" to "id,torneio_id,team_a_id,team_b_id,resultado_a,resultado_b,estado,data_hora,local,iniciado_em"
+                    "partida", mapOf(
+                        "select" to "id,torneio_id,team_a_id,team_b_id,resultado_a,resultado_b,estado,data_hora,local"
                     )
                 ).toObjectList()
 
                 if (matchesJson.isEmpty()) return@runCatching emptyList<Jogo>()
 
-                val teamIds = matchesJson
-                    .flatMap { listOf(it.optInt("team_a_id"), it.optInt("team_b_id")) }
-                    .distinct()
-
+                val teamIds =
+                    matchesJson.flatMap { listOf(it.optInt("team_a_id"), it.optInt("team_b_id")) }
+                        .distinct()
                 val equipasMap = if (teamIds.isNotEmpty()) {
                     val teamIdsFilter = teamIds.joinToString(",")
-
                     getArray(
-                        "equipa",
-                        mapOf(
+                        "equipa", mapOf(
                             "select" to "id,nome",
                             "id" to "in.($teamIdsFilter)"
                         )
@@ -488,31 +472,24 @@ class SupabaseLeagueMatchRepository(
                     val teamAId = json.optInt("team_a_id")
                     val teamBId = json.optInt("team_b_id")
                     val estadoRaw = json.optString("estado", "AGENDADO")
-
                     val estado = when (estadoRaw.uppercase()) {
                         "FINALIZADO" -> "Finalizado"
                         "EM_CURSO" -> "A Decorrer"
                         else -> "Agendado"
                     }
-
                     val dataHoraStr = json.optString("data_hora", "")
                     val (dataVal, horaVal) = parseDataHora(dataHoraStr)
-
                     Jogo(
                         id = json.optInt("id"),
                         torneioId = json.optInt("torneio_id"),
                         casa = equipasMap[teamAId] ?: "Equipa $teamAId",
                         fora = equipasMap[teamBId] ?: "Equipa $teamBId",
-                        equipaCasaId = teamAId,
-                        equipaForaId = teamBId,
                         resultadoCasa = json.optInt("resultado_a"),
                         resultadoFora = json.optInt("resultado_b"),
                         estado = estado,
                         data = dataVal,
                         hora = horaVal,
-                        local = json.optString("local", "A definir"),
-                        iniciado_em = json.optString("iniciado_em")
-                            .takeIf { it.isNotBlank() && it != "null" }
+                        local = json.optString("local", "A definir")
                     )
                 }
             }.getOrElse {
@@ -692,10 +669,9 @@ class SupabaseLeagueMatchRepository(
         estado: String,
         local: String?,
         data: String?,
-        hora: String?,
-        atualizarInicio: Boolean
+        hora: String?
     ): Jogo? = try {
-        atualizarJogoInterno(id, resultadoCasa, resultadoFora, estado, local, data, hora, atualizarInicio)
+        atualizarJogoInterno(id, resultadoCasa, resultadoFora, estado, local, data, hora, atualizarInicio = false)
     } catch (e: java.io.IOException) {
         // Sem rede: guarda na fila para sincronizar depois
         syncQueue?.enqueueResultUpdate(
@@ -712,8 +688,6 @@ class SupabaseLeagueMatchRepository(
             torneioId = 0,
             casa = "",
             fora = "",
-            equipaCasaId = 0,
-            equipaForaId = 0,
             resultadoCasa = resultadoCasa,
             resultadoFora = resultadoFora,
             estado = estado,
@@ -736,50 +710,27 @@ class SupabaseLeagueMatchRepository(
         val estadoRaw = when (estado) {
             "Finalizado" -> "FINALIZADO"
             "A Decorrer" -> "EM_CURSO"
-            "EM_CURSO" -> "EM_CURSO"
-            "FINALIZADO" -> "FINALIZADO"
             else -> "AGENDADO"
         }
-
         val json = JSONObject().apply {
             put("resultado_a", resultadoCasa)
             put("resultado_b", resultadoFora)
             put("estado", estadoRaw)
-
             if (local != null) {
                 put("local", local.trim())
             }
-
             if (data != null && hora != null) {
                 val partes = data.split("/")
-                val dataHora =
-                    if (partes.size == 3) {
-                        "${partes[2]}-${partes[1]}-${partes[0]}T${hora}:00"
-                    } else {
-                        "2026-01-01T00:00:00"
-                    }
-
+                val dataHora = if (partes.size == 3) "${partes[2]}-${partes[1]}-${partes[0]}T${hora}:00" else "2026-01-01T00:00:00"
                 put("data_hora", dataHora)
             }
-
-            if (estadoRaw == "EM_CURSO" && atualizarInicio) {
-                put("iniciado_em", java.time.Instant.now().toString())
-            }
         }
-
         val response = patchObject("partida", id, json) ?: return null
 
         val teamAId = response.optInt("team_a_id")
         val teamBId = response.optInt("team_b_id")
-
         val equipasMap = runCatching {
-            getArray(
-                "equipa",
-                mapOf(
-                    "select" to "id,nome",
-                    "id" to "in.($teamAId,$teamBId)"
-                )
-            )
+            getArray("equipa", mapOf("select" to "id,nome", "id" to "in.($teamAId,$teamBId)"))
                 .toObjectList()
                 .associate { it.optInt("id") to it.optString("nome") }
         }.getOrDefault(emptyMap())
@@ -811,15 +762,12 @@ class SupabaseLeagueMatchRepository(
             torneioId = response.optInt("torneio_id"),
             casa = equipasMap[teamAId] ?: "Equipa $teamAId",
             fora = equipasMap[teamBId] ?: "Equipa $teamBId",
-            equipaCasaId = teamAId,
-            equipaForaId = teamBId,
             resultadoCasa = response.optInt("resultado_a"),
             resultadoFora = response.optInt("resultado_b"),
             estado = response.optString("estado").toEstadoLegivel(),
             data = dataVal,
             hora = horaVal,
-            local = response.optString("local", "A definir"),
-            iniciado_em = response.optString("iniciado_em").takeIf { it.isNotBlank() && it != "null" }
+            local = response.optString("local", "A definir")
         )
     }
 
@@ -866,8 +814,6 @@ class SupabaseLeagueMatchRepository(
             torneioId = torneioId,
             casa = "Equipa $equipaCasaId",
             fora = "Equipa $equipaForaId",
-            equipaCasaId = equipaCasaId,
-            equipaForaId = equipaForaId,
             resultadoCasa = 0,
             resultadoFora = 0,
             estado = "Agendado",
@@ -996,7 +942,7 @@ class SupabaseLeagueMatchRepository(
 
     private suspend fun listarJogos(torneioId: Int? = null): List<Jogo> {
         val query =
-            mutableMapOf("select" to "id,torneio_id,team_a_id,team_b_id,estado,resultado_a,resultado_b,data_hora,local,iniciado_em")
+            mutableMapOf("select" to "id,torneio_id,team_a_id,team_b_id,estado,resultado_a,resultado_b,data_hora,local")
         if (torneioId != null) query["torneio_id"] = "eq.$torneioId"
 
         val equipasMap = runCatching {
@@ -1017,16 +963,12 @@ class SupabaseLeagueMatchRepository(
                     torneioId = json.optInt("torneio_id"),
                     casa = equipasMap[teamAId] ?: "Equipa $teamAId",
                     fora = equipasMap[teamBId] ?: "Equipa $teamBId",
-                    equipaCasaId = teamAId,
-                    equipaForaId = teamBId,
                     resultadoCasa = json.optInt("resultado_a"),
                     resultadoFora = json.optInt("resultado_b"),
                     estado = json.optString("estado", "AGENDADO").toEstadoLegivel(),
                     data = dataVal,
                     hora = horaVal,
-                    local = json.optString("local", "A definir"),
-                    iniciado_em = json.optString("iniciado_em")
-                        .takeIf { it.isNotBlank() && it != "null" }
+                    local = json.optString("local", "A definir")
                 )
             }
     }
@@ -1464,13 +1406,13 @@ class SupabaseLeagueMatchRepository(
         }
     }
 
-        override suspend fun registarEventoJogo(
-            partidaId: Int,
-            tipo: String,
-            equipa: String,
-            tempo: Int,
-            userId: Int?
-        ): Boolean {
+    override suspend fun registarEventoJogo(
+        partidaId: Int,
+        tipo: String,
+        equipa: String,
+        tempo: Int,
+        jogadorNome: String?
+    ): Boolean {
         return withContext(Dispatchers.IO) {
             runCatching {
                 val partidaJson = getArray(
@@ -1480,11 +1422,63 @@ class SupabaseLeagueMatchRepository(
 
                 val teamAId = partidaJson?.optInt("team_a_id") ?: -1
                 val teamBId = partidaJson?.optInt("team_b_id") ?: -1
+                val targetTeamId = if (equipa == "casa") teamAId else teamBId
+
+                var selectedUserId = -1
+
+                if (!jogadorNome.isNullOrBlank() && targetTeamId != -1) {
+                    val members = getArray(
+                        "team_member",
+                        mapOf("select" to "user_id", "team_id" to "eq.$targetTeamId")
+                    ).toObjectList()
+
+                    if (members.isNotEmpty()) {
+                        val memberIds = members.map { it.optInt("user_id") }.joinToString(",")
+                        val users = getArray(
+                            "utilizador",
+                            mapOf("select" to "id,nome", "id" to "in.($memberIds)")
+                        ).toObjectList()
+
+                        val matchedUser = users.firstOrNull {
+                            it.optString("nome").equals(jogadorNome, ignoreCase = true) ||
+                                    it.optString("nome").contains(jogadorNome, ignoreCase = true)
+                        }
+                        if (matchedUser != null) {
+                            selectedUserId = matchedUser.optInt("id")
+                        } else if (users.isNotEmpty()) {
+                            selectedUserId = users.first().optInt("id")
+                        }
+                    }
+                }
+
+                if (selectedUserId == -1 && targetTeamId != -1) {
+                    val members = getArray(
+                        "team_member",
+                        mapOf("select" to "user_id", "team_id" to "eq.$targetTeamId")
+                    ).toObjectList()
+                    if (members.isNotEmpty()) {
+                        selectedUserId = members.first().optInt("user_id")
+                    }
+                }
+
+                if (selectedUserId == -1) {
+                    val users = getArray(
+                        "utilizador",
+                        mapOf("select" to "id", "limit" to "1")
+                    ).toObjectList()
+                    if (users.isNotEmpty()) {
+                        selectedUserId = users.first().optInt("id")
+                    }
+                }
+
+                if (selectedUserId == -1) {
+                    selectedUserId = 1
+                }
 
                 val json = JSONObject().apply {
                     put("match_id", partidaId)
                     put("tipo", tipo.uppercase())
-                    put("user_id", userId)
+                    put("user_id", selectedUserId)
                     put("tempo", tempo)
                 }
 
@@ -1875,8 +1869,6 @@ class SupabaseLeagueMatchRepository(
                         torneioId = json.optInt("torneio_id"),
                         casa = equipasMap[teamAId] ?: "Equipa $teamAId",
                         fora = equipasMap[teamBId] ?: "Equipa $teamBId",
-                        equipaCasaId = teamAId,
-                        equipaForaId = teamBId,
                         resultadoCasa = json.optInt("resultado_a"),
                         resultadoFora = json.optInt("resultado_b"),
                         estado = json.optString("estado", "AGENDADO").toEstadoLegivel(),

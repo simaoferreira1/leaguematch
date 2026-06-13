@@ -69,14 +69,6 @@ import com.leaguematch.ui.theme.LMGray600
 import com.leaguematch.ui.theme.LMInk
 import com.leaguematch.ui.theme.LMRed
 import com.leaguematch.ui.theme.LMWhite
-import android.app.TimePickerDialog
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.ui.platform.LocalContext
-import java.util.Calendar
-import java.util.TimeZone
 
 @Composable
 fun OrgCriarJogoScreen(
@@ -168,19 +160,24 @@ fun OrgCriarJogoScreen(
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Column(modifier = Modifier.weight(1f)) {
                     FormLabel("DATA")
-                    DateField(
+                    FormTextField(
                         value = data,
                         onValueChange = { data = it },
-                        placeholder = "dd/mm/aaaa"
+                        placeholder = "dd/mm/aaaa",
+                        leadingIcon = {
+                            Icon(Icons.Default.CalendarToday, contentDescription = null, modifier = Modifier.size(16.dp), tint = LMGray400)
+                        }
                     )
                 }
-
                 Column(modifier = Modifier.weight(1f)) {
                     FormLabel("HORA")
-                    TimeField(
+                    FormTextField(
                         value = hora,
                         onValueChange = { hora = it },
-                        placeholder = "hh:mm"
+                        placeholder = "hh:mm",
+                        leadingIcon = {
+                            Icon(Icons.Default.Schedule, contentDescription = null, modifier = Modifier.size(16.dp), tint = LMGray400)
+                        }
                     )
                 }
             }
@@ -491,12 +488,7 @@ private fun EquipaPickerDialog(
                                     .background(LMGray100, RoundedCornerShape(10.dp)),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Icon(
-                                    Icons.Default.Groups,
-                                    contentDescription = null,
-                                    tint = LMGray500,
-                                    modifier = Modifier.size(18.dp)
-                                )
+                                Icon(Icons.Default.Groups, contentDescription = null, tint = LMGray500, modifier = Modifier.size(18.dp))
                             }
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
@@ -507,12 +499,7 @@ private fun EquipaPickerDialog(
                                 color = LMInk,
                                 modifier = Modifier.weight(1f)
                             )
-                            Icon(
-                                Icons.Default.ChevronRight,
-                                contentDescription = null,
-                                tint = LMGray400,
-                                modifier = Modifier.size(16.dp)
-                            )
+                            Icon(Icons.Default.ChevronRight, contentDescription = null, tint = LMGray400, modifier = Modifier.size(16.dp))
                         }
                         if (index < equipas.lastIndex) {
                             HorizontalDivider(color = LMBorder, thickness = 0.5.dp)
@@ -532,136 +519,3 @@ private fun EquipaPickerDialog(
         }
     }
 }
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    private fun DateField(
-        value: String,
-        onValueChange: (String) -> Unit,
-        placeholder: String
-    ) {
-        var showDialog by remember { mutableStateOf(false) }
-
-        if (showDialog) {
-            val initialMillis = parseDateToMillis(value)
-            val state = rememberDatePickerState(initialSelectedDateMillis = initialMillis)
-
-            DatePickerDialog(
-                onDismissRequest = { showDialog = false },
-                shape = RoundedCornerShape(24.dp),
-                confirmButton = {
-                    TextButton(onClick = {
-                        state.selectedDateMillis?.let {
-                            onValueChange(formatMillisToDate(it))
-                        }
-                        showDialog = false
-                    }) {
-                        Text("OK", color = LMRed, fontFamily = Geist, fontWeight = FontWeight.Bold)
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showDialog = false }) {
-                        Text("Cancelar", color = LMGray500, fontFamily = Geist)
-                    }
-                }
-            ) {
-                DatePicker(
-                    state = state,
-                    showModeToggle = false
-                )
-            }
-        }
-
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp)
-                .clickable { showDialog = true },
-            shape = RoundedCornerShape(12.dp),
-            color = LMWhite,
-            border = BorderStroke(1.dp, LMBorder)
-        ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 14.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(Icons.Default.CalendarToday, contentDescription = null, modifier = Modifier.size(16.dp), tint = LMGray400)
-                Spacer(modifier = Modifier.width(10.dp))
-                Text(
-                    text = if (value.isBlank()) placeholder else value,
-                    fontFamily = Geist,
-                    fontSize = 13.sp,
-                    color = if (value.isBlank()) LMGray400 else LMInk
-                )
-            }
-        }
-    }
-
-    @Composable
-    private fun TimeField(
-        value: String,
-        onValueChange: (String) -> Unit,
-        placeholder: String
-    ) {
-        val context = LocalContext.current
-
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp)
-                .clickable {
-                    val calendar = Calendar.getInstance()
-
-                    TimePickerDialog(
-                        context,
-                        { _, hour, minute ->
-                            onValueChange(String.format("%02d:%02d", hour, minute))
-                        },
-                        calendar.get(Calendar.HOUR_OF_DAY),
-                        calendar.get(Calendar.MINUTE),
-                        true
-                    ).show()
-                },
-            shape = RoundedCornerShape(12.dp),
-            color = LMWhite,
-            border = BorderStroke(1.dp, LMBorder)
-        ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 14.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(Icons.Default.Schedule, contentDescription = null, modifier = Modifier.size(16.dp), tint = LMGray400)
-                Spacer(modifier = Modifier.width(10.dp))
-                Text(
-                    text = if (value.isBlank()) placeholder else value,
-                    fontFamily = Geist,
-                    fontSize = 13.sp,
-                    color = if (value.isBlank()) LMGray400 else LMInk
-                )
-            }
-        }
-    }
-
-    private fun parseDateToMillis(date: String): Long? {
-        if (date.isBlank()) return null
-        val parts = date.split("/")
-        if (parts.size != 3) return null
-
-        return runCatching {
-            val cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
-            cal.clear()
-            cal.set(parts[2].toInt(), parts[1].toInt() - 1, parts[0].toInt())
-            cal.timeInMillis
-        }.getOrNull()
-    }
-
-    private fun formatMillisToDate(millis: Long): String {
-        val cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
-        cal.timeInMillis = millis
-
-        val dia = cal.get(Calendar.DAY_OF_MONTH).toString().padStart(2, '0')
-        val mes = (cal.get(Calendar.MONTH) + 1).toString().padStart(2, '0')
-        val ano = cal.get(Calendar.YEAR)
-
-        return "$dia/$mes/$ano"
-    }
-

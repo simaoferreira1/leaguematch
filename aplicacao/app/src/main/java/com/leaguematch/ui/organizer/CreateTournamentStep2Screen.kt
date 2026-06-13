@@ -155,6 +155,26 @@ fun CreateTournamentStep2Screen(
                 color = LMInk
             )
 
+            Spacer(modifier = Modifier.height(10.dp))
+
+            OptionSwitchCard(
+                icon = if (publico) Icons.Default.Public else Icons.Default.Lock,
+                title = "Torneio público",
+                subtitle = "Permite que participantes e espectadores encontrem o torneio.",
+                checked = publico,
+                onCheckedChange = { publico = it }
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            OptionSwitchCard(
+                icon = Icons.Default.SportsScore,
+                title = "Jogos ida e volta",
+                subtitle = "Cada equipa joga duas vezes contra o mesmo adversário.",
+                checked = jogosIdaVolta,
+                onCheckedChange = { jogosIdaVolta = it }
+            )
+
             Spacer(modifier = Modifier.height(14.dp))
 
             PointsCard(
