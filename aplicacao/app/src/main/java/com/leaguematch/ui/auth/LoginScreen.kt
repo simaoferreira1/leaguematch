@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Language
@@ -56,6 +57,7 @@ import com.leaguematch.ui.theme.LMGray500
 import com.leaguematch.ui.theme.LMGray600
 import com.leaguematch.ui.theme.LMInk
 
+
 @Composable
 fun LoginScreen(
     erro: String? = null,
@@ -73,11 +75,14 @@ fun LoginScreen(
     if (showLanguageDialog) {
         AlertDialog(
             onDismissRequest = { showLanguageDialog = false },
+            shape = RoundedCornerShape(18.dp),
+            containerColor = Color.White,
             title = {
                 TranslatedText(
                     text = "Escolher idioma",
                     fontFamily = Geist,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
                 )
             },
             text = {

@@ -21,14 +21,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.BrightnessMedium
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -485,55 +483,50 @@ fun DefinicoesScreen(
 
     // Janela modal para seleção do idioma da aplicação.
     if (showLanguageDialog) {
-        AlertDialog(
-            onDismissRequest = {
-                showLanguageDialog = false
-            },
-            title = {
-                TranslatedText(
-                    text = "Escolher idioma",
-                    fontFamily = Bricolage,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp,
-                    color = LMInk
-                )
-            },
-            text = {
-                Column {
+            AlertDialog(
+                onDismissRequest = {
+                    showLanguageDialog = false
+                },
+                containerColor = LMWhite,
+                shape = RoundedCornerShape(24.dp),
+                tonalElevation = 8.dp,
+                title = {
                     TranslatedText(
-                        text = "Português",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
+                        text = "Escolher idioma",
+                        fontFamily = Bricolage,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        color = LMInk
+                    )
+                },
+                text = {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        ProfileRow(
+                            icon = Icons.Default.Language,
+                            label = "Português",
+                            onClick = {
                                 onLanguageChange(Language.PT)
                                 showLanguageDialog = false
                             }
-                            .padding(12.dp),
-                        fontFamily = Geist,
-                        fontWeight = if (language == Language.PT) FontWeight.Bold else FontWeight.Normal,
-                        color = LMInk
-                    )
+                        )
 
-                    Text(
-                        text = "English",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
+                        HorizontalDivider(color = LMBorder)
+
+                        ProfileRow(
+                            icon = Icons.Default.Language,
+                            label = "English",
+                            onClick = {
                                 onLanguageChange(Language.EN)
                                 showLanguageDialog = false
                             }
-                            .padding(12.dp),
-                        fontFamily = Geist,
-                        fontWeight = if (language == Language.EN) FontWeight.Bold else FontWeight.Normal,
-                        color = LMInk
-                    )
-                }
-            },
-            confirmButton = {},
-            containerColor = LMWhite,
-            shape = RoundedCornerShape(16.dp)
-        )
-    }
+                        )
+                    }
+                },
+                confirmButton = {}
+            )
+        }
 }
 
 // Componente reutilizável para apresentar uma preferência
