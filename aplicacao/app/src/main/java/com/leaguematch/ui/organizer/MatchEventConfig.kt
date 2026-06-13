@@ -6,13 +6,18 @@ import androidx.compose.ui.graphics.vector.ImageVector
 
 enum class MatchEventType(
     val label: String,
-    val icon: ImageVector
+    val icon: ImageVector,
+    val requerJogador: Boolean = true // Por defeito quase todos precisam de jogador
 ) {
     GOLO("Golo", Icons.Default.SportsSoccer),
     FALTA("Falta", Icons.Default.Warning),
-    AMARELO("Cartão amarelo", Icons.Default.Warning),
-    VERMELHO("Cartão vermelho", Icons.Default.Report),
-    CANTO("Canto", Icons.Default.Flag),
+    CARTAO_AMARELO("Cartão amarelo", Icons.Default.Warning),
+    CARTAO_VERMELHO("Cartão vermelho", Icons.Default.Report),
+
+    // requerJogador = false permite aplicar o canto apenas à equipa sem dar erro de validação
+    CANTO("Canto", Icons.Default.Flag, requerJogador = false),
+
+    // Para a substituição, a UI deve permitir escolher quem sai e quem entra
     SUBSTITUICAO("Substituição", Icons.Default.SwapHoriz),
 
     DOIS_PONTOS("2 pontos", Icons.Default.SportsBasketball),
@@ -28,8 +33,8 @@ fun eventosPorModalidade(modalidade: String): List<MatchEventType> {
         "futebol" -> listOf(
             MatchEventType.GOLO,
             MatchEventType.FALTA,
-            MatchEventType.AMARELO,
-            MatchEventType.VERMELHO,
+            MatchEventType.CARTAO_AMARELO,
+            MatchEventType.CARTAO_VERMELHO,
             MatchEventType.CANTO,
             MatchEventType.SUBSTITUICAO
         )
@@ -37,8 +42,8 @@ fun eventosPorModalidade(modalidade: String): List<MatchEventType> {
         "andebol" -> listOf(
             MatchEventType.GOLO,
             MatchEventType.FALTA,
-            MatchEventType.AMARELO,
-            MatchEventType.VERMELHO
+            MatchEventType.CARTAO_AMARELO,
+            MatchEventType.CARTAO_VERMELHO
         )
 
         "basquetebol" -> listOf(
@@ -54,6 +59,12 @@ fun eventosPorModalidade(modalidade: String): List<MatchEventType> {
             MatchEventType.FALTA
         )
 
+        "ténis", "tenis" -> listOf(
+            MatchEventType.ACE,
+            MatchEventType.BREAK_POINT,
+            MatchEventType.FALTA
+        )
+
         "voleibol", "volei" -> listOf(
             MatchEventType.ACE,
             MatchEventType.FALTA
@@ -62,7 +73,14 @@ fun eventosPorModalidade(modalidade: String): List<MatchEventType> {
         "futsal" -> listOf(
             MatchEventType.GOLO,
             MatchEventType.FALTA,
-            MatchEventType.AMARELO
+            MatchEventType.CARTAO_AMARELO,
+            MatchEventType.CARTAO_VERMELHO,
+            MatchEventType.SUBSTITUICAO
+        )
+
+        "rugby" -> listOf(
+            MatchEventType.GOLO,
+            MatchEventType.FALTA
         )
 
         else -> listOf(
@@ -83,7 +101,8 @@ fun modalidadeUsaPosseBola(modalidade: String): Boolean {
 data class EstatisticaInicial(
     val titulo: String,
     val casa: Int,
-    val fora: Int
+    val fora: Int,
+    val isManual: Boolean = true // Se true: mostra + e -. Se false: conta eventos da BD.
 )
 
 fun estatisticasPorModalidade(modalidade: String): List<EstatisticaInicial> {
@@ -91,65 +110,59 @@ fun estatisticasPorModalidade(modalidade: String): List<EstatisticaInicial> {
 
     when (modalidade.trim().lowercase()) {
         "futebol" -> {
-            lista.add(EstatisticaInicial("Remates", 0, 0))
-            lista.add(EstatisticaInicial("Remates à baliza", 0, 0))
-            lista.add(EstatisticaInicial("Cantos", 0, 0))
-            lista.add(EstatisticaInicial("Faltas", 0, 0))
-            lista.add(EstatisticaInicial("Cartões amarelos", 0, 0))
-            lista.add(EstatisticaInicial("Cartões vermelhos", 0, 0))
+            lista.add(EstatisticaInicial("Remates", 0, 0, isManual = true))
+            lista.add(EstatisticaInicial("Remates à baliza", 0, 0, isManual = true))
+            lista.add(EstatisticaInicial("Cantos", 0, 0, isManual = false))
+            lista.add(EstatisticaInicial("Faltas", 0, 0, isManual = false))
+            lista.add(EstatisticaInicial("Cartões amarelos", 0, 0, isManual = false))
+            lista.add(EstatisticaInicial("Cartões vermelhos", 0, 0, isManual = false))
         }
 
         "andebol" -> {
-            lista.add(EstatisticaInicial("Remates", 0, 0))
-            lista.add(EstatisticaInicial("Defesas", 0, 0))
-            lista.add(EstatisticaInicial("Faltas", 0, 0))
-            lista.add(EstatisticaInicial("Cartões amarelos", 0, 0))
-            lista.add(EstatisticaInicial("Cartões vermelhos", 0, 0))
+            lista.add(EstatisticaInicial("Remates", 0, 0, isManual = true))
+            lista.add(EstatisticaInicial("Defesas", 0, 0, isManual = true))
+            lista.add(EstatisticaInicial("Faltas", 0, 0, isManual = false))
+            lista.add(EstatisticaInicial("Cartões amarelos", 0, 0, isManual = false))
+            lista.add(EstatisticaInicial("Cartões vermelhos", 0, 0, isManual = false))
         }
 
         "basquetebol" -> {
-            lista.add(EstatisticaInicial("Lançamentos 2 pts", 0, 0))
-            lista.add(EstatisticaInicial("Lançamentos 3 pts", 0, 0))
-            lista.add(EstatisticaInicial("Lances livres", 0, 0))
-            lista.add(EstatisticaInicial("Faltas", 0, 0))
+            lista.add(EstatisticaInicial("Lançamentos 2 pts", 0, 0, isManual = true))
+            lista.add(EstatisticaInicial("Lançamentos 3 pts", 0, 0, isManual = true))
+            lista.add(EstatisticaInicial("Lances livres", 0, 0, isManual = true))
+            lista.add(EstatisticaInicial("Faltas", 0, 0, isManual = false))
         }
 
-        "padel" -> {
-            lista.add(EstatisticaInicial("Aces", 0, 0))
-            lista.add(EstatisticaInicial("Break points", 0, 0))
-            lista.add(EstatisticaInicial("Erros", 0, 0))
-        }
-
-        "ténis", "tenis" -> {
-            lista.add(EstatisticaInicial("Aces", 0, 0))
-            lista.add(EstatisticaInicial("Break points", 0, 0))
-            lista.add(EstatisticaInicial("Erros", 0, 0))
+        "padel", "ténis", "tenis" -> {
+            lista.add(EstatisticaInicial("Aces", 0, 0, isManual = false))
+            lista.add(EstatisticaInicial("Break points", 0, 0, isManual = false))
+            lista.add(EstatisticaInicial("Erros", 0, 0, isManual = true))
         }
 
         "voleibol", "volei" -> {
-            lista.add(EstatisticaInicial("Aces", 0, 0))
-            lista.add(EstatisticaInicial("Blocos", 0, 0))
-            lista.add(EstatisticaInicial("Ataques", 0, 0))
-            lista.add(EstatisticaInicial("Erros", 0, 0))
+            lista.add(EstatisticaInicial("Aces", 0, 0, isManual = false))
+            lista.add(EstatisticaInicial("Blocos", 0, 0, isManual = true))
+            lista.add(EstatisticaInicial("Ataques", 0, 0, isManual = true))
+            lista.add(EstatisticaInicial("Erros", 0, 0, isManual = true))
         }
 
         "futsal" -> {
-            lista.add(EstatisticaInicial("Remates", 0, 0))
-            lista.add(EstatisticaInicial("Remates à baliza", 0, 0))
-            lista.add(EstatisticaInicial("Faltas", 0, 0))
-            lista.add(EstatisticaInicial("Cartões amarelos", 0, 0))
+            lista.add(EstatisticaInicial("Remates", 0, 0, isManual = true))
+            lista.add(EstatisticaInicial("Remates à baliza", 0, 0, isManual = true))
+            lista.add(EstatisticaInicial("Faltas", 0, 0, isManual = false))
+            lista.add(EstatisticaInicial("Cartões amarelos", 0, 0, isManual = false))
         }
 
         "rugby" -> {
-            lista.add(EstatisticaInicial("Ensaios", 0, 0))
-            lista.add(EstatisticaInicial("Penalidades", 0, 0))
-            lista.add(EstatisticaInicial("Conversões", 0, 0))
-            lista.add(EstatisticaInicial("Faltas", 0, 0))
+            lista.add(EstatisticaInicial("Ensaios", 0, 0, isManual = true))
+            lista.add(EstatisticaInicial("Penalidades", 0, 0, isManual = true))
+            lista.add(EstatisticaInicial("Conversões", 0, 0, isManual = true))
+            lista.add(EstatisticaInicial("Faltas", 0, 0, isManual = false))
         }
 
         else -> {
-            lista.add(EstatisticaInicial("Faltas", 0, 0))
-            lista.add(EstatisticaInicial("Cartões", 0, 0))
+            lista.add(EstatisticaInicial("Faltas", 0, 0, isManual = false))
+            lista.add(EstatisticaInicial("Cartões", 0, 0, isManual = false))
         }
     }
 

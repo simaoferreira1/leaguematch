@@ -728,6 +728,8 @@ private fun EventosJogoContent(
     var equipaSelecionada by remember { mutableStateOf("casa") }
     var tipoAlvo by remember { mutableStateOf("equipa") }
     var jogadorSelecionado by remember { mutableStateOf<Utilizador?>(null) }
+    var jogadorSai by remember { mutableStateOf<Utilizador?>(null) }
+    var jogadorEntra by remember { mutableStateOf<Utilizador?>(null) }
     var jogadoresEquipa by remember { mutableStateOf<List<Utilizador>>(emptyList()) }
     var jogadoresExpanded by remember { mutableStateOf(false) }
     var minutoAtual by remember { mutableStateOf(0) }
@@ -900,11 +902,117 @@ private fun EventosJogoContent(
             }
         }
 
+        if (eventoSelecionado?.name == "SUBSTITUICAO") {
+            var jogadorSaiExpanded by remember { mutableStateOf(false) }
+            var jogadorEntraExpanded by remember { mutableStateOf(false) }
+
+            Text(
+                text = "Jogador que sai",
+                color = Color.Black,
+                fontFamily = Geist,
+                fontWeight = FontWeight.Bold,
+                fontSize = 15.sp
+            )
+
+            Box(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = jogadorSai?.nome ?: "",
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Jogador que sai") },
+                    placeholder = { Text("Selecionar jogador") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { jogadorSaiExpanded = true },
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true,
+                    enabled = false,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        disabledBorderColor = Color(0xFFD1D5DB),
+                        disabledLabelColor = Color(0xFF6B7280),
+                        disabledTextColor = Color.Black,
+                        disabledContainerColor = Color.White
+                    )
+                )
+
+                DropdownMenu(
+                    expanded = jogadorSaiExpanded,
+                    onDismissRequest = { jogadorSaiExpanded = false },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    jogadoresEquipa.forEach { jogador ->
+                        DropdownMenuItem(
+                            text = { Text(jogador.nome) },
+                            onClick = {
+                                jogadorSai = jogador
+                                jogadorSaiExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            Text(
+                text = "Jogador que entra",
+                color = Color.Black,
+                fontFamily = Geist,
+                fontWeight = FontWeight.Bold,
+                fontSize = 15.sp
+            )
+
+            Box(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = jogadorEntra?.nome ?: "",
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Jogador que entra") },
+                    placeholder = { Text("Selecionar jogador") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { jogadorEntraExpanded = true },
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true,
+                    enabled = false,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        disabledBorderColor = Color(0xFFD1D5DB),
+                        disabledLabelColor = Color(0xFF6B7280),
+                        disabledTextColor = Color.Black,
+                        disabledContainerColor = Color.White
+                    )
+                )
+
+                DropdownMenu(
+                    expanded = jogadorEntraExpanded,
+                    onDismissRequest = { jogadorEntraExpanded = false },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    jogadoresEquipa.forEach { jogador ->
+                        DropdownMenuItem(
+                            text = { Text(jogador.nome) },
+                            onClick = {
+                                jogadorEntra = jogador
+                                jogadorEntraExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
         Button(
             onClick = {
                 val ev = eventoSelecionado
                 if (ev == null) {
                     Toast.makeText(context, "Por favor, selecione um tipo de evento.", Toast.LENGTH_SHORT).show()
+                    return@Button
+                }
+
+                if (ev.name == "CANTO" && tipoAlvo == "jogador") {
+                    Toast.makeText(
+                        context,
+                        "O canto só pode ser aplicado à equipa.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     return@Button
                 }
 
@@ -924,7 +1032,9 @@ private fun EventosJogoContent(
                         tipo = ev.name,
                         equipa = equipaSelecionada,
                         tempo = minutoAtual,
-                        userId = if (tipoAlvo == "jogador") jogadorSelecionado?.id else null
+                        userId = if (tipoAlvo == "jogador") jogadorSelecionado?.id else null,
+                        jogadorSaiId = if (ev.name == "SUBSTITUICAO") jogadorSai?.id else null,
+                        jogadorEntraId = if (ev.name == "SUBSTITUICAO") jogadorEntra?.id else null
                     )
                     isSaving = false
 
@@ -1010,34 +1120,92 @@ private fun EstatisticasJogoContent(
 
     var isSaving by remember { mutableStateOf(false) }
     var mensagem by remember { mutableStateOf<String?>(null) }
+
     val jogoFinalizado = jogo.estado.equals("Finalizado", ignoreCase = true) ||
             jogo.estado.equals("FINALIZADO", ignoreCase = true)
 
     val estatisticas = remember(modalidade) {
-        mutableStateListOf<EstatisticaEditavel>().apply {
-            addAll(
-                estatisticasPorModalidade(modalidade).map {
-                    EstatisticaEditavel(
-                        titulo = it.titulo,
-                        casa = it.casa,
-                        fora = it.fora
-                    )
-                }
-            )
-        }
+        mutableStateListOf<EstatisticaEditavel>()
+    }
+
+    fun estatisticaManual(titulo: String): Boolean {
+        return titulo.equals("Remates", ignoreCase = true) ||
+                titulo.equals("Remates à baliza", ignoreCase = true)
     }
 
     LaunchedEffect(jogo.id) {
+        estatisticas.clear()
+
+        val base = estatisticasPorModalidade(modalidade).map {
+            EstatisticaEditavel(
+                titulo = it.titulo,
+                casa = it.casa,
+                fora = it.fora
+            )
+        }.toMutableList()
+
         val salvas = repository.obterEstatisticasJogo(jogo.id)
-        if (salvas.isNotEmpty()) {
-            estatisticas.clear()
-            val grouped = salvas.groupBy { it.tipo }
-            grouped.forEach { (tipo, list) ->
-                val casaVal = list.firstOrNull { it.equipa.equals("casa", ignoreCase = true) }?.valor ?: 0
-                val foraVal = list.firstOrNull { it.equipa.equals("fora", ignoreCase = true) }?.valor ?: 0
-                estatisticas.add(EstatisticaEditavel(tipo, casaVal, foraVal))
+
+        salvas.forEach { salva ->
+            val index = base.indexOfFirst {
+                it.titulo.equals(salva.tipo, ignoreCase = true)
+            }
+
+            if (index >= 0 && estatisticaManual(base[index].titulo)) {
+                val atual = base[index]
+                base[index] = if (salva.equipa.equals("casa", ignoreCase = true)) {
+                    atual.copy(casa = salva.valor)
+                } else {
+                    atual.copy(fora = salva.valor)
+                }
             }
         }
+
+        val eventos = repository.obterEventosJogo(jogo.id)
+
+        fun contar(tipo: String, equipa: String): Int {
+            return eventos.count {
+                it.tipo.equals(tipo, ignoreCase = true) &&
+                        it.equipa.equals(equipa, ignoreCase = true)
+            }
+        }
+
+        fun aplicarAutomatica(titulo: String, tipoEvento: String) {
+            val index = base.indexOfFirst {
+                it.titulo.equals(titulo, ignoreCase = true)
+            }
+
+            if (index >= 0) {
+                base[index] = base[index].copy(
+                    casa = contar(tipoEvento, "casa"),
+                    fora = contar(tipoEvento, "fora")
+                )
+            }
+        }
+
+        aplicarAutomatica("Cantos", "CANTO")
+        aplicarAutomatica("Faltas", "FALTA")
+        aplicarAutomatica("Cartões amarelos", "CARTAO_AMARELO")
+        aplicarAutomatica("Cartões vermelhos", "CARTAO_VERMELHO")
+
+        // Compatibilidade com eventos antigos que ficaram guardados como AMARELO/VERMELHO
+        val amarelosIndex = base.indexOfFirst { it.titulo.equals("Cartões amarelos", ignoreCase = true) }
+        if (amarelosIndex >= 0) {
+            base[amarelosIndex] = base[amarelosIndex].copy(
+                casa = base[amarelosIndex].casa + contar("AMARELO", "casa"),
+                fora = base[amarelosIndex].fora + contar("AMARELO", "fora")
+            )
+        }
+
+        val vermelhosIndex = base.indexOfFirst { it.titulo.equals("Cartões vermelhos", ignoreCase = true) }
+        if (vermelhosIndex >= 0) {
+            base[vermelhosIndex] = base[vermelhosIndex].copy(
+                casa = base[vermelhosIndex].casa + contar("VERMELHO", "casa"),
+                fora = base[vermelhosIndex].fora + contar("VERMELHO", "fora")
+            )
+        }
+
+        estatisticas.addAll(base)
     }
 
     Column(
@@ -1058,7 +1226,7 @@ private fun EstatisticasJogoContent(
         Spacer(modifier = Modifier.height(6.dp))
 
         Text(
-            text = "Use os botões + e - para atualizar os valores.",
+            text = "Remates são editáveis. Cantos, faltas e cartões vêm dos eventos registados.",
             fontFamily = Geist,
             fontWeight = FontWeight.Medium,
             fontSize = 13.sp,
@@ -1068,16 +1236,22 @@ private fun EstatisticasJogoContent(
         Spacer(modifier = Modifier.height(18.dp))
 
         estatisticas.forEachIndexed { index, stat ->
+            val manual = estatisticaManual(stat.titulo)
+
             StatBarEditable(
                 titulo = stat.titulo,
                 casa = stat.casa,
                 fora = stat.fora,
-                bloqueado = jogoFinalizado,
+                bloqueado = jogoFinalizado || !manual,
                 onCasaChange = { novoValor ->
-                    estatisticas[index] = stat.copy(casa = novoValor.coerceAtLeast(0))
+                    if (manual) {
+                        estatisticas[index] = stat.copy(casa = novoValor.coerceAtLeast(0))
+                    }
                 },
                 onForaChange = { novoValor ->
-                    estatisticas[index] = stat.copy(fora = novoValor.coerceAtLeast(0))
+                    if (manual) {
+                        estatisticas[index] = stat.copy(fora = novoValor.coerceAtLeast(0))
+                    }
                 }
             )
 
@@ -1105,7 +1279,14 @@ private fun EstatisticasJogoContent(
                     mensagem = null
 
                     try {
-                        val listaParaGuardar = estatisticas.toEstatisticasJogo()
+                        val listaParaGuardar = estatisticas
+                            .filter {
+                                it.titulo.equals("Remates", ignoreCase = true) ||
+                                        it.titulo.equals("Remates à baliza", ignoreCase = true)
+                            }
+                            .toMutableStateListCompat()
+                            .toEstatisticasJogo()
+
                         val sucesso = repository.guardarEstatisticasJogo(
                             partidaId = jogo.id,
                             estatisticas = listaParaGuardar
@@ -1133,13 +1314,19 @@ private fun EstatisticasJogoContent(
             colors = ButtonDefaults.buttonColors(containerColor = LMRed)
         ) {
             Text(
-                text = if (isSaving) "A guardar..." else "Guardar estatísticas",
+                text = if (isSaving) "A guardar..." else "Guardar remates",
                 color = Color.White,
                 fontFamily = Geist,
                 fontWeight = FontWeight.Bold,
                 fontSize = 15.sp
             )
         }
+    }
+}
+
+private fun List<EstatisticaEditavel>.toMutableStateListCompat(): SnapshotStateList<EstatisticaEditavel> {
+    return mutableStateListOf<EstatisticaEditavel>().apply {
+        addAll(this@toMutableStateListCompat)
     }
 }
 

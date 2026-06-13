@@ -109,7 +109,11 @@ fun JogoEmDiretoScreen(
             }
 
             // Direct Stats Section
-            EstatisticasDiretoSection(estatisticas = estatisticas, modalidade = modalidade)
+            EstatisticasDiretoSection(
+                estatisticas = estatisticas,
+                eventos = eventos,
+                modalidade = modalidade
+            )
 
             // Timeline Section
             TimelineEventosSection(eventos = eventos)
@@ -399,7 +403,11 @@ private fun ScoreboardHeaderCard(
 }
 
 @Composable
-private fun EstatisticasDiretoSection(estatisticas: List<EstatisticaJogo>, modalidade: String = "Futebol") {
+private fun EstatisticasDiretoSection(
+    estatisticas: List<EstatisticaJogo>,
+    eventos: List<EventoJogo>,
+    modalidade: String = "Futebol"
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -419,16 +427,111 @@ private fun EstatisticasDiretoSection(estatisticas: List<EstatisticaJogo>, modal
                 letterSpacing = 0.4.sp
             )
 
-            val estatisticasExibicao = if (estatisticas.isEmpty()) {
-                com.leaguematch.ui.organizer.estatisticasPorModalidade(modalidade).flatMap {
-                    listOf(
-                        EstatisticaJogo(tipo = it.titulo, equipa = "casa", valor = it.casa),
-                        EstatisticaJogo(tipo = it.titulo, equipa = "fora", valor = it.fora)
-                    )
+            val base = com.leaguematch.ui.organizer.estatisticasPorModalidade(modalidade).flatMap {
+                listOf(
+                    EstatisticaJogo(tipo = it.titulo, equipa = "casa", valor = it.casa),
+                    EstatisticaJogo(tipo = it.titulo, equipa = "fora", valor = it.fora)
+                )
+            }.toMutableList()
+
+            estatisticas.forEach { salva ->
+                val index = base.indexOfFirst {
+                    it.tipo.equals(salva.tipo, ignoreCase = true) &&
+                            it.equipa.equals(salva.equipa, ignoreCase = true)
                 }
-            } else {
-                estatisticas
+
+                if (index >= 0) {
+                    base[index] = salva
+                }
             }
+
+            fun contarEvento(tipo: String, equipa: String): Int {
+                return eventos.count {
+                    it.tipo.equals(tipo, ignoreCase = true) &&
+                            it.equipa.equals(equipa, ignoreCase = true)
+                }
+            }
+
+            fun atualizarStat(titulo: String, casa: Int, fora: Int) {
+                val indexCasa = base.indexOfFirst {
+                    it.tipo.equals(titulo, ignoreCase = true) &&
+                            it.equipa.equals("casa", ignoreCase = true)
+                }
+
+                val indexFora = base.indexOfFirst {
+                    it.tipo.equals(titulo, ignoreCase = true) &&
+                            it.equipa.equals("fora", ignoreCase = true)
+                }
+
+                if (indexCasa >= 0) {
+                    base[indexCasa] = base[indexCasa].copy(valor = casa)
+                }
+
+                if (indexFora >= 0) {
+                    base[indexFora] = base[indexFora].copy(valor = fora)
+                }
+            }
+
+            atualizarStat(
+                "Cantos",
+                contarEvento("CANTO", "casa"),
+                contarEvento("CANTO", "fora")
+            )
+
+            atualizarStat(
+                "Faltas",
+                contarEvento("FALTA", "casa"),
+                contarEvento("FALTA", "fora")
+            )
+
+            atualizarStat(
+                "Cartões amarelos",
+                contarEvento("CARTAO_AMARELO", "casa") + contarEvento("AMARELO", "casa"),
+                contarEvento("CARTAO_AMARELO", "fora") + contarEvento("AMARELO", "fora")
+            )
+
+            atualizarStat(
+                "Cartões vermelhos",
+                contarEvento("CARTAO_VERMELHO", "casa") + contarEvento("VERMELHO", "casa"),
+                contarEvento("CARTAO_VERMELHO", "fora") + contarEvento("VERMELHO", "fora")
+            )
+            atualizarStat(
+                "Aces",
+                contarEvento("ACE", "casa"),
+                contarEvento("ACE", "fora")
+            )
+
+            atualizarStat(
+                "Break points",
+                contarEvento("BREAK_POINT", "casa"),
+                contarEvento("BREAK_POINT", "fora")
+            )
+
+            atualizarStat(
+                "Erros",
+                contarEvento("DUPLA_FALTA", "casa"),
+                contarEvento("DUPLA_FALTA", "fora")
+            )
+
+            atualizarStat(
+                "Remates",
+                contarEvento("GOLO", "casa"),
+                contarEvento("GOLO", "fora")
+            )
+
+            atualizarStat(
+                "Faltas",
+                contarEvento("FALTA", "casa") + contarEvento("EXCLUSAO_2_MIN", "casa"),
+                contarEvento("FALTA", "fora") + contarEvento("EXCLUSAO_2_MIN", "fora")
+            )
+
+            atualizarStat(
+                "Defesas",
+                0,
+                0
+            )
+
+            val estatisticasExibicao = base
 
             // Group by statistical metric (e.g. "Posse de Bola", "Remates", etc.)
             val groupedStats = estatisticasExibicao.groupBy { it.tipo }

@@ -22,8 +22,6 @@ import com.leaguematch.viewmodel.HomeViewModel
 import com.leaguematch.viewmodel.TorneiosViewModel
 import com.leaguematch.viewmodel.UtilizadoresViewModel
 import kotlinx.coroutines.launch
-import androidx.compose.runtime.rememberCoroutineScope
-import kotlinx.coroutines.launch
 
 //Rotas disponveis no administrador
 sealed interface AdminRoute {
@@ -65,6 +63,10 @@ fun AdminFlowContainer(
     val goTournaments = { navigate(AdminRoute.Torneios) }
     val goCharts = { navigate(AdminRoute.Graficos) }
     val goSettings = { navigate(AdminRoute.Definicoes) }
+
+    var notificacoesAdmin by remember {
+        mutableStateOf<List<com.leaguematch.data.remote.model.NotificacaoItem>>(emptyList())
+    }
 
     // Seleciona qual o ecrã a apresentar com base na rota atual.
     when (val route = currentRoute) {
@@ -306,14 +308,28 @@ fun AdminFlowContainer(
                 onGraficosClick = goCharts
             )
         }
-
         AdminRoute.Notificacoes -> {
-            GestaoNotificacoesScreen(
-                onHomeClick = goHome,
-                onUtilizadoresClick = goUsers,
-                onTorneiosClick = goTournaments,
-                onGraficosClick = goCharts,
-                onDefinicoesClick = goSettings
+            LaunchedEffect(Unit) {
+                notificacoesAdmin = repository.listarNotificacoesAdmin()
+            }
+
+            AdminNotificacoesScreen(
+                notificacoes = notificacoesAdmin,
+                onBackClick = {
+                    navigate(AdminRoute.Definicoes)
+                },
+                onMarcarTodasLidas = {
+                    coroutineScope.launch {
+                        repository.marcarTodasNotificacoesAdminLidas()
+                        notificacoesAdmin = repository.listarNotificacoesAdmin()
+                    }
+                },
+                onNotificacaoClick = { notificacao ->
+                    coroutineScope.launch {
+                        repository.marcarNotificacaoLida(notificacao.id)
+                        notificacoesAdmin = repository.listarNotificacoesAdmin()
+                    }
+                }
             )
         }
     }

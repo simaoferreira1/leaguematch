@@ -54,6 +54,9 @@ class ParticipantViewModel(
     private val _configuracaoNotificacoes = MutableStateFlow<ConfiguracaoNotificacoes?>(null)
     val configuracaoNotificacoes: StateFlow<ConfiguracaoNotificacoes?> = _configuracaoNotificacoes
 
+    private val _notificacoesParticipante = MutableStateFlow<List<NotificacaoItem>>(emptyList())
+    val notificacoesParticipante: StateFlow<List<NotificacaoItem>> = _notificacoesParticipante
+
     private val _juntarEquipaLoading = MutableStateFlow(false)
     val juntarEquipaLoading: StateFlow<Boolean> = _juntarEquipaLoading
 
@@ -80,6 +83,7 @@ class ParticipantViewModel(
 
             _configuracaoNotificacoes.value =
                 repository.obterConfiguracaoNotificacoes(utilizadorId)
+            carregarNotificacoesParticipante(utilizadorId)
 
             if (equipaPrincipal != null) {
                 _jogadoresEquipa.value =
@@ -195,6 +199,33 @@ class ParticipantViewModel(
             if (novaConfiguracao != null) {
                 _configuracaoNotificacoes.value = novaConfiguracao
             }
+        }
+    }
+    fun carregarNotificacoesParticipante(utilizadorId: Int) {
+        viewModelScope.launch {
+            _notificacoesParticipante.value =
+                repository.listarNotificacoes(utilizadorId)
+        }
+    }
+
+    fun marcarNotificacaoComoLida(
+        utilizadorId: Int,
+        notificacaoId: Int
+    ) {
+        viewModelScope.launch {
+            repository.marcarNotificacaoLida(notificacaoId)
+
+            _notificacoesParticipante.value =
+                repository.listarNotificacoes(utilizadorId)
+        }
+    }
+
+    fun marcarTodasNotificacoesComoLidas(utilizadorId: Int) {
+        viewModelScope.launch {
+            repository.marcarTodasNotificacoesLidas(utilizadorId)
+
+            _notificacoesParticipante.value =
+                repository.listarNotificacoes(utilizadorId)
         }
     }
 }

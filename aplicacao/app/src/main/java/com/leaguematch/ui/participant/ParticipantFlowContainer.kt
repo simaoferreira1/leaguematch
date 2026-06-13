@@ -20,7 +20,6 @@ import com.leaguematch.translations.Language
 import com.leaguematch.translations.StringsEn
 import com.leaguematch.translations.StringsPt
 import com.leaguematch.ui.admin.DefinicoesScreen
-import com.leaguematch.ui.admin.GestaoNotificacoesScreen
 import com.leaguematch.ui.components.ParticipantBottomBar
 import com.leaguematch.viewmodel.AuthViewModel
 import com.leaguematch.viewmodel.ParticipantViewModel
@@ -36,6 +35,7 @@ sealed interface ParticipantRoute {
     data object Perfil : ParticipantRoute
     data object Notificacoes : ParticipantRoute
     data object JoinTeam : ParticipantRoute
+    data object InboxNotificacoes : ParticipantRoute
 
     data class TournamentDetail(val torneioId: Int) : ParticipantRoute
     data class VerEstatisticasJogo(val jogo: Jogo) : ParticipantRoute
@@ -106,6 +106,8 @@ fun ParticipantFlowContainer(
 
     val juntarEquipaLoading by participantViewModel.juntarEquipaLoading.collectAsState()
     val juntarEquipaErro by participantViewModel.juntarEquipaErro.collectAsState()
+
+    val notificacoesParticipante by participantViewModel.notificacoesParticipante.collectAsState()
 
     when (currentRoute) {
 
@@ -293,13 +295,46 @@ fun ParticipantFlowContainer(
         }
 
         ParticipantRoute.Notificacoes -> {
-            GestaoNotificacoesScreen(
-                onBackClick = { currentRoute = ParticipantRoute.Perfil },
+            ParticipantNotificationsScreen(
+                configuracao = ConfiguracaoNotificacoes(
+                    utilizadorId = usuarioLogado?.id ?: 0
+                ),
+                onGuardarConfiguracao = { config ->
+                    coroutineScope.launch {
+                        repository.atualizarConfiguracaoNotificacoes(config)
+                    }
+                },
                 onHomeClick = { currentRoute = ParticipantRoute.Home },
-                onUtilizadoresClick = { currentRoute = ParticipantRoute.Perfil },
                 onTorneiosClick = { currentRoute = ParticipantRoute.Torneios },
-                onGraficosClick = { currentRoute = ParticipantRoute.Estatisticas },
-                onDefinicoesClick = { currentRoute = ParticipantRoute.Perfil }
+                onJogosClick = { currentRoute = ParticipantRoute.Jogos },
+                onEquipaClick = { currentRoute = ParticipantRoute.Equipa },
+                onEstatisticasClick = { currentRoute = ParticipantRoute.Estatisticas },
+                onPerfilClick = { currentRoute = ParticipantRoute.Perfil },
+                onAbrirInbox = {
+                    currentRoute = ParticipantRoute.InboxNotificacoes
+                }
+            )
+        }
+
+        ParticipantRoute.InboxNotificacoes -> {
+            com.leaguematch.ui.spectator.InboxNotificacoesScreen(
+                notificacoes = notificacoesParticipante,
+                onBackClick = {
+                    currentRoute = ParticipantRoute.Notificacoes
+                },
+                onMarcarTodasLidas = {
+                    usuarioLogado?.id?.let { id ->
+                        participantViewModel.marcarTodasNotificacoesComoLidas(id)
+                    }
+                },
+                onNotificacaoClick = { notificacao ->
+                    usuarioLogado?.id?.let { id ->
+                        participantViewModel.marcarNotificacaoComoLida(
+                            utilizadorId = id,
+                            notificacaoId = notificacao.id
+                        )
+                    }
+                }
             )
         }
 
@@ -340,3 +375,4 @@ fun ParticipantFlowContainer(
         }
     }
 }
+

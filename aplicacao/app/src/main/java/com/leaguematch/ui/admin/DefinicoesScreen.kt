@@ -154,7 +154,7 @@ fun DefinicoesScreen(
                 title = "Perfil",
                 big = true,
                 rightContent = {
-                    if (utilizadorLogado?.tipo?.name != "ORGANIZADOR") {
+                    if (true) {
                         Box(
                             modifier = Modifier
                                 .size(36.dp)
@@ -244,132 +244,6 @@ fun DefinicoesScreen(
                                 color = LMWhite
                             )
                         }
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // Secção de gestão de notificações
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 18.dp, vertical = 6.dp)
-            ) {
-                CardWrapper(
-                    modifier = Modifier.fillMaxWidth(),
-                    pad = 0.dp
-                ) {
-                    Column {
-                        TranslatedText(
-                            text = "Notificações",
-                            fontFamily = Geist,
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = LMInk,
-                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)
-                        )
-
-                        ProfileSwitchRow(
-                            icon = Icons.Default.Notifications,
-                            label = "Notificações dos jogos",
-                            description = "Alertas sobre novos jogos agendados",
-                            checked = notificacoesJogos,
-                            // Atualiza o estado local e envia a alteração para persistência.
-                            onCheckedChange = { novoValor ->
-                                notificacoesJogos = novoValor
-
-                                val configAtual = configuracaoNotificacoes ?: ConfiguracaoNotificacoes(
-                                    utilizadorId = utilizadorLogado?.id ?: return@ProfileSwitchRow,
-                                    notificacoesJogos = notificacoesJogos,
-                                    notificacoesGolos = notificacoesGolos,
-                                    notificacoesCartoes = notificacoesCartoes,
-                                    notificacoesFimPartida = notificacoesFimPartida,
-                                    somNotificacao = somNotificacao
-                                )
-
-                                onGuardarConfiguracaoNotificacoes?.invoke(
-                                    configAtual.copy(notificacoesJogos = novoValor)
-                                )
-
-                            }
-                        )
-
-                        HorizontalDivider(
-                            modifier = Modifier.padding(start = 58.dp),
-                            color = LMBorder,
-                            thickness = 1.dp
-                        )
-
-                        ProfileSwitchRow(
-                            icon = Icons.Default.SportsSoccer,
-                            label = "Notificações de golos",
-                            description = "Receber aviso quando houver golos",
-                            checked = notificacoesGolos,
-                            onCheckedChange = {
-                                notificacoesGolos = it
-                                guardarConfig { config ->
-                                    config.copy(notificacoesGolos = it)
-                                }
-                            }
-                        )
-
-                        HorizontalDivider(
-                            modifier = Modifier.padding(start = 58.dp),
-                            color = LMBorder,
-                            thickness = 1.dp
-                        )
-
-                        ProfileSwitchRow(
-                            icon = Icons.Default.Notifications,
-                            label = "Notificações de cartões",
-                            description = "Alertas de cartões durante os jogos",
-                            checked = notificacoesCartoes,
-                            onCheckedChange = {
-                                notificacoesCartoes = it
-                                guardarConfig { config ->
-                                    config.copy(notificacoesCartoes = it)
-                                }
-                            }
-                        )
-
-                        HorizontalDivider(
-                            modifier = Modifier.padding(start = 58.dp),
-                            color = LMBorder,
-                            thickness = 1.dp
-                        )
-
-                        ProfileSwitchRow(
-                            icon = Icons.Default.Notifications,
-                            label = "Fim de partida",
-                            description = "Aviso quando um jogo terminar",
-                            checked = notificacoesFimPartida,
-                            onCheckedChange = {
-                                notificacoesFimPartida = it
-                                guardarConfig { config ->
-                                    config.copy(notificacoesFimPartida = it)
-                                }
-                            }
-                        )
-
-                        HorizontalDivider(
-                            modifier = Modifier.padding(start = 58.dp),
-                            color = LMBorder,
-                            thickness = 1.dp
-                        )
-
-                        ProfileSwitchRow(
-                            icon = Icons.AutoMirrored.Filled.VolumeUp,
-                            label = "Som da notificação",
-                            description = "Ativar som nos alertas recebidos",
-                            checked = somNotificacao,
-                            onCheckedChange = {
-                                somNotificacao = it
-                                guardarConfig { config ->
-                                    config.copy(somNotificacao = it)
-                                }
-                            }
-                        )
                     }
                 }
             }

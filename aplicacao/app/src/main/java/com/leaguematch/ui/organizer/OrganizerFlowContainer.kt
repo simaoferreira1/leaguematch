@@ -44,6 +44,7 @@ sealed interface OrganizerRoute {
     data class GerirJogadores(val torneioId: Int, val equipaId: Int) : OrganizerRoute
     data class Calendario(val torneioId: Int) : OrganizerRoute
     data class EstatisticasTorneio(val torneioId: Int) : OrganizerRoute
+    data object Notificacoes : OrganizerRoute
 }
 
 @Composable
@@ -61,6 +62,9 @@ fun OrganizerFlowContainer(
     var dadosCriarTorneio by remember { mutableStateOf<List<String>?>(null) }
     var primaryColorArgb by rememberSaveable { mutableStateOf(0xFFE31734.toInt()) }
     val primaryColor = androidx.compose.ui.graphics.Color(primaryColorArgb)
+    var notificacoesOrganizador by remember {
+        mutableStateOf<List<com.leaguematch.data.remote.model.NotificacaoItem>>(emptyList())
+    }
 
     LaunchedEffect(primaryColor) {
         com.leaguematch.ui.theme.BrandTheme.primaryColor = primaryColor
@@ -245,6 +249,9 @@ fun OrganizerFlowContainer(
                             android.widget.Toast.LENGTH_SHORT
                         ).show()
                     }
+                },
+                onGerirNotificacoesClick = {
+                    currentOrgRoute = OrganizerRoute.Notificacoes
                 },
                 bottomBar = {
                     OrganizerBottomBar(
@@ -715,6 +722,36 @@ fun OrganizerFlowContainer(
             } else {
                 LoadingScreen()
             }
+        }
+        OrganizerRoute.Notificacoes -> {
+            LaunchedEffect(usuarioLogado?.id) {
+                usuarioLogado?.id?.let { id ->
+                    notificacoesOrganizador = repository.listarNotificacoes(id)
+                }
+            }
+
+            com.leaguematch.ui.spectator.InboxNotificacoesScreen(
+                notificacoes = notificacoesOrganizador,
+                onBackClick = {
+                    currentOrgRoute = OrganizerRoute.Perfil
+                },
+                onMarcarTodasLidas = {
+                    usuarioLogado?.id?.let { id ->
+                        coroutineScope.launch {
+                            repository.marcarTodasNotificacoesLidas(id)
+                            notificacoesOrganizador = repository.listarNotificacoes(id)
+                        }
+                    }
+                },
+                onNotificacaoClick = { notificacao ->
+                    usuarioLogado?.id?.let { id ->
+                        coroutineScope.launch {
+                            repository.marcarNotificacaoLida(notificacao.id)
+                            notificacoesOrganizador = repository.listarNotificacoes(id)
+                        }
+                    }
+                }
+            )
         }
     }
 }

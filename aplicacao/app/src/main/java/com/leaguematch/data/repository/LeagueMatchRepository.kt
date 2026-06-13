@@ -83,7 +83,9 @@ interface LeagueMatchRepository {
         tipo: String,
         equipa: String,
         tempo: Int,
-        userId: Int?
+        userId: Int?,
+        jogadorSaiId: Int? = null,
+        jogadorEntraId: Int? = null
     ): Boolean
     suspend fun obterConfiguracaoNotificacoes(utilizadorId: Int): ConfiguracaoNotificacoes
     suspend fun listarNotificacoes(utilizadorId: Int): List<NotificacaoItem>
@@ -92,10 +94,15 @@ interface LeagueMatchRepository {
     suspend fun criarNotificacaoParaTodos(mensagem: String): Boolean
     suspend fun contarAlteracoesPendentes(): Int
     suspend fun sincronizarPendentes(): Int
-
+    suspend fun listarNotificacoesAdmin(): List<NotificacaoItem>
+    suspend fun marcarTodasNotificacoesAdminLidas(): Boolean
     suspend fun atualizarConfiguracaoNotificacoes(
         configuracao: ConfiguracaoNotificacoes
     ): ConfiguracaoNotificacoes?
+    suspend fun criarNotificacaoParaOrganizadorDoTorneio(
+        torneioId: Int,
+        mensagem: String
+    ): Boolean
     suspend fun listarTorneios(): List<Torneio>
     suspend fun listarTorneiosDoOrganizador(organizadorId: Int): List<Torneio>
     suspend fun obterEquipaDoParticipante(utilizadorId: Int): Equipa?

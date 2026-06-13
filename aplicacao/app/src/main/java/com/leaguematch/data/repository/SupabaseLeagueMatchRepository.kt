@@ -788,17 +788,38 @@ class SupabaseLeagueMatchRepository(
         runCatching {
             val nomeA = equipasMap[teamAId] ?: "Equipa"
             val nomeB = equipasMap[teamBId] ?: "Equipa"
+            val torneioId = response.optInt("torneio_id")
+
             when (estadoRaw) {
-                "FINALIZADO" -> criarNotificacaoParaTodos(
-                    "Resultado final: $nomeA $resultadoCasa - $resultadoFora $nomeB"
-                )
+                "FINALIZADO" -> {
+                    criarNotificacaoParaTodos(
+                        "Resultado final: $nomeA $resultadoCasa - $resultadoFora $nomeB"
+                    )
+
+                    criarNotificacaoParaOrganizadorDoTorneio(
+                        torneioId = torneioId,
+                        mensagem = "Jogo terminado no teu torneio: $nomeA $resultadoCasa - $resultadoFora $nomeB"
+                    )
+                }
+
                 "EM_CURSO" -> if (atualizarInicio) {
                     criarNotificacaoParaTodos("$nomeA vs $nomeB começou agora!")
+
+                    criarNotificacaoParaOrganizadorDoTorneio(
+                        torneioId = torneioId,
+                        mensagem = "Jogo iniciado no teu torneio: $nomeA vs $nomeB começou agora!"
+                    )
                 }
             }
+
             if (data != null && hora != null && estadoRaw == "AGENDADO") {
                 criarNotificacaoParaTodos(
                     "Alteração no calendário: $nomeA vs $nomeB → $data às $hora"
+                )
+
+                criarNotificacaoParaOrganizadorDoTorneio(
+                    torneioId = torneioId,
+                    mensagem = "Alteração num jogo do teu torneio: $nomeA vs $nomeB → $data às $hora"
                 )
             }
         }
@@ -858,6 +879,11 @@ class SupabaseLeagueMatchRepository(
             val nomeB = nomesMap[equipaForaId] ?: "Equipa"
             criarNotificacaoParaTodos(
                 "Novo jogo agendado: $nomeA vs $nomeB · $data às $hora"
+            )
+
+            criarNotificacaoParaOrganizadorDoTorneio(
+                torneioId = torneioId,
+                mensagem = "Novo jogo agendado no teu torneio: $nomeA vs $nomeB · $data às $hora"
             )
         }
 
@@ -1404,7 +1430,7 @@ class SupabaseLeagueMatchRepository(
             runCatching {
                 val array = getArray(
                     "evento_jogo",
-                    mapOf("select" to "id,tipo,user_id,tempo", "match_id" to "eq.$partidaId")
+                    mapOf("select" to "id,tipo,user_id,tempo,equipa", "match_id" to "eq.$partidaId")
                 ).toObjectList()
                 if (array.isEmpty()) return@runCatching emptyList<EventoJogo>()
 
@@ -1442,9 +1468,13 @@ class SupabaseLeagueMatchRepository(
                     val tempo = json.optInt("tempo")
                     val userName = usersMap[userId] ?: "Jogador $userId"
                     val userTeamId = membersMap[userId] ?: -1
-                    val equipa = when (userTeamId) {
-                        teamAId -> "casa"
-                        teamBId -> "fora"
+                    val equipaGuardada = json.optString("equipa")
+
+                    val equipa = when {
+                        equipaGuardada.equals("casa", ignoreCase = true) -> "casa"
+                        equipaGuardada.equals("fora", ignoreCase = true) -> "fora"
+                        userTeamId == teamAId -> "casa"
+                        userTeamId == teamBId -> "fora"
                         else -> "center"
                     }
                     EventoJogo(
@@ -1469,7 +1499,9 @@ class SupabaseLeagueMatchRepository(
             tipo: String,
             equipa: String,
             tempo: Int,
-            userId: Int?
+            userId: Int?,
+            jogadorSaiId: Int?,
+            jogadorEntraId: Int?
         ): Boolean {
         return withContext(Dispatchers.IO) {
             runCatching {
@@ -1484,8 +1516,19 @@ class SupabaseLeagueMatchRepository(
                 val json = JSONObject().apply {
                     put("match_id", partidaId)
                     put("tipo", tipo.uppercase())
-                    put("user_id", userId)
+                    put("equipa", equipa)
                     put("tempo", tempo)
+
+                    if (userId != null) {
+                        put("user_id", userId)
+                    }
+                    if (jogadorSaiId != null) {
+                        put("jogador_sai_id", jogadorSaiId)
+                    }
+
+                    if (jogadorEntraId != null) {
+                        put("jogador_entra_id", jogadorEntraId)
+                    }
                 }
 
                 postObject(
@@ -1597,6 +1640,48 @@ class SupabaseLeagueMatchRepository(
         }
     }
 
+    override suspend fun listarNotificacoesAdmin(): List<NotificacaoItem> {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                getArray(
+                    "notificacao",
+                    mapOf(
+                        "select" to "id,user_id,mensagem,data,lida",
+                        "order" to "data.desc",
+                        "limit" to "100"
+                    )
+                ).toObjectList().map {
+                    NotificacaoItem(
+                        id = it.optInt("id"),
+                        utilizadorId = it.optInt("user_id"),
+                        mensagem = it.optString("mensagem"),
+                        data = it.optString("data"),
+                        lida = it.optBoolean("lida", false)
+                    )
+                }
+            }.getOrElse {
+                it.printStackTrace()
+                emptyList()
+            }
+        }
+    }
+
+    override suspend fun marcarTodasNotificacoesAdminLidas(): Boolean {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val notificacoes = listarNotificacoesAdmin()
+
+                notificacoes
+                    .filter { !it.lida }
+                    .forEach { notificacao ->
+                        marcarNotificacaoLida(notificacao.id)
+                    }
+
+                true
+            }.getOrDefault(false)
+        }
+    }
+
     override suspend fun marcarNotificacaoLida(notificacaoId: Int): Boolean {
         return withContext(Dispatchers.IO) {
             runCatching {
@@ -1654,16 +1739,22 @@ class SupabaseLeagueMatchRepository(
             runCatching {
                 val users = getArray(
                     "utilizador",
-                    mapOf("select" to "id,tipo", "tipo" to "in.(ESPECTADOR,PARTICIPANTE)")
+                    mapOf(
+                        "select" to "id,tipo",
+                        "tipo" to "in.(ESPECTADOR,PARTICIPANTE,ORGANIZADOR)"
+                    )
                 ).toObjectList()
+
                 for (u in users) {
                     val body = JSONObject().apply {
                         put("user_id", u.optInt("id"))
                         put("mensagem", mensagem)
                         put("lida", false)
                     }
+
                     postObject("notificacao", body)
                 }
+
                 true
             }.getOrDefault(false)
         }
@@ -1754,6 +1845,38 @@ class SupabaseLeagueMatchRepository(
             basquetebol = optBoolean("basquetebol", true),
             andebol = optBoolean("andebol", false)
         )
+    }
+
+    override suspend fun criarNotificacaoParaOrganizadorDoTorneio(
+        torneioId: Int,
+        mensagem: String
+    ): Boolean {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val torneioJson = getArray(
+                    "torneio",
+                    mapOf(
+                        "select" to "organizador_id",
+                        "id" to "eq.$torneioId",
+                        "limit" to "1"
+                    )
+                ).optJSONObject(0) ?: return@runCatching false
+
+                val organizadorId = torneioJson.optInt("organizador_id", 0)
+
+                if (organizadorId <= 0) return@runCatching false
+
+                val body = JSONObject().apply {
+                    put("user_id", organizadorId)
+                    put("mensagem", mensagem)
+                    put("lida", false)
+                }
+
+                postObject("notificacao", body)
+
+                true
+            }.getOrDefault(false)
+        }
     }
 
     override suspend fun obterEquipaDoParticipante(utilizadorId: Int): Equipa? {
