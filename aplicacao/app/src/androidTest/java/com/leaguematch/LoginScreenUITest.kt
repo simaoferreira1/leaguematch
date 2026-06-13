@@ -4,6 +4,8 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import com.leaguematch.data.repository.TranslationRepository
+import com.leaguematch.translations.Language
 import com.leaguematch.ui.auth.LoginScreen
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -20,6 +22,9 @@ class LoginScreenUITest {
         composeTestRule.setContent {
             LoginScreen(
                 erro = null,
+                language = Language.PT,
+                onLanguageChange = {},
+                translationRepository = TranslationRepository("", ""),
                 onLoginClick = { _, _ -> },
                 onRegisterClick = {}
             )
@@ -41,6 +46,9 @@ class LoginScreenUITest {
         composeTestRule.setContent {
             LoginScreen(
                 erro = null,
+                language = Language.PT,
+                onLanguageChange = {},
+                translationRepository = TranslationRepository("", ""),
                 onLoginClick = { email, pass ->
                     emailInput = email
                     passwordInput = pass
@@ -68,6 +76,9 @@ class LoginScreenUITest {
         composeTestRule.setContent {
             LoginScreen(
                 erro = null,
+                language = Language.PT,
+                onLanguageChange = {},
+                translationRepository = TranslationRepository("", ""),
                 onLoginClick = { _, _ -> },
                 onRegisterClick = { registerClicked = true }
             )
