@@ -4,7 +4,17 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -12,13 +22,25 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SportsBasketball
 import androidx.compose.material.icons.filled.SportsHandball
 import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material.icons.filled.SportsTennis
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -30,7 +52,13 @@ import androidx.compose.ui.unit.sp
 import com.leaguematch.data.remote.model.ResumoModalidade
 import com.leaguematch.data.remote.model.Torneio
 import com.leaguematch.ui.components.AdminBottomBar
-import com.leaguematch.ui.theme.*
+import com.leaguematch.ui.components.TranslatedText
+import com.leaguematch.ui.theme.Geist
+import com.leaguematch.ui.theme.LMGray500
+import com.leaguematch.ui.theme.LMInk
+import com.leaguematch.ui.theme.LMRed
+import com.leaguematch.ui.theme.LMRed700
+import com.leaguematch.ui.theme.LMWhite
 
 // Ecrã principal de gestão e consulta dos torneios
 @Composable
@@ -89,7 +117,7 @@ fun TorneiosScreen(
             containerColor = LMWhite,
 
             title = {
-                Text(
+                TranslatedText(
                     text = "Desativar torneio?",
                     fontFamily = Geist,
                     fontWeight = FontWeight.ExtraBold,
@@ -98,7 +126,7 @@ fun TorneiosScreen(
             },
 
             text = {
-                Text(
+                TranslatedText(
                     text = "Tens a certeza que queres desativar \"${torneio.nome}\"?",
                     fontFamily = Geist,
                     color = LMGray500
@@ -113,7 +141,7 @@ fun TorneiosScreen(
                         torneioParaRemover = null
                     }
                 ) {
-                    Text(
+                    TranslatedText(
                         "Desativar",
                         color = LMRed,
                         fontFamily = Geist,
@@ -129,7 +157,7 @@ fun TorneiosScreen(
                         torneioParaRemover = null
                     }
                 ) {
-                    Text(
+                    TranslatedText(
                         "Cancelar",
                         color = LMGray500,
                         fontFamily = Geist,
@@ -247,7 +275,7 @@ private fun SearchHeader(
             value = pesquisa,
             onValueChange = onPesquisaChange,
             placeholder = {
-                Text(
+                TranslatedText(
                     text = "Pesquisar torneios...",
                     fontFamily = Geist,
                     fontSize = 13.sp,
@@ -421,7 +449,7 @@ private fun TorneioCard(
 
                     Spacer(modifier = Modifier.width(4.dp))
 
-                    Text(
+                    TranslatedText(
                         text = "Desativar",
                         fontFamily = Geist,
                         fontWeight = FontWeight.Bold,
@@ -443,7 +471,7 @@ private fun EmptyTorneiosMessage() {
             .padding(top = 60.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(
+        TranslatedText(
             text = "Nenhum torneio encontrado.",
             fontFamily = Geist,
             fontSize = 14.sp,

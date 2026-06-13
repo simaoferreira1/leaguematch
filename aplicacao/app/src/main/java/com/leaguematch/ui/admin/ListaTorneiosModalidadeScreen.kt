@@ -5,18 +5,34 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.EmojiEvents
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,9 +43,24 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.leaguematch.ui.components.*
-import com.leaguematch.ui.theme.*
 import com.leaguematch.data.remote.model.Torneio
+import com.leaguematch.ui.components.AdminBottomBar
+import com.leaguematch.ui.components.LeagueMatchTextField
+import com.leaguematch.ui.components.Pill
+import com.leaguematch.ui.components.TopBar
+import com.leaguematch.ui.components.TranslatedText
+import com.leaguematch.ui.theme.Bricolage
+import com.leaguematch.ui.theme.Geist
+import com.leaguematch.ui.theme.LMBorder
+import com.leaguematch.ui.theme.LMGray500
+import com.leaguematch.ui.theme.LMGray700
+import com.leaguematch.ui.theme.LMInk
+import com.leaguematch.ui.theme.LMRed
+import com.leaguematch.ui.theme.LMRed100
+import com.leaguematch.ui.theme.LMRed50
+import com.leaguematch.ui.theme.LMRed700
+import com.leaguematch.ui.theme.LMWhite
+import com.leaguematch.ui.theme.LeagueMatchTheme
 
 // Ecrã que apresenta a lista de torneios filtrados por modalidade
 @Composable
@@ -168,7 +199,7 @@ fun ListaTorneiosModalidadeScreen(
                             .padding(vertical = 40.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
+                        TranslatedText(
                             text = "Nenhum torneio encontrado",
                             fontFamily = Geist,
                             fontSize = 13.sp,
@@ -281,7 +312,7 @@ fun ListaTorneiosModalidadeScreen(
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
                                     // Número de equipas inscritas no torneio
-                                    Text(
+                                    TranslatedText(
                                         text = "${t.equipas} equipas",
                                         fontFamily = Geist,
                                         fontSize = 11.sp,
@@ -306,7 +337,7 @@ fun ListaTorneiosModalidadeScreen(
                                                 tint = LMRed,
                                                 modifier = Modifier.size(11.dp)
                                             )
-                                            Text(
+                                            TranslatedText(
                                                 text = "Remover",
                                                 fontFamily = Geist,
                                                 fontWeight = FontWeight.Bold,

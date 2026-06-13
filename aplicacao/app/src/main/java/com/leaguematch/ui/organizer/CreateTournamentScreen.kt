@@ -3,7 +3,18 @@ package com.leaguematch.ui.organizer
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -12,8 +23,26 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.SportsSoccer
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -22,7 +51,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.leaguematch.ui.theme.*
+import com.leaguematch.ui.components.TranslatedText
+import com.leaguematch.ui.theme.Bricolage
+import com.leaguematch.ui.theme.Geist
+import com.leaguematch.ui.theme.LMGray500
+import com.leaguematch.ui.theme.LMInk
+import com.leaguematch.ui.theme.LMRed
+import com.leaguematch.ui.theme.LMWhite
 
 @Composable
 fun CreateTournamentScreen(
@@ -89,7 +124,7 @@ fun CreateTournamentScreen(
                         .padding(end = 12.dp)
                 )
 
-                Text(
+                TranslatedText(
                     text = "Criar Torneio",
                     fontFamily = Bricolage,
                     fontWeight = FontWeight.ExtraBold,
@@ -98,7 +133,7 @@ fun CreateTournamentScreen(
                     modifier = Modifier.weight(1f)
                 )
 
-                Text(
+                TranslatedText(
                     text = "Cancelar",
                     fontFamily = Geist,
                     fontWeight = FontWeight.Bold,
@@ -142,7 +177,7 @@ fun CreateTournamentScreen(
                     Spacer(modifier = Modifier.width(12.dp))
 
                     Column {
-                        Text(
+                        TranslatedText(
                             text = "Novo torneio",
                             fontFamily = Geist,
                             fontWeight = FontWeight.ExtraBold,
@@ -150,7 +185,7 @@ fun CreateTournamentScreen(
                             color = LMInk
                         )
 
-                        Text(
+                        TranslatedText(
                             text = "Passo 1 de 2 — Informação geral",
                             fontFamily = Geist,
                             fontWeight = FontWeight.Medium,
@@ -275,7 +310,7 @@ fun CreateTournamentScreen(
                     border = BorderStroke(1.dp, Color(0xFFE2E2E7))
                 ) {
                     Box(contentAlignment = Alignment.Center) {
-                        Text(
+                        TranslatedText(
                             text = "Anterior",
                             fontFamily = Geist,
                             fontWeight = FontWeight.Bold,
@@ -309,7 +344,7 @@ fun CreateTournamentScreen(
                         },
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
+                    TranslatedText(
                         text = "Continuar",
                         fontFamily = Geist,
                         fontWeight = FontWeight.ExtraBold,
@@ -326,7 +361,7 @@ fun CreateTournamentScreen(
 
 @Composable
 private fun FormLabel(text: String) {
-    Text(
+    TranslatedText(
         text = text,
         fontFamily = Geist,
         fontWeight = FontWeight.ExtraBold,
@@ -348,7 +383,7 @@ private fun FormTextField(
         value = value,
         onValueChange = onValueChange,
         placeholder = {
-            Text(
+            TranslatedText(
                 text = placeholder,
                 fontFamily = Geist,
                 fontSize = 14.sp,
@@ -375,7 +410,7 @@ private fun FormTextField(
     )
 }
 
-@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DateField(
     value: String,
@@ -409,14 +444,18 @@ private fun DateField(
             },
             dismissButton = {
                 TextButton(onClick = { showDialog = false }) {
-                    Text("Cancelar", color = LMGray500, fontFamily = Geist)
+                    TranslatedText(
+                        text = "Cancelar",
+                        color = LMGray500,
+                        fontFamily = Geist
+                    )
                 }
             }
         ) {
             DatePicker(
                 state = state,
                 title = {
-                    Text(
+                    TranslatedText(
                         text = "Escolher data",
                         modifier = Modifier.padding(start = 24.dp, top = 16.dp),
                         fontFamily = Geist,
@@ -460,13 +499,24 @@ private fun DateField(
                 modifier = Modifier.size(16.dp)
             )
             Spacer(modifier = Modifier.width(10.dp))
-            Text(
-                text = value.ifBlank { placeholder },
-                fontFamily = Geist,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Medium,
-                color = if (value.isBlank()) Color(0xFFA3A3AE) else LMInk
-            )
+
+            if (value.isBlank()) {
+                TranslatedText(
+                    text = placeholder,
+                    fontFamily = Geist,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFFA3A3AE)
+                )
+            } else {
+                Text(
+                    text = value,
+                    fontFamily = Geist,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = LMInk
+                )
+            }
         }
     }
 }
@@ -520,7 +570,7 @@ private fun SelectBox(
                     Spacer(modifier = Modifier.width(8.dp))
                 }
 
-                Text(
+                TranslatedText(
                     text = text,
                     fontFamily = Geist,
                     fontWeight = FontWeight.Bold,
@@ -545,7 +595,7 @@ private fun SelectBox(
             options.forEach { option ->
                 DropdownMenuItem(
                     text = {
-                        Text(
+                        TranslatedText(
                             text = option,
                             fontFamily = Geist,
                             fontWeight = FontWeight.SemiBold,

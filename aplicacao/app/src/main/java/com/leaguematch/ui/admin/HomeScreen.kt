@@ -1,30 +1,72 @@
 package com.leaguematch.ui.admin
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.SportsVolleyball
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.leaguematch.ui.components.*
-import com.leaguematch.ui.theme.*
 import com.leaguematch.data.remote.model.ResumoDashboard
+import com.leaguematch.ui.components.AdminBottomBar
+import com.leaguematch.ui.components.Avatar
+import com.leaguematch.ui.components.CardWrapper
+import com.leaguematch.ui.components.TextBtn
+import com.leaguematch.ui.components.TopBar
+import com.leaguematch.ui.components.TranslatedText
+import com.leaguematch.ui.theme.Bricolage
+import com.leaguematch.ui.theme.Geist
+import com.leaguematch.ui.theme.GeistMono
+import com.leaguematch.ui.theme.LMBorder
+import com.leaguematch.ui.theme.LMGray100
+import com.leaguematch.ui.theme.LMGray400
+import com.leaguematch.ui.theme.LMGray500
+import com.leaguematch.ui.theme.LMGray600
+import com.leaguematch.ui.theme.LMInfo
+import com.leaguematch.ui.theme.LMInk
+import com.leaguematch.ui.theme.LMLive
+import com.leaguematch.ui.theme.LMLiveBg
+import com.leaguematch.ui.theme.LMRed
+import com.leaguematch.ui.theme.LMRed50
+import com.leaguematch.ui.theme.LMWarn
+import com.leaguematch.ui.theme.LeagueMatchTheme
 
 // Ecrã inicial do administrador com resumo geral da plataforma
 @Composable
@@ -84,13 +126,13 @@ fun HomeScreen(
 
             // Área de saudação e título do painel administrativo
             Column(modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp)) {
-                Text(
+                TranslatedText(
                     text = "Bom dia,",
                     fontFamily = Geist,
                     fontSize = 12.sp,
                     color = LMGray500
                 )
-                Text(
+                TranslatedText(
                     text = "Painel do administrador",
                     fontFamily = Bricolage,
                     fontSize = 26.sp,
@@ -99,7 +141,7 @@ fun HomeScreen(
                     letterSpacing = (-0.6).sp,
                     modifier = Modifier.padding(top = 2.dp, bottom = 4.dp)
                 )
-                Text(
+                TranslatedText(
                     text = "Resumo do sistema · atualizado às 18:30",
                     fontFamily = Geist,
                     fontSize = 12.sp,
@@ -182,14 +224,14 @@ fun HomeScreen(
                         verticalAlignment = Alignment.Top
                     ) {
                         Column {
-                            Text(
+                            TranslatedText(
                                 text = "ATIVIDADE · 7 DIAS",
                                 fontFamily = Geist,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color.White.copy(alpha = 0.6f)
                             )
-                            Text(
+                            TranslatedText(
                                 text = "15 eventos",
                                 fontFamily = Bricolage,
                                 fontSize = 22.sp,
@@ -275,7 +317,7 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
+                    TranslatedText(
                         text = "Atividade recente",
                         fontFamily = Geist,
                         fontSize = 15.sp,
@@ -283,7 +325,7 @@ fun HomeScreen(
                         color = LMInk
                     )
                     TextBtn(onClick = {}) {
-                        Text("Ver tudo ›", color = LMRed, fontWeight = FontWeight.SemiBold, fontSize = 12.sp)
+                        TranslatedText("Ver tudo ›", color = LMRed, fontWeight = FontWeight.SemiBold, fontSize = 12.sp)
                     }
                 }
 

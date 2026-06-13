@@ -27,6 +27,7 @@ import com.leaguematch.ui.components.*
 import com.leaguematch.ui.theme.*
 import com.leaguematch.data.remote.model.TipoUtilizador
 import com.leaguematch.data.remote.model.Utilizador
+import com.leaguematch.ui.components.TranslatedText
 
 // Ecrã que apresenta e permite filtrar os utilizadores
 @Composable

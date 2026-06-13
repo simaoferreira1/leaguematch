@@ -3,7 +3,17 @@ package com.leaguematch.ui.organizer
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -13,8 +23,17 @@ import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.SportsScore
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -23,7 +42,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.leaguematch.ui.theme.*
+import com.leaguematch.ui.components.TranslatedText
+import com.leaguematch.ui.theme.Bricolage
+import com.leaguematch.ui.theme.Geist
+import com.leaguematch.ui.theme.LMGray500
+import com.leaguematch.ui.theme.LMInk
+import com.leaguematch.ui.theme.LMRed
+import com.leaguematch.ui.theme.LMWhite
 
 @Composable
 fun CreateTournamentStep2Screen(
@@ -64,7 +89,7 @@ fun CreateTournamentStep2Screen(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
+                TranslatedText(
                     text = "‹",
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold,
@@ -74,7 +99,7 @@ fun CreateTournamentStep2Screen(
                         .padding(end = 12.dp)
                 )
 
-                Text(
+                TranslatedText(
                     text = "Confirmar Torneio",
                     fontFamily = Bricolage,
                     fontWeight = FontWeight.ExtraBold,
@@ -83,7 +108,7 @@ fun CreateTournamentStep2Screen(
                     modifier = Modifier.weight(1f)
                 )
 
-                Text(
+                TranslatedText(
                     text = "Cancelar",
                     fontFamily = Geist,
                     fontWeight = FontWeight.Bold,
@@ -99,7 +124,7 @@ fun CreateTournamentStep2Screen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Text(
+            TranslatedText(
                 text = "Resumo",
                 fontFamily = Bricolage,
                 fontWeight = FontWeight.ExtraBold,
@@ -122,7 +147,7 @@ fun CreateTournamentStep2Screen(
 
             Spacer(modifier = Modifier.height(22.dp))
 
-            Text(
+            TranslatedText(
                 text = "Configurações",
                 fontFamily = Bricolage,
                 fontWeight = FontWeight.ExtraBold,
@@ -178,7 +203,7 @@ fun CreateTournamentStep2Screen(
                     border = BorderStroke(1.dp, Color(0xFFE2E2E7))
                 ) {
                     Box(contentAlignment = Alignment.Center) {
-                        Text(
+                        TranslatedText(
                             text = "Anterior",
                             fontFamily = Geist,
                             fontWeight = FontWeight.Bold,
@@ -207,7 +232,7 @@ fun CreateTournamentStep2Screen(
                         },
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
+                    TranslatedText(
                         text = "Criar torneio",
                         fontFamily = Geist,
                         fontWeight = FontWeight.ExtraBold,
@@ -256,7 +281,7 @@ private fun StepHeaderCard() {
             Spacer(modifier = Modifier.width(12.dp))
 
             Column {
-                Text(
+                TranslatedText(
                     text = "Confirmação final",
                     fontFamily = Geist,
                     fontWeight = FontWeight.ExtraBold,
@@ -264,7 +289,7 @@ private fun StepHeaderCard() {
                     color = LMInk
                 )
 
-                Text(
+                TranslatedText(
                     text = "Passo 2 de 2 — Rever e configurar",
                     fontFamily = Geist,
                     fontWeight = FontWeight.Medium,
@@ -321,7 +346,7 @@ private fun SummaryCard(
                 Spacer(modifier = Modifier.width(12.dp))
 
                 Column {
-                    Text(
+                    TranslatedText(
                         text = nome.ifBlank { "Sem nome definido" },
                         fontFamily = Geist,
                         fontWeight = FontWeight.ExtraBold,
@@ -329,7 +354,7 @@ private fun SummaryCard(
                         color = LMInk
                     )
 
-                    Text(
+                    TranslatedText(
                         text = "$modalidade · $formato",
                         fontFamily = Geist,
                         fontWeight = FontWeight.Medium,
@@ -363,7 +388,7 @@ private fun SummaryRow(label: String, value: String) {
             .fillMaxWidth()
             .padding(vertical = 6.dp)
     ) {
-        Text(
+        TranslatedText(
             text = label.uppercase(),
             fontFamily = Geist,
             fontWeight = FontWeight.ExtraBold,
@@ -373,7 +398,7 @@ private fun SummaryRow(label: String, value: String) {
 
         Spacer(modifier = Modifier.height(2.dp))
 
-        Text(
+        TranslatedText(
             text = value,
             fontFamily = Geist,
             fontWeight = FontWeight.SemiBold,
@@ -427,7 +452,7 @@ private fun OptionSwitchCard(
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-                Text(
+                TranslatedText(
                     text = title,
                     fontFamily = Geist,
                     fontWeight = FontWeight.ExtraBold,
@@ -437,7 +462,7 @@ private fun OptionSwitchCard(
 
                 Spacer(modifier = Modifier.height(2.dp))
 
-                Text(
+                TranslatedText(
                     text = subtitle,
                     fontFamily = Geist,
                     fontWeight = FontWeight.Medium,
@@ -500,7 +525,7 @@ private fun PointsCard(
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-                Text(
+                TranslatedText(
                     text = "Pontos por vitória",
                     fontFamily = Geist,
                     fontWeight = FontWeight.ExtraBold,
@@ -508,7 +533,7 @@ private fun PointsCard(
                     color = LMInk
                 )
 
-                Text(
+                TranslatedText(
                     text = "Valor usado na classificação.",
                     fontFamily = Geist,
                     fontWeight = FontWeight.Medium,
@@ -522,7 +547,7 @@ private fun PointsCard(
             ) {
                 PointsButton("-", onMinus)
 
-                Text(
+                TranslatedText(
                     text = pontos.toString(),
                     modifier = Modifier.padding(horizontal = 14.dp),
                     fontFamily = Geist,
@@ -550,7 +575,7 @@ private fun PointsButton(
         color = Color(0xFFF3F3F5)
     ) {
         Box(contentAlignment = Alignment.Center) {
-            Text(
+            TranslatedText(
                 text = text,
                 fontFamily = Geist,
                 fontWeight = FontWeight.ExtraBold,

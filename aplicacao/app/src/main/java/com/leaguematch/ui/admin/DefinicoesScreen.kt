@@ -4,7 +4,17 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,10 +22,31 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.BrightnessMedium
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.SportsSoccer
+import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,8 +59,24 @@ import androidx.compose.ui.unit.sp
 import com.leaguematch.data.remote.model.ConfiguracaoNotificacoes
 import com.leaguematch.data.remote.model.Utilizador
 import com.leaguematch.translations.Language
-import com.leaguematch.ui.components.*
-import com.leaguematch.ui.theme.*
+import com.leaguematch.ui.components.AdminBottomBar
+import com.leaguematch.ui.components.Avatar
+import com.leaguematch.ui.components.CardWrapper
+import com.leaguematch.ui.components.LeagueMatchTextField
+import com.leaguematch.ui.components.Pill
+import com.leaguematch.ui.components.TopBar
+import com.leaguematch.ui.components.TranslatedText
+import com.leaguematch.ui.theme.BrandTheme
+import com.leaguematch.ui.theme.Bricolage
+import com.leaguematch.ui.theme.Geist
+import com.leaguematch.ui.theme.LMBorder
+import com.leaguematch.ui.theme.LMGray100
+import com.leaguematch.ui.theme.LMGray400
+import com.leaguematch.ui.theme.LMGray500
+import com.leaguematch.ui.theme.LMGray600
+import com.leaguematch.ui.theme.LMInk
+import com.leaguematch.ui.theme.LMRed
+import com.leaguematch.ui.theme.LMWhite
 
 @Composable
 fun DefinicoesScreen(
@@ -73,6 +120,20 @@ fun DefinicoesScreen(
     var notificacoesCartoes by rememberSaveable { mutableStateOf(configuracaoNotificacoes?.notificacoesCartoes ?: true) }
     var notificacoesFimPartida by rememberSaveable { mutableStateOf(configuracaoNotificacoes?.notificacoesFimPartida ?: true) }
     var somNotificacao by rememberSaveable { mutableStateOf(configuracaoNotificacoes?.somNotificacao ?: true) }
+
+    fun guardarConfig(transform: (ConfiguracaoNotificacoes) -> ConfiguracaoNotificacoes) {
+        val base = configuracaoNotificacoes ?: ConfiguracaoNotificacoes(
+            utilizadorId = utilizadorLogado?.id ?: return,
+            notificacoesJogos = notificacoesJogos,
+            notificacoesGolos = notificacoesGolos,
+            notificacoesCartoes = notificacoesCartoes,
+            notificacoesFimPartida = notificacoesFimPartida,
+            somNotificacao = somNotificacao
+        )
+
+        onGuardarConfiguracaoNotificacoes?.invoke(transform(base))
+    }
+
 
     // Conteúdo e barra de navegação inferior.
     Scaffold(
@@ -128,7 +189,7 @@ fun DefinicoesScreen(
                     Spacer(modifier = Modifier.width(14.dp))
 
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(
+                        TranslatedText(
                             text = nomeExibido,
                             fontFamily = Bricolage,
                             fontSize = 17.sp,
@@ -136,7 +197,7 @@ fun DefinicoesScreen(
                             color = LMWhite
                         )
 
-                        Text(
+                        TranslatedText(
                             text = "$tipoExibido · LeagueMatch",
                             fontFamily = Geist,
                             fontSize = 11.sp,
@@ -156,7 +217,7 @@ fun DefinicoesScreen(
                                 .clickable { showEditDialog = true }
                                 .padding(horizontal = 10.dp, vertical = 4.dp)
                         ) {
-                            Text(
+                            TranslatedText(
                                 text = "Editar perfil",
                                 fontFamily = Geist,
                                 fontSize = 10.sp,
@@ -181,7 +242,7 @@ fun DefinicoesScreen(
                     pad = 0.dp
                 ) {
                     Column {
-                        Text(
+                        TranslatedText(
                             text = "Notificações",
                             fontFamily = Geist,
                             fontSize = 13.sp,
@@ -196,13 +257,22 @@ fun DefinicoesScreen(
                             description = "Alertas sobre novos jogos agendados",
                             checked = notificacoesJogos,
                             // Atualiza o estado local e envia a alteração para persistência.
-                            onCheckedChange = {
-                                notificacoesJogos = it
-                                configuracaoNotificacoes?.let { config ->
-                                    onGuardarConfiguracaoNotificacoes?.invoke(
-                                        config.copy(notificacoesJogos = it)
-                                    )
-                                }
+                            onCheckedChange = { novoValor ->
+                                notificacoesJogos = novoValor
+
+                                val configAtual = configuracaoNotificacoes ?: ConfiguracaoNotificacoes(
+                                    utilizadorId = utilizadorLogado?.id ?: return@ProfileSwitchRow,
+                                    notificacoesJogos = notificacoesJogos,
+                                    notificacoesGolos = notificacoesGolos,
+                                    notificacoesCartoes = notificacoesCartoes,
+                                    notificacoesFimPartida = notificacoesFimPartida,
+                                    somNotificacao = somNotificacao
+                                )
+
+                                onGuardarConfiguracaoNotificacoes?.invoke(
+                                    configAtual.copy(notificacoesJogos = novoValor)
+                                )
+
                             }
                         )
 
@@ -219,10 +289,8 @@ fun DefinicoesScreen(
                             checked = notificacoesGolos,
                             onCheckedChange = {
                                 notificacoesGolos = it
-                                configuracaoNotificacoes?.let { config ->
-                                    onGuardarConfiguracaoNotificacoes?.invoke(
-                                        config.copy(notificacoesGolos = it)
-                                    )
+                                guardarConfig { config ->
+                                    config.copy(notificacoesGolos = it)
                                 }
                             }
                         )
@@ -240,10 +308,8 @@ fun DefinicoesScreen(
                             checked = notificacoesCartoes,
                             onCheckedChange = {
                                 notificacoesCartoes = it
-                                configuracaoNotificacoes?.let { config ->
-                                    onGuardarConfiguracaoNotificacoes?.invoke(
-                                        config.copy(notificacoesCartoes = it)
-                                    )
+                                guardarConfig { config ->
+                                    config.copy(notificacoesCartoes = it)
                                 }
                             }
                         )
@@ -261,10 +327,8 @@ fun DefinicoesScreen(
                             checked = notificacoesFimPartida,
                             onCheckedChange = {
                                 notificacoesFimPartida = it
-                                configuracaoNotificacoes?.let { config ->
-                                    onGuardarConfiguracaoNotificacoes?.invoke(
-                                        config.copy(notificacoesFimPartida = it)
-                                    )
+                                guardarConfig { config ->
+                                    config.copy(notificacoesFimPartida = it)
                                 }
                             }
                         )
@@ -282,10 +346,8 @@ fun DefinicoesScreen(
                             checked = somNotificacao,
                             onCheckedChange = {
                                 somNotificacao = it
-                                configuracaoNotificacoes?.let { config ->
-                                    onGuardarConfiguracaoNotificacoes?.invoke(
-                                        config.copy(somNotificacao = it)
-                                    )
+                                guardarConfig { config ->
+                                    config.copy(somNotificacao = it)
                                 }
                             }
                         )
@@ -330,7 +392,7 @@ fun DefinicoesScreen(
                             icon = Icons.Default.BrightnessMedium,
                             label = "Aparência",
                             rightContent = {
-                                Text(
+                                TranslatedText(
                                     text = "Sistema ›",
                                     fontFamily = Geist,
                                     fontSize = 12.sp,
@@ -450,7 +512,7 @@ fun DefinicoesScreen(
                 newPassword = ""
             },
             title = {
-                Text(
+                TranslatedText(
                     text = "Editar Perfil",
                     fontFamily = Bricolage,
                     fontWeight = FontWeight.Bold,
@@ -485,7 +547,7 @@ fun DefinicoesScreen(
                     colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
                     shape = RoundedCornerShape(10.dp)
                 ) {
-                    Text(
+                    TranslatedText(
                         text = "Guardar",
                         fontFamily = Geist,
                         fontWeight = FontWeight.Bold,
@@ -500,7 +562,7 @@ fun DefinicoesScreen(
                         newPassword = ""
                     }
                 ) {
-                    Text(
+                    TranslatedText(
                         text = "Cancelar",
                         fontFamily = Geist,
                         fontWeight = FontWeight.Bold,
@@ -520,7 +582,7 @@ fun DefinicoesScreen(
                 showLanguageDialog = false
             },
             title = {
-                Text(
+                TranslatedText(
                     text = "Escolher idioma",
                     fontFamily = Bricolage,
                     fontWeight = FontWeight.Bold,
@@ -530,7 +592,7 @@ fun DefinicoesScreen(
             },
             text = {
                 Column {
-                    Text(
+                    TranslatedText(
                         text = "Português",
                         modifier = Modifier
                             .fillMaxWidth()

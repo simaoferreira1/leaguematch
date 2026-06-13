@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.leaguematch.ui.components.*
 import com.leaguematch.ui.theme.*
+import com.leaguematch.ui.components.TranslatedText
 
 // Ecrã que permite ao administrador visualizar e editar informações de um utilizador
 @Composable

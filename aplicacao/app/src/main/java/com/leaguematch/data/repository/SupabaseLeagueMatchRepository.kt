@@ -1327,7 +1327,13 @@ class SupabaseLeagueMatchRepository(
     override suspend fun atualizarConfiguracaoNotificacoes(
         configuracao: ConfiguracaoNotificacoes
     ): ConfiguracaoNotificacoes? {
+        deleteWhere(
+            table = "configuracao_notificacoes",
+            filters = mapOf("utilizador_id" to "eq.${configuracao.utilizadorId}")
+        )
+
         val body = JSONObject().apply {
+            put("utilizador_id", configuracao.utilizadorId)
             put("notificacoes_jogos", configuracao.notificacoesJogos)
             put("notificacoes_golos", configuracao.notificacoesGolos)
             put("notificacoes_cartoes", configuracao.notificacoesCartoes)
@@ -1339,10 +1345,8 @@ class SupabaseLeagueMatchRepository(
             put("andebol", configuracao.andebol)
         }
 
-        return patchObjectByColumn(
+        return postObject(
             table = "configuracao_notificacoes",
-            column = "utilizador_id",
-            value = configuracao.utilizadorId,
             bodyJson = body
         )?.toConfiguracaoNotificacoes()
     }

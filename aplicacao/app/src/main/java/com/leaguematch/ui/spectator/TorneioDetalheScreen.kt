@@ -2,7 +2,19 @@ package com.leaguematch.ui.spectator
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,7 +23,15 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.SportsSoccer
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.leaguematch.data.remote.model.Torneio
 import com.leaguematch.ui.components.SpectatorBottomBar
+import com.leaguematch.ui.components.TranslatedText
 import com.leaguematch.ui.theme.RedDark
 import com.leaguematch.ui.theme.RedPrimary
 
@@ -251,7 +272,7 @@ private fun TorneioDetalheHeader(torneio: Torneio) {
 @Composable
 private fun HeaderStat(label: String, value: String) {
     Column {
-        Text(
+        TranslatedText(
             text = label,
             color = Color.White.copy(alpha = 0.65f),
             style = MaterialTheme.typography.labelSmall
@@ -275,14 +296,13 @@ private fun InfoSmallCard(
     onClick: (() -> Unit)? = null
 ) {
     Card(
-        modifier = modifier
-            .then(
-                if (onClick != null) {
-                    Modifier.clickable { onClick() }
-                } else {
-                    Modifier
-                }
-            ),
+        modifier = modifier.then(
+            if (onClick != null) {
+                Modifier.clickable { onClick() }
+            } else {
+                Modifier
+            }
+        ),
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
@@ -308,14 +328,14 @@ private fun InfoSmallCard(
             Spacer(modifier = Modifier.width(10.dp))
 
             Column {
-                Text(
+                TranslatedText(
                     text = value,
                     color = RedDark,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleMedium
                 )
 
-                Text(
+                TranslatedText(
                     text = title,
                     color = Color(0xFF74747C),
                     style = MaterialTheme.typography.labelSmall
@@ -345,7 +365,7 @@ private fun SectionCard(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
+                TranslatedText(
                     text = title,
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
@@ -355,7 +375,7 @@ private fun SectionCard(
 
                 if (actionText != null && onActionClick != null) {
                     TextButton(onClick = onActionClick) {
-                        Text(
+                        TranslatedText(
                             text = actionText,
                             color = RedPrimary,
                             fontWeight = FontWeight.Bold
@@ -422,7 +442,7 @@ private fun MelhorMarcadorRow(
 
         Spacer(modifier = Modifier.width(4.dp))
 
-        Text(
+        TranslatedText(
             text = "golos",
             color = Color.White.copy(alpha = 0.65f),
             style = MaterialTheme.typography.labelSmall
@@ -479,7 +499,7 @@ private fun JogoResumoRow(jogo: JogoResumoItem) {
 
 @Composable
 private fun EmptyText(text: String) {
-    Text(
+    TranslatedText(
         text = text,
         color = Color.White.copy(alpha = 0.65f),
         style = MaterialTheme.typography.bodySmall,

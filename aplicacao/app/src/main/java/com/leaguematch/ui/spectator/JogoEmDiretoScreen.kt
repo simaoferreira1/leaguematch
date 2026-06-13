@@ -2,24 +2,52 @@ package com.leaguematch.ui.spectator
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material.icons.filled.Report
+import androidx.compose.material.icons.filled.SportsSoccer
+import androidx.compose.material.icons.filled.SportsTennis
+import androidx.compose.material.icons.filled.SwapHoriz
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.Share
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -28,7 +56,16 @@ import androidx.compose.ui.unit.sp
 import com.leaguematch.data.remote.model.EstatisticaJogo
 import com.leaguematch.data.remote.model.EventoJogo
 import com.leaguematch.data.remote.model.Jogo
-import com.leaguematch.ui.theme.*
+import com.leaguematch.ui.components.TranslatedText
+import com.leaguematch.ui.theme.Bricolage
+import com.leaguematch.ui.theme.Geist
+import com.leaguematch.ui.theme.GeistMono
+import com.leaguematch.ui.theme.LMGray400
+import com.leaguematch.ui.theme.LMGray500
+import com.leaguematch.ui.theme.LMGray600
+import com.leaguematch.ui.theme.LMInk
+import com.leaguematch.ui.theme.LMRed
+import com.leaguematch.ui.theme.LMWhite
 
 @Composable
 fun JogoEmDiretoScreen(
@@ -65,7 +102,7 @@ fun JogoEmDiretoScreen(
                     containerColor = LMRed
                 )
             ) {
-                Text(
+                TranslatedText(
                     text = "Ver Estatísticas Completas",
                     color = Color.White
                 )
@@ -204,7 +241,7 @@ private fun ScoreboardHeaderCard(
                             tint = Color.White.copy(alpha = 0.5f),
                             modifier = Modifier.size(13.dp)
                         )
-                        Text(
+                        TranslatedText(
                             text = "142 a assistir",
                             fontFamily = Geist,
                             fontSize = 11.sp,
@@ -343,7 +380,7 @@ private fun ScoreboardHeaderCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
+                TranslatedText(
                     text = "Torneio ID: ${jogo.torneioId}",
                     fontFamily = Geist,
                     fontSize = 11.sp,
@@ -373,7 +410,7 @@ private fun EstatisticasDiretoSection(estatisticas: List<EstatisticaJogo>, modal
             modifier = Modifier.padding(14.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(
+            TranslatedText(
                 text = "Estatísticas em direto",
                 fontFamily = Geist,
                 fontWeight = FontWeight.Bold,
@@ -474,7 +511,7 @@ private fun TimelineEventosSection(eventos: List<EventoJogo>) {
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Text(
+        TranslatedText(
             text = "Cronologia",
             fontFamily = Geist,
             fontWeight = FontWeight.ExtraBold,
@@ -495,7 +532,7 @@ private fun TimelineEventosSection(eventos: List<EventoJogo>) {
                         .padding(vertical = 24.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
+                    TranslatedText(
                         text = "Nenhum evento registado neste jogo.",
                         fontFamily = Geist,
                         fontSize = 12.sp,
@@ -600,7 +637,7 @@ private fun TimelineEventosSection(eventos: List<EventoJogo>) {
 
                         // Side
                         if (evento.equipa != "center") {
-                            Text(
+                            TranslatedText(
                                 text = if (evento.equipa == "casa") "CASA" else "FORA",
                                 fontFamily = Geist,
                                 fontSize = 10.sp,

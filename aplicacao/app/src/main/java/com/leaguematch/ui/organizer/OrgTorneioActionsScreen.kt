@@ -3,15 +3,47 @@ package com.leaguematch.ui.organizer
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.FormatListNumbered
+import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.QueryStats
+import androidx.compose.material.icons.filled.SportsScore
 import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -21,8 +53,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.leaguematch.data.remote.model.DetalheTorneio
-import com.leaguematch.ui.components.OrganizerBottomBar
-import com.leaguematch.ui.theme.*
+import com.leaguematch.ui.components.TranslatedText
+import com.leaguematch.ui.theme.Bricolage
+import com.leaguematch.ui.theme.Geist
+import com.leaguematch.ui.theme.LMBorder
+import com.leaguematch.ui.theme.LMGray100
+import com.leaguematch.ui.theme.LMGray400
+import com.leaguematch.ui.theme.LMGray50
+import com.leaguematch.ui.theme.LMGray500
+import com.leaguematch.ui.theme.LMGray600
+import com.leaguematch.ui.theme.LMInk
+import com.leaguematch.ui.theme.LMRed
+import com.leaguematch.ui.theme.LMRed50
+import com.leaguematch.ui.theme.LMWhite
 
 private data class AcaoCard(
     val titulo: String,
@@ -80,7 +123,7 @@ fun OrgTorneioActionsScreen(
                     )
 
                     Column {
-                        Text(
+                        TranslatedText(
                             "Formato do Torneio",
                             fontFamily = Geist,
                             fontWeight = FontWeight.Bold,
@@ -176,12 +219,12 @@ fun OrgTorneioActionsScreen(
                     onRemoverTorneio(torneio.id)
                     mostrarRemocao = false
                 }) {
-                    Text("Remover", color = LMRed, fontFamily = Geist, fontWeight = FontWeight.Bold)
+                    TranslatedText("Remover", color = LMRed, fontFamily = Geist, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { mostrarRemocao = false }) {
-                    Text("Cancelar", fontFamily = Geist, color = LMGray500)
+                    TranslatedText("Cancelar", fontFamily = Geist, color = LMGray500)
                 }
             },
             shape = RoundedCornerShape(18.dp)
@@ -200,7 +243,7 @@ fun OrgTorneioActionsScreen(
                     .padding(innerPadding),
                 contentAlignment = Alignment.Center
             ) {
-                Text("Torneio não encontrado.", color = LMGray500)
+                TranslatedText("Torneio não encontrado.", color = LMGray500)
             }
             return@Scaffold
         }
@@ -286,7 +329,7 @@ fun OrgTorneioActionsScreen(
                 IconButton(onClick = onBackClick) {
                     Icon(Icons.Rounded.ArrowBack, contentDescription = null, tint = LMInk)
                 }
-                Text(
+                TranslatedText(
                     text = torneio.nome,
                     fontFamily = Geist,
                     fontWeight = FontWeight.ExtraBold,
@@ -301,7 +344,7 @@ fun OrgTorneioActionsScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Text(
+            TranslatedText(
                 text = "AÇÕES DO ORGANIZADOR",
                 fontFamily = Geist,
                 fontWeight = FontWeight.Bold,
@@ -354,7 +397,7 @@ private fun TorneioHeroCard(torneio: com.leaguematch.data.remote.model.Torneio, 
                     shape = RoundedCornerShape(99.dp),
                     color = estadoBg
                 ) {
-                    Text(
+                    TranslatedText(
                         text = torneio.estado,
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
                         fontFamily = Geist,
@@ -366,7 +409,7 @@ private fun TorneioHeroCard(torneio: com.leaguematch.data.remote.model.Torneio, 
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                Text(
+                TranslatedText(
                     text = torneio.nome,
                     fontFamily = Bricolage,
                     fontWeight = FontWeight.ExtraBold,
@@ -397,14 +440,14 @@ private fun TorneioHeroCard(torneio: com.leaguematch.data.remote.model.Torneio, 
                                 .padding(horizontal = 14.dp, vertical = 8.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(
+                            TranslatedText(
                                 text = valor,
                                 fontFamily = Bricolage,
                                 fontWeight = FontWeight.ExtraBold,
                                 fontSize = 20.sp,
                                 color = LMWhite
                             )
-                            Text(
+                            TranslatedText(
                                 text = label.uppercase(),
                                 fontFamily = Geist,
                                 fontWeight = FontWeight.Bold,
@@ -452,14 +495,14 @@ private fun AcaoCardItem(acao: AcaoCard) {
             Spacer(modifier = Modifier.width(14.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                Text(
+                TranslatedText(
                     text = acao.titulo,
                     fontFamily = Geist,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
                     color = LMInk
                 )
-                Text(
+                TranslatedText(
                     text = acao.subtitulo,
                     fontFamily = Geist,
                     fontSize = 11.sp,

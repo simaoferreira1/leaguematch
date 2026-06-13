@@ -178,6 +178,7 @@ class MainActivity : ComponentActivity() {
                                         torneiosViewModel = torneiosViewModel,
                                         authViewModel = authViewModel,
                                         participantViewModel = participantViewModel,
+                                        repository = repository,
                                         usuarioLogado = usuarioLogado,
                                         onTerminarSessao = {
                                             authViewModel.terminarSessao()

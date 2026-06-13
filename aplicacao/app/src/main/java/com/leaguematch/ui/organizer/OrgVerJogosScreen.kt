@@ -2,15 +2,43 @@ package com.leaguematch.ui.organizer
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.SportsScore
 import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,7 +47,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.leaguematch.data.remote.model.Jogo
 import com.leaguematch.data.remote.model.Torneio
-import com.leaguematch.ui.theme.*
+import com.leaguematch.ui.components.TranslatedText
+import com.leaguematch.ui.theme.Bricolage
+import com.leaguematch.ui.theme.Geist
+import com.leaguematch.ui.theme.LMBorder
+import com.leaguematch.ui.theme.LMGray100
+import com.leaguematch.ui.theme.LMGray300
+import com.leaguematch.ui.theme.LMGray400
+import com.leaguematch.ui.theme.LMGray50
+import com.leaguematch.ui.theme.LMGray500
+import com.leaguematch.ui.theme.LMGray600
+import com.leaguematch.ui.theme.LMInk
+import com.leaguematch.ui.theme.LMRed
+import com.leaguematch.ui.theme.LMWhite
 
 @Composable
 fun OrgVerJogosScreen(
@@ -79,7 +119,7 @@ fun OrgVerJogosScreen(
                     Icon(Icons.Rounded.ArrowBack, contentDescription = null, tint = LMInk)
                 }
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
+                    TranslatedText(
                         text = "Jogos",
                         fontFamily = Geist, fontWeight = FontWeight.ExtraBold,
                         fontSize = 20.sp, color = LMInk
@@ -90,7 +130,7 @@ fun OrgVerJogosScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(
+            TranslatedText(
                 text = "PARTIDAS · ${jogos.size}",
                 fontFamily = Geist, fontWeight = FontWeight.Bold,
                 fontSize = 11.sp, color = LMGray500, letterSpacing = 0.4.sp
@@ -123,8 +163,8 @@ fun OrgVerJogosScreen(
                             modifier = Modifier.size(40.dp)
                         )
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("Sem jogos neste torneio.", fontFamily = Geist, fontSize = 13.sp, color = LMGray500)
-                        Text("Cria o primeiro jogo abaixo.", fontFamily = Geist, fontSize = 12.sp, color = LMGray400)
+                        TranslatedText("Sem jogos neste torneio.", fontFamily = Geist, fontSize = 13.sp, color = LMGray500)
+                        TranslatedText("Cria o primeiro jogo abaixo.", fontFamily = Geist, fontSize = 12.sp, color = LMGray400)
                     }
                 }
             } else {
@@ -150,7 +190,7 @@ fun OrgVerJogosScreen(
             ) {
                 Icon(Icons.Default.Add, contentDescription = null, tint = LMWhite, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Criar novo jogo", fontFamily = Geist, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = LMWhite)
+                TranslatedText("Criar novo jogo", fontFamily = Geist, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = LMWhite)
             }
         }
     }
@@ -193,7 +233,7 @@ private fun JogoOrgCard(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Surface(shape = RoundedCornerShape(99.dp), color = estadoBg) {
-                        Text(
+                        TranslatedText(
                             text = jogo.estado,
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp),
                             fontFamily = Geist, fontWeight = FontWeight.Bold,
@@ -298,7 +338,7 @@ private fun JogoOrgCard(
                             .background(Color(0xFF22C55E), shape = androidx.compose.foundation.shape.CircleShape)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(
+                    TranslatedText(
                         text = String.format("Tempo decorrido: %02d:%02d", min, sec),
                         fontFamily = Geist,
                         fontWeight = FontWeight.Bold,
@@ -314,7 +354,7 @@ private fun JogoOrgCard(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
+                TranslatedText(
                     text = jogo.casa,
                     fontFamily = Geist, fontWeight = FontWeight.Bold,
                     fontSize = 14.sp, color = LMInk,

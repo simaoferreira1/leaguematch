@@ -19,6 +19,7 @@ import com.leaguematch.data.remote.model.Jogo
 import com.leaguematch.translations.AppStrings
 import com.leaguematch.ui.components.ParticipantBottomBar
 import com.leaguematch.ui.theme.*
+import com.leaguematch.ui.components.TranslatedText
 
 private enum class GamesTab {
     PROXIMOS,

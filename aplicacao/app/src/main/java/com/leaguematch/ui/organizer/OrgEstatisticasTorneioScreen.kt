@@ -2,7 +2,17 @@ package com.leaguematch.ui.organizer
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -13,7 +23,12 @@ import androidx.compose.material.icons.filled.QueryStats
 import androidx.compose.material.icons.filled.SportsScore
 import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,7 +38,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.leaguematch.data.remote.model.DetalheTorneio
-import com.leaguematch.ui.theme.*
+import com.leaguematch.ui.components.TranslatedText
+import com.leaguematch.ui.theme.Bricolage
+import com.leaguematch.ui.theme.Geist
+import com.leaguematch.ui.theme.LMBorder
+import com.leaguematch.ui.theme.LMGray100
+import com.leaguematch.ui.theme.LMGray400
+import com.leaguematch.ui.theme.LMGray50
+import com.leaguematch.ui.theme.LMGray500
+import com.leaguematch.ui.theme.LMInk
+import com.leaguematch.ui.theme.LMRed
+import com.leaguematch.ui.theme.LMRed50
+import com.leaguematch.ui.theme.LMWhite
 
 @Composable
 fun OrgEstatisticasTorneioScreen(
@@ -55,7 +81,7 @@ fun OrgEstatisticasTorneioScreen(
                     Icon(Icons.Rounded.ArrowBack, contentDescription = null, tint = LMInk)
                 }
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
+                    TranslatedText(
                         text = "Estatísticas",
                         fontFamily = Geist, fontWeight = FontWeight.ExtraBold,
                         fontSize = 20.sp, color = LMInk
@@ -108,7 +134,7 @@ fun OrgEstatisticasTorneioScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Text(
+            TranslatedText(
                 text = "ESTADO DOS JOGOS",
                 fontFamily = Geist, fontWeight = FontWeight.Bold,
                 fontSize = 11.sp, color = LMGray500, letterSpacing = 0.4.sp
@@ -124,7 +150,7 @@ fun OrgEstatisticasTorneioScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Text(
+            TranslatedText(
                 text = "MELHORES MARCADORES",
                 fontFamily = Geist, fontWeight = FontWeight.Bold,
                 fontSize = 11.sp, color = LMGray500, letterSpacing = 0.4.sp
@@ -139,7 +165,7 @@ fun OrgEstatisticasTorneioScreen(
                     color = LMGray50,
                     border = BorderStroke(1.dp, LMBorder)
                 ) {
-                    Text(
+                    TranslatedText(
                         text = "Sem marcadores registados.",
                         modifier = Modifier.padding(18.dp),
                         fontFamily = Geist, fontSize = 13.sp, color = LMGray500
@@ -175,7 +201,7 @@ fun OrgEstatisticasTorneioScreen(
                                     fontSize = 14.sp, color = LMInk,
                                     modifier = Modifier.weight(1f)
                                 )
-                                Text(
+                                TranslatedText(
                                     text = "${goleador.golos} golos",
                                     fontFamily = Geist, fontWeight = FontWeight.Bold,
                                     fontSize = 13.sp, color = LMInk

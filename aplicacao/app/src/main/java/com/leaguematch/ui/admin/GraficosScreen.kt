@@ -3,14 +3,28 @@ package com.leaguematch.ui.admin
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,7 +43,19 @@ import com.leaguematch.ui.components.AdminBottomBar
 import com.leaguematch.ui.components.CardWrapper
 import com.leaguematch.ui.components.Pill
 import com.leaguematch.ui.components.TopBar
-import com.leaguematch.ui.theme.*
+import com.leaguematch.ui.components.TranslatedText
+import com.leaguematch.ui.theme.Bricolage
+import com.leaguematch.ui.theme.Geist
+import com.leaguematch.ui.theme.GeistMono
+import com.leaguematch.ui.theme.LMGray100
+import com.leaguematch.ui.theme.LMGray300
+import com.leaguematch.ui.theme.LMGray500
+import com.leaguematch.ui.theme.LMGray600
+import com.leaguematch.ui.theme.LMGray700
+import com.leaguematch.ui.theme.LMInk
+import com.leaguematch.ui.theme.LMLive
+import com.leaguematch.ui.theme.LMRed
+import com.leaguematch.ui.theme.LMWhite
 
 // Ecrã que apresenta gráficos e estatísticas gerais da plataforma
 @Composable
@@ -108,7 +134,7 @@ fun GraficosScreen(
                             .padding(vertical = 8.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
+                        TranslatedText(
                             text = period,
                             fontFamily = Geist,
                             fontSize = 12.sp,
@@ -135,7 +161,7 @@ fun GraficosScreen(
                         verticalAlignment = Alignment.Top
                     ) {
                         Column {
-                            Text(
+                            TranslatedText(
                                 text = "TOTAL DE UTILIZADORES",
                                 fontFamily = Geist,
                                 fontSize = 11.sp,
@@ -261,7 +287,7 @@ fun GraficosScreen(
                     .padding(horizontal = 18.dp, vertical = 6.dp)
             ) {
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    Text(
+                    TranslatedText(
                         text = "Torneios por modalidade",
                         fontFamily = Geist,
                         fontSize = 12.sp,
@@ -290,7 +316,7 @@ fun GraficosScreen(
 
                     // Mensagem apresentada caso não existam torneios registados
                     if (breakdown.isEmpty()) {
-                        Text(
+                        TranslatedText(
                             text = "Sem torneios registados.",
                             fontFamily = Geist,
                             fontSize = 13.sp,
@@ -454,7 +480,7 @@ fun GraficosScreen(
                     }
 
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(
+                        TranslatedText(
                             text = "Perfis",
                             fontFamily = Geist,
                             fontSize = 12.sp,
@@ -464,7 +490,7 @@ fun GraficosScreen(
                         )
 
                         if (profiles.isEmpty()) {
-                            Text(
+                            TranslatedText(
                                 text = "Sem utilizadores registados.",
                                 fontFamily = Geist,
                                 fontSize = 13.sp,

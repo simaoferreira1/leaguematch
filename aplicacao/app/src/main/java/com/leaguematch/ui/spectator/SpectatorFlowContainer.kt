@@ -1,19 +1,27 @@
     package com.leaguematch.ui.spectator
 
-    import androidx.compose.runtime.*
-    import com.leaguematch.data.remote.model.Classificacao
-    import com.leaguematch.data.remote.model.ConfiguracaoNotificacoes
-    import com.leaguematch.data.remote.model.Equipa
-    import com.leaguematch.data.remote.model.Jogo
-    import com.leaguematch.data.remote.model.Torneio
-    import com.leaguematch.data.remote.model.Utilizador
-    import com.leaguematch.data.repository.LeagueMatchRepository
-    import com.leaguematch.ui.admin.DefinicoesScreen
-    import com.leaguematch.ui.components.RemoteContent
-    import com.leaguematch.ui.components.SpectatorBottomBar
-    import com.leaguematch.viewmodel.AuthViewModel
-    import com.leaguematch.viewmodel.TorneiosViewModel
-    import kotlinx.coroutines.launch
+    import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import com.leaguematch.data.remote.model.Classificacao
+import com.leaguematch.data.remote.model.ConfiguracaoNotificacoes
+import com.leaguematch.data.remote.model.Equipa
+import com.leaguematch.data.remote.model.Jogo
+import com.leaguematch.data.remote.model.Torneio
+import com.leaguematch.data.remote.model.Utilizador
+import com.leaguematch.data.repository.LeagueMatchRepository
+import com.leaguematch.ui.admin.DefinicoesScreen
+import com.leaguematch.ui.components.RemoteContent
+import com.leaguematch.ui.components.SpectatorBottomBar
+import com.leaguematch.viewmodel.AuthViewModel
+import com.leaguematch.viewmodel.TorneiosViewModel
+import kotlinx.coroutines.launch
 
     sealed interface SpectatorRoute {
         data object Explorar : SpectatorRoute
@@ -25,7 +33,7 @@
         data object Perfil : SpectatorRoute
         data object Notificacoes : SpectatorRoute
 
-        data class JogoEmDireto(val jogo: Jogo) : SpectatorRoute
+        data class JogoEmDireto(val jogo: Jogo, val voltarPara: SpectatorRoute) : SpectatorRoute
         data class EstatisticasJogo(val jogo: Jogo) : SpectatorRoute
         data class EquipaDetalhe(val equipa: Equipa) : SpectatorRoute
         data class CalendarioEquipa(val equipa: Equipa) : SpectatorRoute
@@ -75,8 +83,11 @@
                             currentSpectatorRoute = SpectatorRoute.TorneioDetalhe
                         },
                         onJogoClick = { jogo ->
-                            currentSpectatorRoute = SpectatorRoute.JogoEmDireto(jogo)
-                        }
+                            currentSpectatorRoute = SpectatorRoute.JogoEmDireto(
+                                jogo = jogo,
+                                voltarPara = SpectatorRoute.Explorar
+                            )
+                        },
                     )
                 }
             }
@@ -213,7 +224,10 @@
                             currentSpectatorRoute = SpectatorRoute.Perfil
                         },
                         onJogoClick = { jogo ->
-                            currentSpectatorRoute = SpectatorRoute.JogoEmDireto(jogo)
+                            currentSpectatorRoute = SpectatorRoute.JogoEmDireto(
+                                jogo = jogo,
+                                voltarPara = SpectatorRoute.Jogos
+                            )
                         }
                     )
                 }
@@ -319,12 +333,19 @@
                     val jogos = jogosResult?.getOrNull() ?: emptyList()
 
                     CalendarioScreen(
+
                         torneio = torneio,
                         jogos = jogos.filter { jogo ->
                             jogo.casa == route.equipa.nome || jogo.fora == route.equipa.nome
                         },
                         onJogoClick = { jogo ->
-                            currentSpectatorRoute = SpectatorRoute.JogoEmDireto(jogo)
+                            currentSpectatorRoute = SpectatorRoute.JogoEmDireto(
+                                jogo = jogo,
+                                voltarPara = SpectatorRoute.CalendarioEquipa(route.equipa)
+                            )
+                        },
+                        onBackClick = {
+                            currentSpectatorRoute = SpectatorRoute.EquipaDetalhe(route.equipa)
                         },
                         onNavigateExplorar = {
                             currentSpectatorRoute = SpectatorRoute.Explorar
@@ -409,7 +430,7 @@
                     eventos = eventos,
                     modalidade = modalidade,
                     onBackClick = {
-                        currentSpectatorRoute = SpectatorRoute.Explorar
+                        currentSpectatorRoute = route.voltarPara
                     },
                     onVerEstatisticasClick = {
                         currentSpectatorRoute = SpectatorRoute.EstatisticasJogo(route.jogo)
@@ -437,7 +458,10 @@
                     estatisticas = estatisticas,
                     modalidade = modalidade,
                     onBackClick = {
-                        currentSpectatorRoute = SpectatorRoute.JogoEmDireto(route.jogo)
+                        currentSpectatorRoute = SpectatorRoute.JogoEmDireto(
+                            jogo = route.jogo,
+                            voltarPara = SpectatorRoute.Jogos
+                        )
                     }
                 )
             }
@@ -445,6 +469,14 @@
             SpectatorRoute.Perfil -> {
                 DefinicoesScreen(
                     utilizadorLogado = usuarioLogado,
+                    configuracaoNotificacoes = ConfiguracaoNotificacoes(
+                        utilizadorId = usuarioLogado?.id ?: 0
+                    ),
+                    onGuardarConfiguracaoNotificacoes = { config ->
+                        coroutineScope.launch {
+                            repository.atualizarConfiguracaoNotificacoes(config)
+                        }
+                    },
                     onTerminarSessaoClick = {
                         onTerminarSessao()
                         currentSpectatorRoute = SpectatorRoute.Explorar

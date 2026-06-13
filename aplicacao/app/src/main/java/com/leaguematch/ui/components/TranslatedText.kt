@@ -10,6 +10,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import com.leaguematch.translations.Language
+import com.leaguematch.ui.components.TranslatedText
 
 @Composable
 fun TranslatedText(

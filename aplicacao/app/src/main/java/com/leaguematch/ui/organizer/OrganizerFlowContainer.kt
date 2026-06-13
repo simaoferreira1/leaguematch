@@ -1,34 +1,32 @@
 package com.leaguematch.ui.organizer
 
 import android.widget.Toast
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import com.leaguematch.data.remote.model.Jogo
+import com.leaguematch.data.remote.model.ConfiguracaoNotificacoes
 import com.leaguematch.data.remote.model.Torneio
 import com.leaguematch.data.remote.model.Utilizador
 import com.leaguematch.data.repository.LeagueMatchRepository
 import com.leaguematch.ui.admin.DefinicoesScreen
+import com.leaguematch.ui.components.ErrorScreen
+import com.leaguematch.ui.components.LoadingScreen
 import com.leaguematch.ui.components.OrganizerBottomBar
 import com.leaguematch.ui.components.RemoteContent
-import com.leaguematch.ui.components.LoadingScreen
-import com.leaguematch.ui.components.ErrorScreen
-import com.leaguematch.ui.spectator.ClassificacaoScreen
 import com.leaguematch.ui.spectator.ClassificacaoItem
+import com.leaguematch.ui.spectator.ClassificacaoScreen
 import com.leaguematch.viewmodel.AuthViewModel
 import com.leaguematch.viewmodel.TorneiosViewModel
+import kotlinx.coroutines.launch
 
 sealed interface OrganizerRoute {
     data object MeusTorneios : OrganizerRoute
@@ -57,6 +55,7 @@ fun OrganizerFlowContainer(
     onTerminarSessao: () -> Unit
 ) {
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     var currentOrgRoute by remember { mutableStateOf<OrganizerRoute>(OrganizerRoute.MeusTorneios) }
     var currentOrgTorneioId by remember { mutableStateOf<Int?>(null) }
     var dadosCriarTorneio by remember { mutableStateOf<List<String>?>(null) }
@@ -212,6 +211,14 @@ fun OrganizerFlowContainer(
         OrganizerRoute.Perfil -> {
             DefinicoesScreen(
                 utilizadorLogado = usuarioLogado,
+                configuracaoNotificacoes = ConfiguracaoNotificacoes(
+                    utilizadorId = usuarioLogado?.id ?: 0
+                ),
+                onGuardarConfiguracaoNotificacoes = { config ->
+                    coroutineScope.launch {
+                        repository.atualizarConfiguracaoNotificacoes(config)
+                    }
+                },
                 primaryColor = primaryColor,
                 onPrimaryColorChange = { color ->
                     primaryColorArgb = color.toArgb()
@@ -305,7 +312,8 @@ fun OrganizerFlowContainer(
                 torneiosViewModel.carregarEquipas(route.torneioId)
             }
 
-            val torneio = (torneiosViewModel.detalheTorneioState.value?.getOrNull()?.torneio)
+            val detalheAtualCriarJogo by torneiosViewModel.detalheTorneioState.collectAsState()
+            val torneio = detalheAtualCriarJogo?.getOrNull()?.torneio
             val equipas = equipasResult?.getOrNull() ?: emptyList()
 
             if (torneio != null) {
@@ -350,7 +358,8 @@ fun OrganizerFlowContainer(
                 torneiosViewModel.carregarEquipas(route.torneioId)
             }
 
-            val torneio = torneiosViewModel.detalheTorneioState.value?.getOrNull()?.torneio
+            val detalheAtual by torneiosViewModel.detalheTorneioState.collectAsState()
+            val torneio = detalheAtual?.getOrNull()?.torneio
             val equipas = equipasResult?.getOrNull() ?: emptyList()
             val isLoading = equipasResult == null
 
@@ -431,8 +440,8 @@ fun OrganizerFlowContainer(
         is OrganizerRoute.CriarEquipa -> {
             val route = currentOrgRoute as OrganizerRoute.CriarEquipa
             val isLoading by torneiosViewModel.criarJogoLoading.collectAsState()
-            val torneio = torneiosViewModel.detalheTorneioState.value?.getOrNull()?.torneio
-
+            val detalheAtual by torneiosViewModel.detalheTorneioState.collectAsState()
+            val torneio = detalheAtual?.getOrNull()?.torneio
             if (torneio != null) {
                 OrgCriarEquipaScreen(
                     torneio = torneio,
@@ -466,7 +475,8 @@ fun OrganizerFlowContainer(
                 torneiosViewModel.carregarDetalheTorneio(route.torneioId)
             }
 
-            val torneio = detalhe?.getOrNull()?.torneio
+            val detalheAtual by torneiosViewModel.detalheTorneioState.collectAsState()
+            val torneio = detalheAtual?.getOrNull()?.torneio
             val jogos = detalhe?.getOrNull()?.jogos ?: emptyList()
             val isLoading = detalhe == null
 
@@ -520,7 +530,8 @@ fun OrganizerFlowContainer(
                 torneiosViewModel.carregarDetalheTorneio(route.torneioId)
             }
 
-            val torneio = detalhe?.getOrNull()?.torneio
+            val detalheAtual by torneiosViewModel.detalheTorneioState.collectAsState()
+            val torneio = detalheAtual?.getOrNull()?.torneio
             val jogos = detalhe?.getOrNull()?.jogos ?: emptyList()
             val jogo = jogos.firstOrNull { it.id == route.jogoId }
 

@@ -1,11 +1,21 @@
 package com.leaguematch.ui.participant
 
 import android.content.Context
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import com.leaguematch.data.remote.model.ConfiguracaoNotificacoes
 import com.leaguematch.data.remote.model.Jogo
 import com.leaguematch.data.remote.model.Utilizador
+import com.leaguematch.data.repository.LeagueMatchRepository
 import com.leaguematch.translations.Language
 import com.leaguematch.translations.StringsEn
 import com.leaguematch.translations.StringsPt
@@ -15,6 +25,7 @@ import com.leaguematch.ui.components.ParticipantBottomBar
 import com.leaguematch.viewmodel.AuthViewModel
 import com.leaguematch.viewmodel.ParticipantViewModel
 import com.leaguematch.viewmodel.TorneiosViewModel
+import kotlinx.coroutines.launch
 
 sealed interface ParticipantRoute {
     data object Home : ParticipantRoute
@@ -35,10 +46,12 @@ fun ParticipantFlowContainer(
     torneiosViewModel: TorneiosViewModel,
     authViewModel: AuthViewModel,
     participantViewModel: ParticipantViewModel,
+    repository: LeagueMatchRepository,
     usuarioLogado: Utilizador?,
     onTerminarSessao: () -> Unit
 ) {
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
     val prefs = remember {
         context.getSharedPreferences("participant_preferences", Context.MODE_PRIVATE)
@@ -226,6 +239,14 @@ fun ParticipantFlowContainer(
         ParticipantRoute.Perfil -> {
             DefinicoesScreen(
                 utilizadorLogado = usuarioLogado,
+                configuracaoNotificacoes = ConfiguracaoNotificacoes(
+                    utilizadorId = usuarioLogado?.id ?: 0
+                ),
+                onGuardarConfiguracaoNotificacoes = { config ->
+                    coroutineScope.launch {
+                        repository.atualizarConfiguracaoNotificacoes(config)
+                    }
+                },
                 language = language,
                 onLanguageChange = { newLanguage ->
                     language = newLanguage

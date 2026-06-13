@@ -2,7 +2,17 @@ package com.leaguematch.ui.organizer
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -10,7 +20,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,7 +35,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.leaguematch.data.remote.model.Jogo
 import com.leaguematch.data.remote.model.Torneio
-import com.leaguematch.ui.theme.*
+import com.leaguematch.ui.components.TranslatedText
+import com.leaguematch.ui.theme.Geist
+import com.leaguematch.ui.theme.LMBorder
+import com.leaguematch.ui.theme.LMGray100
+import com.leaguematch.ui.theme.LMGray300
+import com.leaguematch.ui.theme.LMGray50
+import com.leaguematch.ui.theme.LMGray500
+import com.leaguematch.ui.theme.LMInk
+import com.leaguematch.ui.theme.LMRed
+import com.leaguematch.ui.theme.LMWhite
 
 @Composable
 fun OrgCalendarioScreen(
@@ -50,7 +74,7 @@ fun OrgCalendarioScreen(
                     Icon(Icons.Rounded.ArrowBack, contentDescription = null, tint = LMInk)
                 }
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
+                    TranslatedText(
                         text = "Calendário",
                         fontFamily = Geist, fontWeight = FontWeight.ExtraBold,
                         fontSize = 20.sp, color = LMInk
@@ -99,7 +123,7 @@ private fun DiaSection(data: String, jogos: List<Jogo>) {
             fontSize = 14.sp, color = LMInk
         )
         Spacer(modifier = Modifier.width(8.dp))
-        Text(
+        TranslatedText(
             text = "· ${jogos.size} ${if (jogos.size == 1) "jogo" else "jogos"}",
             fontFamily = Geist, fontSize = 12.sp, color = LMGray500
         )
@@ -146,12 +170,12 @@ private fun JogoCalendarioCard(jogo: Jogo) {
             Spacer(modifier = Modifier.width(10.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                Text(
+                TranslatedText(
                     text = "${jogo.casa} vs ${jogo.fora}",
                     fontFamily = Geist, fontWeight = FontWeight.SemiBold,
                     fontSize = 13.sp, color = LMInk
                 )
-                Text(
+                TranslatedText(
                     text = jogo.estado,
                     fontFamily = Geist, fontSize = 11.sp, color = LMGray500
                 )
@@ -186,7 +210,7 @@ private fun EmptyCalendarState() {
                 tint = LMGray300, modifier = Modifier.size(40.dp)
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Sem jogos agendados.", fontFamily = Geist, fontSize = 13.sp, color = LMGray500)
+            TranslatedText("Sem jogos agendados.", fontFamily = Geist, fontSize = 13.sp, color = LMGray500)
         }
     }
 }

@@ -4,15 +4,49 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -23,7 +57,18 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.leaguematch.data.remote.model.Equipa
 import com.leaguematch.data.remote.model.Torneio
-import com.leaguematch.ui.theme.*
+import com.leaguematch.ui.components.TranslatedText
+import com.leaguematch.ui.theme.Bricolage
+import com.leaguematch.ui.theme.Geist
+import com.leaguematch.ui.theme.LMBorder
+import com.leaguematch.ui.theme.LMGray100
+import com.leaguematch.ui.theme.LMGray300
+import com.leaguematch.ui.theme.LMGray400
+import com.leaguematch.ui.theme.LMGray500
+import com.leaguematch.ui.theme.LMGray600
+import com.leaguematch.ui.theme.LMInk
+import com.leaguematch.ui.theme.LMRed
+import com.leaguematch.ui.theme.LMWhite
 
 @Composable
 fun OrgCriarJogoScreen(
@@ -75,7 +120,7 @@ fun OrgCriarJogoScreen(
                 IconButton(onClick = onBackClick) {
                     Icon(Icons.Rounded.ArrowBack, contentDescription = null, tint = LMInk)
                 }
-                Text(
+                TranslatedText(
                     text = "Criar Jogo",
                     fontFamily = Geist,
                     fontWeight = FontWeight.ExtraBold,
@@ -176,7 +221,7 @@ fun OrgCriarJogoScreen(
                         color = LMWhite
                     )
                 } else {
-                    Text(
+                    TranslatedText(
                         text = "Criar jogo",
                         fontFamily = Geist,
                         fontWeight = FontWeight.Bold,
@@ -196,7 +241,7 @@ fun OrgCriarJogoScreen(
                 shape = RoundedCornerShape(14.dp),
                 border = BorderStroke(1.dp, LMBorder)
             ) {
-                Text(
+                TranslatedText(
                     text = "Cancelar",
                     fontFamily = Geist,
                     fontWeight = FontWeight.SemiBold,
@@ -410,7 +455,7 @@ private fun EquipaPickerDialog(
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(modifier = Modifier.padding(20.dp)) {
-                Text(
+                TranslatedText(
                     text = titulo,
                     fontFamily = Geist,
                     fontWeight = FontWeight.ExtraBold,
@@ -421,7 +466,7 @@ private fun EquipaPickerDialog(
                 Spacer(modifier = Modifier.height(14.dp))
 
                 if (equipas.isEmpty()) {
-                    Text(
+                    TranslatedText(
                         text = "Sem equipas neste torneio.",
                         fontFamily = Geist,
                         fontSize = 13.sp,
@@ -468,7 +513,7 @@ private fun EquipaPickerDialog(
                     onClick = onDismiss,
                     modifier = Modifier.align(Alignment.End)
                 ) {
-                    Text("Cancelar", fontFamily = Geist, color = LMGray500)
+                    TranslatedText("Cancelar", fontFamily = Geist, color = LMGray500)
                 }
             }
         }

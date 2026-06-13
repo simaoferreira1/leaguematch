@@ -1,17 +1,28 @@
 package com.leaguematch.ui.admin
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import com.leaguematch.data.remote.model.ConfiguracaoNotificacoes
 import com.leaguematch.data.remote.model.Utilizador
 import com.leaguematch.data.repository.LeagueMatchRepository
 import com.leaguematch.ui.components.AdminBottomBar
-import com.leaguematch.ui.components.RemoteContent
-import com.leaguematch.ui.components.LoadingScreen
 import com.leaguematch.ui.components.ErrorScreen
+import com.leaguematch.ui.components.LoadingScreen
+import com.leaguematch.ui.components.RemoteContent
 import com.leaguematch.viewmodel.AuthViewModel
 import com.leaguematch.viewmodel.GraficosViewModel
 import com.leaguematch.viewmodel.HomeViewModel
 import com.leaguematch.viewmodel.TorneiosViewModel
 import com.leaguematch.viewmodel.UtilizadoresViewModel
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 //Rotas disponveis no administrador
 sealed interface AdminRoute {
@@ -40,7 +51,7 @@ fun AdminFlowContainer(
 ) {
     //Guarda o ecrã apresentado ao administrador
     var currentRoute by remember { mutableStateOf<AdminRoute>(AdminRoute.Home) }
-
+    val coroutineScope = rememberCoroutineScope()
     //função auxiliar para alterar a rota atual
     fun navigate(route: AdminRoute) {
         currentRoute = route
@@ -256,6 +267,14 @@ fun AdminFlowContainer(
         AdminRoute.Definicoes -> {
             DefinicoesScreen(
                 utilizadorLogado = usuarioLogado,
+                configuracaoNotificacoes = ConfiguracaoNotificacoes(
+                    utilizadorId = usuarioLogado?.id ?: 0
+                ),
+                onGuardarConfiguracaoNotificacoes = { config ->
+                    coroutineScope.launch {
+                        repository.atualizarConfiguracaoNotificacoes(config)
+                    }
+                },
                 onTerminarSessaoClick = {
                     onTerminarSessao()
                     navigate(AdminRoute.Home)
