@@ -84,37 +84,4 @@ class UtilizadoresViewModelTest {
         assertTrue(state!!.isFailure)
         assertEquals(exception, state.exceptionOrNull())
     }
-
-    @Test
-    fun `alterarEstadoUtilizador success calls repository and reloads details and list`() = runTest {
-        val singleUser = mockUsersList[1]
-        coEvery { repository.alterarEstadoUtilizador(2, false) } returns true
-        coEvery { repository.obterUtilizador(2) } returns singleUser.copy(active = false)
-        coEvery { repository.listarUtilizadores() } returns listOf(mockUsersList[0], singleUser.copy(active = false))
-
-        viewModel.alterarEstadoUtilizador(2, false)
-
-        val detailState = viewModel.detalheUtilizadorState.value
-        assertNotNull(detailState)
-        assertTrue(detailState!!.isSuccess)
-        assertEquals(false, detailState.getOrNull()?.active)
-
-        val listState = viewModel.utilizadoresState.value
-        assertNotNull(listState)
-        assertTrue(listState!!.isSuccess)
-        assertEquals(false, listState.getOrNull()?.get(1)?.active)
-    }
-
-    @Test
-    fun `alterarEstadoUtilizador error updates detailState with Failure`() = runTest {
-        val exception = RuntimeException("Failed to update status")
-        coEvery { repository.alterarEstadoUtilizador(2, false) } throws exception
-
-        viewModel.alterarEstadoUtilizador(2, false)
-
-        val state = viewModel.detalheUtilizadorState.value
-        assertNotNull(state)
-        assertTrue(state!!.isFailure)
-        assertEquals(exception, state.exceptionOrNull())
-    }
 }

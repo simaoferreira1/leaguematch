@@ -661,6 +661,34 @@ fun OrganizerFlowContainer(
                     jogos = data.jogos,
                     onBackClick = {
                         currentOrgRoute = OrganizerRoute.DetalheTorneio(route.torneioId)
+                    },
+                    onAtualizarDataHoraJogo = { jogo, dataNova, horaNova ->
+
+                        torneiosViewModel.atualizarJogo(
+                            id = jogo.id,
+                            resultadoCasa = jogo.resultadoCasa,
+                            resultadoFora = jogo.resultadoFora,
+                            estado = jogo.estado,
+                            local = jogo.local,
+                            data = dataNova,
+                            hora = horaNova,
+                            onSuccess = {
+                                torneiosViewModel.carregarDetalheTorneio(route.torneioId)
+
+                                Toast.makeText(
+                                    context,
+                                    "Jogo atualizado com sucesso!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            },
+                            onError = { erro ->
+                                Toast.makeText(
+                                    context,
+                                    erro,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        )
                     }
                 )
             } else {

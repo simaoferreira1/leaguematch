@@ -48,13 +48,16 @@ data class Jogo(
     val torneioId: Int,
     val casa: String,
     val fora: String,
+    val equipaCasaId: Int? = null,
+    val equipaForaId: Int? = null,
     val resultadoCasa: Int = 0,
     val resultadoFora: Int = 0,
     val estado: String,
     val active: Boolean = true,
     val data: String = "",
     val hora: String = "",
-    val local: String = "A definir"
+    val local: String = "A definir",
+    val iniciado_em: String? = null
 )
 
 data class Classificacao(
