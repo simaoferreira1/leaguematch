@@ -317,27 +317,52 @@ private fun JogoOrgCard(
                     )
                 }
             } else if (isOngoing) {
-                // Pulses green and counts elapsed seconds
-                var elapsedSeconds by remember { mutableStateOf(0) }
-                
-                LaunchedEffect(Unit) {
+
+                var elapsedSeconds by remember(jogo.iniciado_em) {
+                    mutableStateOf(0)
+                }
+
+                LaunchedEffect(jogo.iniciado_em) {
                     while (true) {
+
+                        val inicioMillis = jogo.iniciado_em?.let {
+                            runCatching {
+                                java.time.LocalDateTime
+                                    .parse(it.replace(" ", "T"))
+                                    .atZone(java.time.ZoneId.systemDefault())
+                                    .toInstant()
+                                    .toEpochMilli()
+                            }.getOrNull()
+                        }
+
+                        elapsedSeconds = if (inicioMillis != null) {
+                            val agoraMillis = System.currentTimeMillis()
+                            ((agoraMillis - inicioMillis) / 1000).toInt().coerceAtLeast(0)
+                        } else {
+                            0
+                        }
+
                         kotlinx.coroutines.delay(1000)
-                        elapsedSeconds++
                     }
                 }
-                
+
                 val min = elapsedSeconds / 60
                 val sec = elapsedSeconds % 60
-                
+
                 Spacer(modifier = Modifier.height(4.dp))
+
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
                             .size(6.dp)
-                            .background(Color(0xFF22C55E), shape = androidx.compose.foundation.shape.CircleShape)
+                            .background(
+                                Color(0xFF22C55E),
+                                shape = androidx.compose.foundation.shape.CircleShape
+                            )
                     )
+
                     Spacer(modifier = Modifier.width(6.dp))
+
                     TranslatedText(
                         text = String.format("Tempo decorrido: %02d:%02d", min, sec),
                         fontFamily = Geist,

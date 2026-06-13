@@ -64,7 +64,8 @@ interface LeagueMatchRepository {
         estado: String,
         local: String? = null,
         data: String? = null,
-        hora: String? = null
+        hora: String? = null,
+        atualizarInicio: Boolean = false
     ): Jogo?
     suspend fun criarJogo(
         torneioId: Int,
@@ -75,7 +76,13 @@ interface LeagueMatchRepository {
         local: String
     ): Jogo?
     suspend fun guardarEstatisticasJogo(partidaId: Int, estatisticas: List<EstatisticaJogo>): Boolean
-    suspend fun registarEventoJogo(partidaId: Int, tipo: String, equipa: String, tempo: Int, jogadorNome: String?): Boolean
+    suspend fun registarEventoJogo(
+        partidaId: Int,
+        tipo: String,
+        equipa: String,
+        tempo: Int,
+        userId: Int?
+    ): Boolean
     suspend fun obterConfiguracaoNotificacoes(utilizadorId: Int): ConfiguracaoNotificacoes
 
     suspend fun atualizarConfiguracaoNotificacoes(
