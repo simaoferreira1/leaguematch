@@ -17,7 +17,9 @@ import kotlinx.coroutines.launch
  *    e expomos apenas um `StateFlow` (público, imutável) para a UI. Isto impede que a UI altere o estado diretamente.
  * 2. **viewModelScope.launch**: Cria e executa uma Coroutine associada ao ciclo de vida do ViewModel. 
  *    Se o utilizador rodar o ecrã ou sair da app, as coroutines em execução são canceladas automaticamente, evitando fugas de memória.
- * 3. **Gestão de Sessão**: Guarda o objeto `Utilizador` logado para que toda a aplicação saiba quem é o utilizador ativo class AuthViewModel(private val repository: LeagueMatchRepository) : ViewModel() { // ViewModel de autenticação recebendo a interface de repositório
+ * 3. **Gestão de Sessão**: Guarda o objeto `Utilizador` logado para que toda a aplicação saiba quem é o utilizador ativo.
+ */
+class AuthViewModel(private val repository: LeagueMatchRepository) : ViewModel() { // ViewModel de autenticação recebendo a interface de repositório
 
     // Fluxo de estado mutável que indica se o utilizador está logado
     private val _isLoggedIn = MutableStateFlow(false) 
