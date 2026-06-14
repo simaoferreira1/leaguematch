@@ -1,15 +1,23 @@
-package com.leaguematch.ui.components
+/**
+ * ESTUDAR PARA A APRESENTAÇÃO:
+ * Ficheiro: TranslatedLeagueMatchTextField.kt
+ * Tipo: Componente Visual Reutilizável
+ *
+ * Descrição:
+ * Este ficheiro define um componente personalizado e reutilizável em Jetpack Compose.\n * É partilhado entre vários ecrãs para manter a consistência visual (botões, listas, caixas de diálogo, etc.).
+ */
+package com.leaguematch.ui.components // Define o pacote deste ficheiro de código
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import com.leaguematch.translations.Language
+import androidx.compose.runtime.Composable // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.LaunchedEffect // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.getValue // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.mutableStateOf // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.remember // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.setValue // Importa dependência / biblioteca necessária
+import com.leaguematch.translations.Language // Importa dependência / biblioteca necessária
 
 @Composable
-fun TranslatedLeagueMatchTextField(
+fun TranslatedLeagueMatchTextField( // Declaração de função / método de lógica
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
@@ -18,35 +26,35 @@ fun TranslatedLeagueMatchTextField(
     isPassword: Boolean = false,
     error: String? = null
 ) {
-    val language = LocalLanguage.current
-    val translationRepository = LocalTranslationRepository.current
+    val language = LocalLanguage.current // Declara constante local (leitura única)
+    val translationRepository = LocalTranslationRepository.current // Declara constante local (leitura única)
 
-    var translatedLabel by remember(label, language) {
-        mutableStateOf(label)
+    var translatedLabel by remember(label, language) { // Memoriza estado para evitar perda durante a recomposição
+        mutableStateOf(label) // Declara estado mutável local do Compose
     }
 
-    var translatedPlaceholder by remember(placeholder, language) {
-        mutableStateOf(placeholder)
+    var translatedPlaceholder by remember(placeholder, language) { // Memoriza estado para evitar perda durante a recomposição
+        mutableStateOf(placeholder) // Declara estado mutável local do Compose
     }
 
-    var translatedHint by remember(hint, language) {
-        mutableStateOf(hint)
+    var translatedHint by remember(hint, language) { // Memoriza estado para evitar perda durante a recomposição
+        mutableStateOf(hint) // Declara estado mutável local do Compose
     }
 
-    var translatedError by remember(error, language) {
-        mutableStateOf(error)
+    var translatedError by remember(error, language) { // Memoriza estado para evitar perda durante a recomposição
+        mutableStateOf(error) // Declara estado mutável local do Compose
     }
 
-    LaunchedEffect(label, placeholder, hint, error, language) {
-        if (language == Language.EN && translationRepository != null) {
+    LaunchedEffect(label, placeholder, hint, error, language) { // Efeito colateral Compose: executa código assíncrono ao recompor
+        if (language == Language.EN && translationRepository != null) { // Estrutura de decisão condicional principal
 
             translatedLabel =
                 translationRepository.translateText(label, "EN")
 
             translatedPlaceholder =
-                if (placeholder.isNotBlank())
+                if (placeholder.isNotBlank()) // Estrutura de decisão condicional principal
                     translationRepository.translateText(placeholder, "EN")
-                else
+                else // Fluxo condicional alternativo caso o 'if' seja falso
                     ""
 
             translatedHint =
@@ -59,7 +67,7 @@ fun TranslatedLeagueMatchTextField(
                     translationRepository.translateText(it, "EN")
                 }
 
-        } else {
+        } else { // Fluxo condicional alternativo caso o 'if' seja falso
             translatedLabel = label
             translatedPlaceholder = placeholder
             translatedHint = hint

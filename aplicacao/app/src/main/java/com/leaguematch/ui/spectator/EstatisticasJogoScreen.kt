@@ -1,63 +1,71 @@
-package com.leaguematch.ui.spectator
+/**
+ * ESTUDAR PARA A APRESENTAÇÃO:
+ * Ficheiro: EstatisticasJogoScreen.kt
+ * Tipo: Interface (Compose View) do Espectador
+ *
+ * Descrição:
+ * Este ficheiro define um ecrã de visualização pública (Espectador) em Jetpack Compose.\n * Apenas exibe dados para leitura (como tabelas de classificação, jogos ao vivo e calendários) sem permitir alteração.
+ */
+package com.leaguematch.ui.spectator // Define o pacote deste ficheiro de código
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Analytics
-import androidx.compose.material.icons.filled.BarChart
-import androidx.compose.material.icons.filled.Flag
-import androidx.compose.material.icons.filled.GpsFixed
-import androidx.compose.material.icons.filled.PanTool
-import androidx.compose.material.icons.filled.SportsSoccer
-import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.leaguematch.data.remote.model.EstatisticaJogo
-import com.leaguematch.data.remote.model.Jogo
-import com.leaguematch.translations.AppStrings
-import com.leaguematch.translations.StringsPt
-import com.leaguematch.ui.components.TranslatedText
-import com.leaguematch.ui.theme.Bricolage
-import com.leaguematch.ui.theme.Geist
-import com.leaguematch.ui.theme.GeistMono
-import com.leaguematch.ui.theme.LMGray500
-import com.leaguematch.ui.theme.LMInk
-import com.leaguematch.ui.theme.LMRed
-import com.leaguematch.ui.theme.LMWhite
+import androidx.compose.foundation.BorderStroke // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.background // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Arrangement // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Box // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Column // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Row // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Spacer // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.fillMaxHeight // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.fillMaxSize // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.fillMaxWidth // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.height // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.padding // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.size // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.statusBarsPadding // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.width // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.rememberScrollState // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.shape.CircleShape // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.shape.RoundedCornerShape // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.verticalScroll // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.Icons // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Analytics // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.BarChart // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Flag // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.GpsFixed // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.PanTool // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.SportsSoccer // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.rounded.ArrowBack // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Card // Importa dependência / biblioteca necessária
+import androidx.compose.material3.CardDefaults // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Icon // Importa dependência / biblioteca necessária
+import androidx.compose.material3.IconButton // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Scaffold // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Text // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.Composable // Importa dependência / biblioteca necessária
+import androidx.compose.ui.Alignment // Importa dependência / biblioteca necessária
+import androidx.compose.ui.Modifier // Importa dependência / biblioteca necessária
+import androidx.compose.ui.draw.clip // Importa dependência / biblioteca necessária
+import androidx.compose.ui.graphics.Brush // Importa dependência / biblioteca necessária
+import androidx.compose.ui.graphics.Color // Importa dependência / biblioteca necessária
+import androidx.compose.ui.text.font.FontWeight // Importa dependência / biblioteca necessária
+import androidx.compose.ui.text.style.TextAlign // Importa dependência / biblioteca necessária
+import androidx.compose.ui.unit.dp // Importa dependência / biblioteca necessária
+import androidx.compose.ui.unit.sp // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.EstatisticaJogo // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.Jogo // Importa dependência / biblioteca necessária
+import com.leaguematch.translations.AppStrings // Importa dependência / biblioteca necessária
+import com.leaguematch.translations.StringsPt // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.components.TranslatedText // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.Bricolage // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.Geist // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.GeistMono // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMGray500 // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMInk // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMRed // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMWhite // Importa dependência / biblioteca necessária
 
 @Composable
-fun EstatisticasJogoScreen(
+fun EstatisticasJogoScreen( // Declaração de função / método de lógica
     jogo: Jogo,
     estatisticas: List<EstatisticaJogo>,
     onBackClick: () -> Unit,
@@ -71,8 +79,8 @@ fun EstatisticasJogoScreen(
         containerColor = Color(0xFFF6F6F8)
     ) { innerPadding ->
 
-        Column(
-            modifier = Modifier
+        Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                 .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
@@ -81,18 +89,18 @@ fun EstatisticasJogoScreen(
         ) {
             EstatisticasHeaderCard(jogo = jogo)
 
-            val estatisticasExibicao = if (estatisticas.isEmpty()) {
+            val estatisticasExibicao = if (estatisticas.isEmpty()) { // Estrutura de decisão condicional principal
                 com.leaguematch.ui.organizer.estatisticasPorModalidade(modalidade).flatMap {
                     listOf(
                         EstatisticaJogo(tipo = it.titulo, equipa = "casa", valor = it.casa),
                         EstatisticaJogo(tipo = it.titulo, equipa = "fora", valor = it.fora)
                     )
                 }
-            } else {
+            } else { // Fluxo condicional alternativo caso o 'if' seja falso
                 estatisticas
             }
 
-            val groupedStats = estatisticasExibicao.groupBy { it.tipo }
+            val groupedStats = estatisticasExibicao.groupBy { it.tipo } // Declara constante local (leitura única)
             groupedStats.forEach { (tipo, _) ->
                 EstatisticaComparativaCard(
                     titulo = tipo,
@@ -106,19 +114,19 @@ fun EstatisticasJogoScreen(
 }
 
 @Composable
-private fun EstatisticasTopBar(
+private fun EstatisticasTopBar( // Declaração de função / método de lógica
     onBackClick: () -> Unit
 ) {
-    Row(
-        modifier = Modifier
+    Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+        modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
             .fillMaxWidth()
             .background(Color.White)
             .statusBarsPadding()
             .padding(horizontal = 8.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = onBackClick) {
-            Icon(
+        IconButton(onClick = onBackClick) { // Componente Compose: Desenha um botão com ícone
+            Icon( // Componente Compose: Desenha um ícone vetorial
                 imageVector = Icons.Rounded.ArrowBack,
                 contentDescription = "Voltar",
                 tint = Color.Black
@@ -131,24 +139,24 @@ private fun EstatisticasTopBar(
             fontWeight = FontWeight.ExtraBold,
             fontSize = 18.sp,
             color = Color.Black,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f) // Modificador Compose: Define tamanho, margem, padding ou clique
         )
 
-        Icon(
+        Icon( // Componente Compose: Desenha um ícone vetorial
             imageVector = Icons.Default.Analytics,
             contentDescription = null,
             tint = LMRed,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(24.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
         )
     }
 }
 
 @Composable
-private fun EstatisticasHeaderCard(
+private fun EstatisticasHeaderCard( // Declaração de função / método de lógica
     jogo: Jogo
 ) {
-    Box(
-        modifier = Modifier
+    Box( // Contentor Compose: Sobrepõe os elementos filhos
+        modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
             .fillMaxWidth()
             .background(
                 brush = Brush.verticalGradient(
@@ -158,10 +166,10 @@ private fun EstatisticasHeaderCard(
             )
             .padding(18.dp)
     ) {
-        Column(
+        Column( // Contentor Compose: Alinha os filhos numa coluna vertical
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = jogo.estado.uppercase(),
                 fontFamily = Geist,
                 fontWeight = FontWeight.Bold,
@@ -169,22 +177,22 @@ private fun EstatisticasHeaderCard(
                 color = Color.White.copy(alpha = 0.6f)
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(14.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
+            Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+                modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 EquipaHeader(
                     nome = jogo.casa,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f) // Modificador Compose: Define tamanho, margem, padding ou clique
                 )
 
-                Column(
+                Column( // Contentor Compose: Alinha os filhos numa coluna vertical
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(horizontal = 12.dp)
+                    modifier = Modifier.padding(horizontal = 12.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
                 ) {
-                    Text(
+                    Text( // Componente Compose: Desenha texto estruturado no ecrã
                         text = "${jogo.resultadoCasa} - ${jogo.resultadoFora}",
                         fontFamily = Bricolage,
                         fontWeight = FontWeight.ExtraBold,
@@ -202,7 +210,7 @@ private fun EstatisticasHeaderCard(
 
                 EquipaHeader(
                     nome = jogo.fora,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f) // Modificador Compose: Define tamanho, margem, padding ou clique
                 )
             }
         }
@@ -210,16 +218,16 @@ private fun EstatisticasHeaderCard(
 }
 
 @Composable
-private fun EquipaHeader(
+private fun EquipaHeader( // Declaração de função / método de lógica
     nome: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
 ) {
-    Column(
+    Column( // Contentor Compose: Alinha os filhos numa coluna vertical
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box(
-            modifier = Modifier
+        Box( // Contentor Compose: Sobrepõe os elementos filhos
+            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                 .size(52.dp)
                 .background(
                     brush = Brush.linearGradient(
@@ -229,7 +237,7 @@ private fun EquipaHeader(
                 ),
             contentAlignment = Alignment.Center
         ) {
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = nome
                     .split("\\s+".toRegex())
                     .take(2)
@@ -243,9 +251,9 @@ private fun EquipaHeader(
             )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(8.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-        Text(
+        Text( // Componente Compose: Desenha texto estruturado no ecrã
             text = nome,
             fontFamily = Geist,
             fontWeight = FontWeight.Bold,
@@ -258,45 +266,45 @@ private fun EquipaHeader(
 }
 
 @Composable
-private fun EstatisticaComparativaCard(
+private fun EstatisticaComparativaCard( // Declaração de função / método de lógica
     titulo: String,
     tipo: String,
     estatisticas: List<EstatisticaJogo>,
     percentagem: Boolean = false
 ) {
-    val estatisticasTipo = estatisticas.filter {
+    val estatisticasTipo = estatisticas.filter { // Declara constante local (leitura única)
         it.tipo.equals(tipo, ignoreCase = true)
     }
 
-    val casa = estatisticasTipo
+    val casa = estatisticasTipo // Declara constante local (leitura única)
         .firstOrNull { it.equipa.equals("casa", ignoreCase = true) }
         ?.valor ?: 0
 
-    val fora = estatisticasTipo
+    val fora = estatisticasTipo // Declara constante local (leitura única)
         .firstOrNull { it.equipa.equals("fora", ignoreCase = true) }
         ?.valor ?: 0
 
-    val total = (casa + fora).coerceAtLeast(1)
-    val casaPeso = casa.toFloat() / total.toFloat()
-    val foraPeso = fora.toFloat() / total.toFloat()
+    val total = (casa + fora).coerceAtLeast(1) // Declara constante local (leitura única)
+    val casaPeso = casa.toFloat() / total.toFloat() // Declara constante local (leitura única)
+    val foraPeso = fora.toFloat() / total.toFloat() // Declara constante local (leitura única)
 
-    val sufixo = if (percentagem) "%" else ""
+    val sufixo = if (percentagem) "%" else "" // Estrutura de decisão condicional principal
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
+    Card( // Contentor Compose: Cartão visual com elevação e cantos
+        modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = LMWhite),
         border = BorderStroke(1.dp, Color(0xFFE2E2E7))
     ) {
-        Column(
-            modifier = Modifier.padding(14.dp),
+        Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+            modifier = Modifier.padding(14.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Row(
+            Row( // Contentor Compose: Alinha os filhos numa linha horizontal
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
-                    modifier = Modifier
+                Box( // Contentor Compose: Sobrepõe os elementos filhos
+                    modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                         .size(30.dp)
                         .background(
                             color = LMRed.copy(alpha = 0.12f),
@@ -304,7 +312,7 @@ private fun EstatisticaComparativaCard(
                         ),
                     contentAlignment = Alignment.Center
                 ) {
-                    val icon = when {
+                    val icon = when { // Escolha múltipla condicional (semelhante a switch-case)
                         titulo.contains("Posse", ignoreCase = true) ->
                             Icons.Default.PanTool
 
@@ -317,21 +325,21 @@ private fun EstatisticaComparativaCard(
                         titulo.contains("Cantos", ignoreCase = true) ->
                             Icons.Default.Flag
 
-                        else ->
+                        else -> // Fluxo condicional alternativo caso o 'if' seja falso
                             Icons.Default.BarChart
                     }
 
-                    Icon(
+                    Icon( // Componente Compose: Desenha um ícone vetorial
                         imageVector = icon,
                         contentDescription = null,
                         tint = LMRed,
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(16.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
                     )
                 }
 
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(10.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-                Text(
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = titulo,
                     fontFamily = Geist,
                     fontWeight = FontWeight.Bold,
@@ -340,11 +348,11 @@ private fun EstatisticaComparativaCard(
                 )
             }
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
+            Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+                modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = "$casa$sufixo",
                     fontFamily = GeistMono,
                     fontWeight = FontWeight.ExtraBold,
@@ -352,7 +360,7 @@ private fun EstatisticaComparativaCard(
                     color = LMInk
                 )
 
-                Text(
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = "$fora$sufixo",
                     fontFamily = GeistMono,
                     fontWeight = FontWeight.ExtraBold,
@@ -361,25 +369,25 @@ private fun EstatisticaComparativaCard(
                 )
             }
 
-            Row(
-                modifier = Modifier
+            Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+                modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                     .fillMaxWidth()
                     .height(9.dp)
                     .clip(RoundedCornerShape(20.dp))
                     .background(Color(0xFFEDEDF1))
             ) {
-                if (casa > 0) {
-                    Box(
-                        modifier = Modifier
+                if (casa > 0) { // Estrutura de decisão condicional principal
+                    Box( // Contentor Compose: Sobrepõe os elementos filhos
+                        modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                             .fillMaxHeight()
                             .weight(casaPeso)
                             .background(LMRed)
                     )
                 }
 
-                if (fora > 0) {
-                    Box(
-                        modifier = Modifier
+                if (fora > 0) { // Estrutura de decisão condicional principal
+                    Box( // Contentor Compose: Sobrepõe os elementos filhos
+                        modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                             .fillMaxHeight()
                             .weight(foraPeso)
                             .background(Color(0xFF111827))
@@ -387,18 +395,18 @@ private fun EstatisticaComparativaCard(
                 }
             }
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
+            Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+                modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = "Casa",
                     fontFamily = Geist,
                     fontSize = 11.sp,
                     color = LMGray500
                 )
 
-                Text(
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = "Fora",
                     fontFamily = Geist,
                     fontSize = 11.sp,
@@ -410,20 +418,20 @@ private fun EstatisticaComparativaCard(
 }
 
 @Composable
-private fun SemEstatisticasCard() {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
+private fun SemEstatisticasCard() { // Declaração de função / método de lógica
+    Card( // Contentor Compose: Cartão visual com elevação e cantos
+        modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = LMWhite),
         border = BorderStroke(1.dp, Color(0xFFE2E2E7))
     ) {
-        Box(
-            modifier = Modifier
+        Box( // Contentor Compose: Sobrepõe os elementos filhos
+            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                 .fillMaxWidth()
                 .padding(vertical = 36.dp, horizontal = 18.dp),
             contentAlignment = Alignment.Center
         ) {
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = "Ainda não existem estatísticas registadas para este jogo.",
                 fontFamily = Geist,
                 fontSize = 13.sp,

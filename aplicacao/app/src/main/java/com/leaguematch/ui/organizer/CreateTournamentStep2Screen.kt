@@ -1,57 +1,65 @@
-package com.leaguematch.ui.organizer
+/**
+ * ESTUDAR PARA A APRESENTAÇÃO:
+ * Ficheiro: CreateTournamentStep2Screen.kt
+ * Tipo: Interface (Compose View) do Organizador
+ *
+ * Descrição:
+ * Este ficheiro define um ecrã da área do Organizador em Jetpack Compose.\n * Fornece interface e lógica visual para criar torneios, gerir equipas, registar e editar jogos e estatísticas.
+ */
+package com.leaguematch.ui.organizer // Define o pacote deste ficheiro de código
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.EmojiEvents
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Public
-import androidx.compose.material.icons.filled.SportsScore
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.leaguematch.ui.components.TranslatedText
-import com.leaguematch.ui.theme.Bricolage
-import com.leaguematch.ui.theme.Geist
-import com.leaguematch.ui.theme.LMGray500
-import com.leaguematch.ui.theme.LMInk
-import com.leaguematch.ui.theme.LMRed
-import com.leaguematch.ui.theme.LMWhite
+import androidx.compose.foundation.BorderStroke // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.background // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.clickable // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Arrangement // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Box // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Column // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Row // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Spacer // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.fillMaxSize // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.fillMaxWidth // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.height // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.padding // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.size // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.width // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.rememberScrollState // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.shape.RoundedCornerShape // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.verticalScroll // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.Icons // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.CheckCircle // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.EmojiEvents // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Lock // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Public // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.SportsScore // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Icon // Importa dependência / biblioteca necessária
+import androidx.compose.material3.MaterialTheme // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Scaffold // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Surface // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Switch // Importa dependência / biblioteca necessária
+import androidx.compose.material3.SwitchDefaults // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.Composable // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.getValue // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.mutableStateOf // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.remember // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.setValue // Importa dependência / biblioteca necessária
+import androidx.compose.ui.Alignment // Importa dependência / biblioteca necessária
+import androidx.compose.ui.Modifier // Importa dependência / biblioteca necessária
+import androidx.compose.ui.graphics.Brush // Importa dependência / biblioteca necessária
+import androidx.compose.ui.graphics.Color // Importa dependência / biblioteca necessária
+import androidx.compose.ui.graphics.vector.ImageVector // Importa dependência / biblioteca necessária
+import androidx.compose.ui.text.font.FontWeight // Importa dependência / biblioteca necessária
+import androidx.compose.ui.unit.dp // Importa dependência / biblioteca necessária
+import androidx.compose.ui.unit.sp // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.components.TranslatedText // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.Bricolage // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.Geist // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMGray500 // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMInk // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMRed // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMWhite // Importa dependência / biblioteca necessária
 
 @Composable
-fun CreateTournamentStep2Screen(
+fun CreateTournamentStep2Screen( // Declaração de função / método de lógica
     nome: String,
     modalidade: String,
     formato: String,
@@ -68,25 +76,25 @@ fun CreateTournamentStep2Screen(
         pontosVitoria: Int
     ) -> Unit = { _, _, _ -> }
 ) {
-    var publico by remember { mutableStateOf(true) }
-    var jogosIdaVolta by remember { mutableStateOf(false) }
-    var pontosVitoria by remember { mutableStateOf(3) }
+    var publico by remember { mutableStateOf(true) } // Declara estado mutável local do Compose
+    var jogosIdaVolta by remember { mutableStateOf(false) } // Declara estado mutável local do Compose
+    var pontosVitoria by remember { mutableStateOf(3) } // Declara estado mutável local do Compose
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
 
-        Column(
-            modifier = Modifier
+        Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                 .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 18.dp, vertical = 14.dp)
         ) {
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
+            Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+                modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 TranslatedText(
@@ -94,7 +102,7 @@ fun CreateTournamentStep2Screen(
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold,
                     color = LMInk,
-                    modifier = Modifier
+                    modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                         .clickable { onBackClick() }
                         .padding(end = 12.dp)
                 )
@@ -105,7 +113,7 @@ fun CreateTournamentStep2Screen(
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 24.sp,
                     color = LMInk,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f) // Modificador Compose: Define tamanho, margem, padding ou clique
                 )
 
                 TranslatedText(
@@ -114,15 +122,15 @@ fun CreateTournamentStep2Screen(
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
                     color = LMGray500,
-                    modifier = Modifier.clickable { onCancelClick() }
+                    modifier = Modifier.clickable { onCancelClick() } // Modificador Compose: Define tamanho, margem, padding ou clique
                 )
             }
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(18.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             StepHeaderCard()
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(20.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             TranslatedText(
                 text = "Resumo",
@@ -132,7 +140,7 @@ fun CreateTournamentStep2Screen(
                 color = LMInk
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             SummaryCard(
                 nome = nome,
@@ -145,7 +153,7 @@ fun CreateTournamentStep2Screen(
                 regras = regras
             )
 
-            Spacer(modifier = Modifier.height(22.dp))
+            Spacer(modifier = Modifier.height(22.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             TranslatedText(
                 text = "Configurações",
@@ -155,26 +163,26 @@ fun CreateTournamentStep2Screen(
                 color = LMInk
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(14.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             PointsCard(
                 pontos = pontosVitoria,
                 onMinus = {
-                    if (pontosVitoria > 1) pontosVitoria--
+                    if (pontosVitoria > 1) pontosVitoria-- // Estrutura de decisão condicional principal
                 },
                 onPlus = {
-                    if (pontosVitoria < 5) pontosVitoria++
+                    if (pontosVitoria < 5) pontosVitoria++ // Estrutura de decisão condicional principal
                 }
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
+            Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+                modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Surface(
-                    modifier = Modifier
+                    modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                         .weight(1f)
                         .height(54.dp)
                         .clickable { onBackClick() },
@@ -182,7 +190,7 @@ fun CreateTournamentStep2Screen(
                     color = LMWhite,
                     border = BorderStroke(1.dp, Color(0xFFE2E2E7))
                 ) {
-                    Box(contentAlignment = Alignment.Center) {
+                    Box(contentAlignment = Alignment.Center) { // Contentor Compose: Sobrepõe os elementos filhos
                         TranslatedText(
                             text = "Anterior",
                             fontFamily = Geist,
@@ -193,8 +201,8 @@ fun CreateTournamentStep2Screen(
                     }
                 }
 
-                Box(
-                    modifier = Modifier
+                Box( // Contentor Compose: Sobrepõe os elementos filhos
+                    modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                         .weight(1f)
                         .height(54.dp)
                         .background(
@@ -222,25 +230,25 @@ fun CreateTournamentStep2Screen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
         }
     }
 }
 
 @Composable
-private fun StepHeaderCard() {
+private fun StepHeaderCard() { // Declaração de função / método de lógica
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
         shape = RoundedCornerShape(18.dp),
         color = Color(0xFFFFF5F6),
         border = BorderStroke(1.dp, Color(0xFFFFCCD3))
     ) {
-        Row(
-            modifier = Modifier.padding(14.dp),
+        Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+            modifier = Modifier.padding(14.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
+            Box( // Contentor Compose: Sobrepõe os elementos filhos
+                modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                     .size(42.dp)
                     .background(
                         brush = Brush.linearGradient(
@@ -250,17 +258,17 @@ private fun StepHeaderCard() {
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
+                Icon( // Componente Compose: Desenha um ícone vetorial
                     imageVector = Icons.Default.CheckCircle,
                     contentDescription = null,
                     tint = LMWhite,
-                    modifier = Modifier.size(22.dp)
+                    modifier = Modifier.size(22.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
                 )
             }
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(12.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Column {
+            Column { // Contentor Compose: Alinha os filhos numa coluna vertical
                 TranslatedText(
                     text = "Confirmação final",
                     fontFamily = Geist,
@@ -282,7 +290,7 @@ private fun StepHeaderCard() {
 }
 
 @Composable
-private fun SummaryCard(
+private fun SummaryCard( // Declaração de função / método de lógica
     nome: String,
     modalidade: String,
     formato: String,
@@ -293,19 +301,19 @@ private fun SummaryCard(
     regras: String
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
         shape = RoundedCornerShape(18.dp),
         color = LMWhite,
         border = BorderStroke(1.dp, Color(0xFFE5E5EA)),
         tonalElevation = 1.dp,
         shadowElevation = 1.dp
     ) {
-        Column(
-            modifier = Modifier.padding(14.dp)
+        Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+            modifier = Modifier.padding(14.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
+            Row(verticalAlignment = Alignment.CenterVertically) { // Contentor Compose: Alinha os filhos numa linha horizontal
+                Box( // Contentor Compose: Sobrepõe os elementos filhos
+                    modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                         .size(46.dp)
                         .background(
                             brush = Brush.linearGradient(
@@ -315,17 +323,17 @@ private fun SummaryCard(
                         ),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
+                    Icon( // Componente Compose: Desenha um ícone vetorial
                         imageVector = Icons.Default.EmojiEvents,
                         contentDescription = null,
                         tint = LMWhite,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(24.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
                     )
                 }
 
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(12.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-                Column {
+                Column { // Contentor Compose: Alinha os filhos numa coluna vertical
                     TranslatedText(
                         text = nome.ifBlank { "Sem nome definido" },
                         fontFamily = Geist,
@@ -344,17 +352,17 @@ private fun SummaryCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(14.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             SummaryRow("Data início", dataInicio.ifBlank { "Não definida" })
             SummaryRow("Data fim", dataFim.ifBlank { "Não definida" })
             SummaryRow("Máximo de equipas", maxEquipas.ifBlank { "Não definido" })
 
-            if (descricao.isNotBlank()) {
+            if (descricao.isNotBlank()) { // Estrutura de decisão condicional principal
                 SummaryRow("Descrição", descricao)
             }
 
-            if (regras.isNotBlank()) {
+            if (regras.isNotBlank()) { // Estrutura de decisão condicional principal
                 SummaryRow("Regras", regras)
             }
         }
@@ -362,9 +370,9 @@ private fun SummaryCard(
 }
 
 @Composable
-private fun SummaryRow(label: String, value: String) {
-    Column(
-        modifier = Modifier
+private fun SummaryRow(label: String, value: String) { // Declaração de função / método de lógica
+    Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+        modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
             .fillMaxWidth()
             .padding(vertical = 6.dp)
     ) {
@@ -376,7 +384,7 @@ private fun SummaryRow(label: String, value: String) {
             color = LMGray500
         )
 
-        Spacer(modifier = Modifier.height(2.dp))
+        Spacer(modifier = Modifier.height(2.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
         TranslatedText(
             text = value,
@@ -389,7 +397,7 @@ private fun SummaryRow(label: String, value: String) {
 }
 
 @Composable
-private fun OptionSwitchCard(
+private fun OptionSwitchCard( // Declaração de função / método de lógica
     icon: ImageVector,
     title: String,
     subtitle: String,
@@ -397,21 +405,21 @@ private fun OptionSwitchCard(
     onCheckedChange: (Boolean) -> Unit
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
         shape = RoundedCornerShape(18.dp),
         color = LMWhite,
         border = BorderStroke(1.dp, Color(0xFFE5E5EA)),
         tonalElevation = 1.dp,
         shadowElevation = 1.dp
     ) {
-        Row(
-            modifier = Modifier
+        Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                 .clickable { onCheckedChange(!checked) }
                 .padding(14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
+            Box( // Contentor Compose: Sobrepõe os elementos filhos
+                modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                     .size(42.dp)
                     .background(
                         color = Color(0xFFFFEEF1),
@@ -419,18 +427,18 @@ private fun OptionSwitchCard(
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
+                Icon( // Componente Compose: Desenha um ícone vetorial
                     imageVector = icon,
                     contentDescription = null,
                     tint = LMRed,
-                    modifier = Modifier.size(21.dp)
+                    modifier = Modifier.size(21.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
                 )
             }
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(12.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Column(
-                modifier = Modifier.weight(1f)
+            Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+                modifier = Modifier.weight(1f) // Modificador Compose: Define tamanho, margem, padding ou clique
             ) {
                 TranslatedText(
                     text = title,
@@ -440,7 +448,7 @@ private fun OptionSwitchCard(
                     color = LMInk
                 )
 
-                Spacer(modifier = Modifier.height(2.dp))
+                Spacer(modifier = Modifier.height(2.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
                 TranslatedText(
                     text = subtitle,
@@ -466,25 +474,25 @@ private fun OptionSwitchCard(
 }
 
 @Composable
-private fun PointsCard(
+private fun PointsCard( // Declaração de função / método de lógica
     pontos: Int,
     onMinus: () -> Unit,
     onPlus: () -> Unit
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
         shape = RoundedCornerShape(18.dp),
         color = LMWhite,
         border = BorderStroke(1.dp, Color(0xFFE5E5EA)),
         tonalElevation = 1.dp,
         shadowElevation = 1.dp
     ) {
-        Row(
-            modifier = Modifier.padding(14.dp),
+        Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+            modifier = Modifier.padding(14.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
+            Box( // Contentor Compose: Sobrepõe os elementos filhos
+                modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                     .size(42.dp)
                     .background(
                         color = Color(0xFFFFEEF1),
@@ -492,18 +500,18 @@ private fun PointsCard(
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
+                Icon( // Componente Compose: Desenha um ícone vetorial
                     imageVector = Icons.Default.SportsScore,
                     contentDescription = null,
                     tint = LMRed,
-                    modifier = Modifier.size(21.dp)
+                    modifier = Modifier.size(21.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
                 )
             }
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(12.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Column(
-                modifier = Modifier.weight(1f)
+            Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+                modifier = Modifier.weight(1f) // Modificador Compose: Define tamanho, margem, padding ou clique
             ) {
                 TranslatedText(
                     text = "Pontos por vitória",
@@ -522,14 +530,14 @@ private fun PointsCard(
                 )
             }
 
-            Row(
+            Row( // Contentor Compose: Alinha os filhos numa linha horizontal
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 PointsButton("-", onMinus)
 
                 TranslatedText(
                     text = pontos.toString(),
-                    modifier = Modifier.padding(horizontal = 14.dp),
+                    modifier = Modifier.padding(horizontal = 14.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
                     fontFamily = Geist,
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 18.sp,
@@ -543,18 +551,18 @@ private fun PointsCard(
 }
 
 @Composable
-private fun PointsButton(
+private fun PointsButton( // Declaração de função / método de lógica
     text: String,
-    onClick: () -> Unit
+    onClick: () -> Unit // Callback: Define a ação executada ao clicar no componente
 ) {
     Surface(
-        modifier = Modifier
+        modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
             .size(34.dp)
-            .clickable { onClick() },
+            .clickable { onClick() }, // Callback: Define a ação executada ao clicar no componente
         shape = RoundedCornerShape(12.dp),
         color = Color(0xFFF3F3F5)
     ) {
-        Box(contentAlignment = Alignment.Center) {
+        Box(contentAlignment = Alignment.Center) { // Contentor Compose: Sobrepõe os elementos filhos
             TranslatedText(
                 text = text,
                 fontFamily = Geist,

@@ -1,19 +1,27 @@
-package com.leaguematch.ui.components
+/**
+ * ESTUDAR PARA A APRESENTAÇÃO:
+ * Ficheiro: ParticipantBottomBar.kt
+ * Tipo: Componente Visual Reutilizável
+ *
+ * Descrição:
+ * Este ficheiro define um componente personalizado e reutilizável em Jetpack Compose.\n * É partilhado entre vários ecrãs para manter a consistência visual (botões, listas, caixas de diálogo, etc.).
+ */
+package com.leaguematch.ui.components // Define o pacote deste ficheiro de código
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BarChart
-import androidx.compose.material.icons.filled.EmojiEvents
-import androidx.compose.material.icons.filled.Groups
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.SportsSoccer
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.Icons // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.BarChart // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.EmojiEvents // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Groups // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Home // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Settings // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.SportsSoccer // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Icon // Importa dependência / biblioteca necessária
+import androidx.compose.material3.NavigationBar // Importa dependência / biblioteca necessária
+import androidx.compose.material3.NavigationBarItem // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.Composable // Importa dependência / biblioteca necessária
 
 @Composable
-fun ParticipantBottomBar(
+fun ParticipantBottomBar( // Declaração de função / método de lógica
     selectedItem: String,
     onHomeClick: () -> Unit,
     onTorneiosClick: () -> Unit,
@@ -25,43 +33,43 @@ fun ParticipantBottomBar(
     NavigationBar {
         NavigationBarItem(
             selected = selectedItem == "home",
-            onClick = onHomeClick,
-            icon = { Icon(Icons.Default.Home, contentDescription = null) },
+            onClick = onHomeClick, // Callback: Define a ação executada ao clicar no componente
+            icon = { Icon(Icons.Default.Home, contentDescription = null) }, // Componente Compose: Desenha um ícone vetorial
             label = { TranslatedText("Início") }
         )
 
         NavigationBarItem(
             selected = selectedItem == "torneios",
-            onClick = onTorneiosClick,
-            icon = { Icon(Icons.Default.EmojiEvents, contentDescription = null) },
+            onClick = onTorneiosClick, // Callback: Define a ação executada ao clicar no componente
+            icon = { Icon(Icons.Default.EmojiEvents, contentDescription = null) }, // Componente Compose: Desenha um ícone vetorial
             label = { TranslatedText("Torneios") }
         )
 
         NavigationBarItem(
             selected = selectedItem == "jogos",
-            onClick = onJogosClick,
-            icon = { Icon(Icons.Default.SportsSoccer, contentDescription = null) },
+            onClick = onJogosClick, // Callback: Define a ação executada ao clicar no componente
+            icon = { Icon(Icons.Default.SportsSoccer, contentDescription = null) }, // Componente Compose: Desenha um ícone vetorial
             label = { TranslatedText("Jogos") }
         )
 
         NavigationBarItem(
             selected = selectedItem == "equipa",
-            onClick = onEquipaClick,
-            icon = { Icon(Icons.Default.Groups, contentDescription = null) },
+            onClick = onEquipaClick, // Callback: Define a ação executada ao clicar no componente
+            icon = { Icon(Icons.Default.Groups, contentDescription = null) }, // Componente Compose: Desenha um ícone vetorial
             label = { TranslatedText("Equipa") }
         )
 
         NavigationBarItem(
             selected = selectedItem == "estatisticas",
-            onClick = onEstatisticasClick,
-            icon = { Icon(Icons.Default.BarChart, contentDescription = null) },
+            onClick = onEstatisticasClick, // Callback: Define a ação executada ao clicar no componente
+            icon = { Icon(Icons.Default.BarChart, contentDescription = null) }, // Componente Compose: Desenha um ícone vetorial
             label = { TranslatedText("Stats") }
         )
 
         NavigationBarItem(
             selected = selectedItem == "perfil",
-            onClick = onPerfilClick,
-            icon = { Icon(Icons.Default.Settings, contentDescription = null) },
+            onClick = onPerfilClick, // Callback: Define a ação executada ao clicar no componente
+            icon = { Icon(Icons.Default.Settings, contentDescription = null) }, // Componente Compose: Desenha um ícone vetorial
             label = { TranslatedText("Perfil") }
         )
     }

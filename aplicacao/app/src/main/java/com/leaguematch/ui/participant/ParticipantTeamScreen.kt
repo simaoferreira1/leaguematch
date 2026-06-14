@@ -1,34 +1,42 @@
-package com.leaguematch.ui.participant
+/**
+ * ESTUDAR PARA A APRESENTAÇÃO:
+ * Ficheiro: ParticipantTeamScreen.kt
+ * Tipo: Interface (Compose View) do Participante
+ *
+ * Descrição:
+ * Este ficheiro define um ecrã do fluxo do Jogador/Participante em Jetpack Compose.\n * Mostra ao participante o estado do seu torneio, código de equipas para inscrição, estatísticas e notificações.
+ */
+package com.leaguematch.ui.participant // Define o pacote deste ficheiro de código
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.EmojiEvents
-import androidx.compose.material.icons.filled.Groups
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.SportsSoccer
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.leaguematch.data.remote.model.Classificacao
-import com.leaguematch.data.remote.model.Equipa
-import com.leaguematch.data.remote.model.Jogo
-import com.leaguematch.data.remote.model.TeamCode
-import com.leaguematch.data.remote.model.Utilizador
-import com.leaguematch.translations.AppStrings
-import com.leaguematch.ui.components.ParticipantBottomBar
-import com.leaguematch.ui.theme.*
+import androidx.compose.foundation.BorderStroke // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.* // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.rememberScrollState // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.shape.RoundedCornerShape // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.verticalScroll // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.Icons // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.EmojiEvents // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Groups // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Person // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.SportsSoccer // Importa dependência / biblioteca necessária
+import androidx.compose.material3.* // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.Composable // Importa dependência / biblioteca necessária
+import androidx.compose.ui.Alignment // Importa dependência / biblioteca necessária
+import androidx.compose.ui.Modifier // Importa dependência / biblioteca necessária
+import androidx.compose.ui.graphics.Color // Importa dependência / biblioteca necessária
+import androidx.compose.ui.text.font.FontWeight // Importa dependência / biblioteca necessária
+import androidx.compose.ui.unit.dp // Importa dependência / biblioteca necessária
+import androidx.compose.ui.unit.sp // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.Classificacao // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.Equipa // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.Jogo // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.TeamCode // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.Utilizador // Importa dependência / biblioteca necessária
+import com.leaguematch.translations.AppStrings // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.components.ParticipantBottomBar // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.* // Importa dependência / biblioteca necessária
 
 @Composable
-fun ParticipantTeamScreen(
+fun ParticipantTeamScreen( // Declaração de função / método de lógica
     equipa: Equipa?,
     equipas: List<Equipa>,
     jogadores: List<Utilizador>,
@@ -46,7 +54,7 @@ fun ParticipantTeamScreen(
     onEstatisticasClick: () -> Unit,
     onPerfilClick: () -> Unit
 ) {
-    val ultimosJogos = jogos
+    val ultimosJogos = jogos // Declara constante local (leitura única)
         .filter { jogo ->
             equipa == null ||
                     jogo.casa.equals(equipa.nome, ignoreCase = true) ||
@@ -69,15 +77,15 @@ fun ParticipantTeamScreen(
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
 
-        Column(
-            modifier = Modifier
+        Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                 .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 18.dp, vertical = 18.dp)
                 .padding(bottom = 80.dp)
         ) {
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = strings.myTeamTitle,
                 fontFamily = Bricolage,
                 fontWeight = FontWeight.ExtraBold,
@@ -85,18 +93,18 @@ fun ParticipantTeamScreen(
                 color = LMInk
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(4.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = strings.myTeamSubtitle,
                 fontFamily = Geist,
                 fontSize = 13.sp,
                 color = LMGray500
             )
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(18.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            if (equipas.isEmpty()) {
+            if (equipas.isEmpty()) { // Estrutura de decisão condicional principal
                 TeamInfoCard(
                     title = strings.noTeamTitle,
                     value = strings.noTeamDescription,
@@ -104,15 +112,15 @@ fun ParticipantTeamScreen(
                     primaryColor = primaryColor
                 )
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(14.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-                Button(
-                    onClick = onJoinTeamClick,
-                    modifier = Modifier.fillMaxWidth(),
+                Button( // Componente Compose: Desenha um botão interativo
+                    onClick = onJoinTeamClick, // Callback: Define a ação executada ao clicar no componente
+                    modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                     shape = RoundedCornerShape(14.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
                 ) {
-                    Text(
+                    Text( // Componente Compose: Desenha texto estruturado no ecrã
                         text = strings.joinTeamButton,
                         fontFamily = Geist,
                         fontWeight = FontWeight.ExtraBold,
@@ -120,16 +128,16 @@ fun ParticipantTeamScreen(
                     )
                 }
 
-                return@Column
+                return@Column // Contentor Compose: Alinha os filhos numa coluna vertical
             }
 
-            Button(
-                onClick = onJoinTeamClick,
-                modifier = Modifier.fillMaxWidth(),
+            Button( // Componente Compose: Desenha um botão interativo
+                onClick = onJoinTeamClick, // Callback: Define a ação executada ao clicar no componente
+                modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                 shape = RoundedCornerShape(14.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
             ) {
-                Text(
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = strings.joinTeamButton,
                     fontFamily = Geist,
                     fontWeight = FontWeight.ExtraBold,
@@ -137,11 +145,11 @@ fun ParticipantTeamScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(22.dp))
+            Spacer(modifier = Modifier.height(22.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             SectionTitle(strings.myTeamsTitle)
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             equipas.forEach { equipaItem ->
                 TeamMembershipCard(
@@ -157,26 +165,26 @@ fun ParticipantTeamScreen(
                     }
                 )
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(10.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
             }
 
-            if (equipa == null) {
-                return@Column
+            if (equipa == null) { // Estrutura de decisão condicional principal
+                return@Column // Contentor Compose: Alinha os filhos numa coluna vertical
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             SectionTitle(strings.selectedTeamTitle)
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             Surface(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                 shape = RoundedCornerShape(14.dp),
                 color = primaryColor.copy(alpha = 0.10f)
             ) {
-                Column(modifier = Modifier.padding(14.dp)) {
-                    Text(
+                Column(modifier = Modifier.padding(14.dp)) { // Contentor Compose: Alinha os filhos numa coluna vertical
+                    Text( // Componente Compose: Desenha texto estruturado no ecrã
                         text = strings.teamCode,
                         fontFamily = Geist,
                         fontSize = 11.sp,
@@ -184,9 +192,9 @@ fun ParticipantTeamScreen(
                         color = primaryColor
                     )
 
-                    Spacer(modifier = Modifier.height(2.dp))
+                    Spacer(modifier = Modifier.height(2.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-                    Text(
+                    Text( // Componente Compose: Desenha texto estruturado no ecrã
                         text = TeamCode.encode(equipa.id),
                         fontFamily = Bricolage,
                         fontWeight = FontWeight.ExtraBold,
@@ -196,7 +204,7 @@ fun ParticipantTeamScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             TeamInfoCard(
                 title = strings.teamName,
@@ -205,7 +213,7 @@ fun ParticipantTeamScreen(
                 primaryColor = primaryColor
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             TeamInfoCard(
                 title = strings.playersTitle,
@@ -214,11 +222,11 @@ fun ParticipantTeamScreen(
                 primaryColor = primaryColor
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             TeamInfoCard(
                 title = strings.teamStandingTitle,
-                value = if (classificacao != null) {
+                value = if (classificacao != null) { // Estrutura de decisão condicional principal
                     "${strings.pointsLabel(classificacao.pontos)} • ${
                         strings.classificationRecord(
                             classificacao.vitorias,
@@ -226,32 +234,32 @@ fun ParticipantTeamScreen(
                             classificacao.derrotas
                         )
                     }"
-                } else {
+                } else { // Fluxo condicional alternativo caso o 'if' seja falso
                     strings.noStandingYet
                 },
                 icon = Icons.Default.EmojiEvents,
                 primaryColor = primaryColor
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             TeamInfoCard(
                 title = strings.lastGamesTitle,
-                value = if (ultimosJogos.isEmpty()) {
+                value = if (ultimosJogos.isEmpty()) { // Estrutura de decisão condicional principal
                     strings.noRegisteredGames
-                } else {
+                } else { // Fluxo condicional alternativo caso o 'if' seja falso
                     strings.gamesFound(ultimosJogos.size)
                 },
                 icon = Icons.Default.SportsSoccer,
                 primaryColor = primaryColor
             )
 
-            if (jogadores.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(22.dp))
+            if (jogadores.isNotEmpty()) { // Estrutura de decisão condicional principal
+                Spacer(modifier = Modifier.height(22.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
                 SectionTitle(strings.playersTitle)
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(10.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
                 jogadores.forEach { jogador ->
                     SimpleListCard(
@@ -259,16 +267,16 @@ fun ParticipantTeamScreen(
                         subtitle = jogador.email
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(8.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
                 }
             }
 
-            if (ultimosJogos.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(22.dp))
+            if (ultimosJogos.isNotEmpty()) { // Estrutura de decisão condicional principal
+                Spacer(modifier = Modifier.height(22.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
                 SectionTitle(strings.lastGamesTitle)
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(10.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
                 ultimosJogos.forEach { jogo ->
                     SimpleListCard(
@@ -276,7 +284,7 @@ fun ParticipantTeamScreen(
                         subtitle = "${jogo.estado} • ${jogo.resultadoCasa}-${jogo.resultadoFora}"
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(8.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
                 }
             }
         }
@@ -284,7 +292,7 @@ fun ParticipantTeamScreen(
 }
 
 @Composable
-private fun TeamMembershipCard(
+private fun TeamMembershipCard( // Declaração de função / método de lógica
     equipa: Equipa,
     selecionada: Boolean,
     strings: AppStrings,
@@ -293,23 +301,23 @@ private fun TeamMembershipCard(
     onSairEquipaClick: () -> Unit
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
         shape = RoundedCornerShape(16.dp),
         color = LMWhite,
         border = BorderStroke(
             2.dp,
-            if (selecionada) {
+            if (selecionada) { // Estrutura de decisão condicional principal
                 primaryColor
-            } else {
+            } else { // Fluxo condicional alternativo caso o 'if' seja falso
                 Color(0xFFE5E5EA)
             }
         ),
         shadowElevation = 1.dp
     ) {
-        Column(
-            modifier = Modifier.padding(14.dp)
+        Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+            modifier = Modifier.padding(14.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
         ) {
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = equipa.nome,
                 fontFamily = Geist,
                 fontWeight = FontWeight.ExtraBold,
@@ -317,9 +325,9 @@ private fun TeamMembershipCard(
                 color = LMInk
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(4.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = "${strings.tournamentIdLabel}: ${equipa.torneioId} • ${strings.codeLabel}: ${
                     TeamCode.encode(equipa.id)
                 }",
@@ -328,10 +336,10 @@ private fun TeamMembershipCard(
                 color = LMGray500
             )
 
-            if (selecionada) {
-                Spacer(modifier = Modifier.height(6.dp))
+            if (selecionada) { // Estrutura de decisão condicional principal
+                Spacer(modifier = Modifier.height(6.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-                Text(
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = strings.selectedTeam,
                     fontFamily = Geist,
                     fontWeight = FontWeight.Bold,
@@ -340,18 +348,18 @@ private fun TeamMembershipCard(
                 )
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Button(
-                onClick = onSelecionarEquipaClick,
-                modifier = Modifier.fillMaxWidth(),
+            Button( // Componente Compose: Desenha um botão interativo
+                onClick = onSelecionarEquipaClick, // Callback: Define a ação executada ao clicar no componente
+                modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
             ) {
-                Text(
-                    text = if (selecionada) {
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
+                    text = if (selecionada) { // Estrutura de decisão condicional principal
                         strings.viewDetails
-                    } else {
+                    } else { // Fluxo condicional alternativo caso o 'if' seja falso
                         strings.selectTeam
                     },
                     fontFamily = Geist,
@@ -360,17 +368,17 @@ private fun TeamMembershipCard(
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             OutlinedButton(
-                onClick = onSairEquipaClick,
-                modifier = Modifier.fillMaxWidth(),
+                onClick = onSairEquipaClick, // Callback: Define a ação executada ao clicar no componente
+                modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.outlinedButtonColors(
                     contentColor = primaryColor
                 )
             ) {
-                Text(
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = strings.leaveTeam,
                     fontFamily = Geist,
                     fontWeight = FontWeight.Bold
@@ -381,8 +389,8 @@ private fun TeamMembershipCard(
 }
 
 @Composable
-private fun SectionTitle(text: String) {
-    Text(
+private fun SectionTitle(text: String) { // Declaração de função / método de lógica
+    Text( // Componente Compose: Desenha texto estruturado no ecrã
         text = text,
         fontFamily = Bricolage,
         fontWeight = FontWeight.ExtraBold,
@@ -392,34 +400,34 @@ private fun SectionTitle(text: String) {
 }
 
 @Composable
-private fun TeamInfoCard(
+private fun TeamInfoCard( // Declaração de função / método de lógica
     title: String,
     value: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     primaryColor: Color
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
         shape = RoundedCornerShape(18.dp),
         color = LMWhite,
         border = BorderStroke(1.dp, Color(0xFFE5E5EA)),
         shadowElevation = 1.dp
     ) {
-        Row(
-            modifier = Modifier.padding(14.dp),
+        Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+            modifier = Modifier.padding(14.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
+            Icon( // Componente Compose: Desenha um ícone vetorial
                 imageVector = icon,
                 contentDescription = null,
                 tint = primaryColor,
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier.size(32.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
             )
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(12.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Column {
-                Text(
+            Column { // Contentor Compose: Alinha os filhos numa coluna vertical
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = title,
                     fontFamily = Geist,
                     fontWeight = FontWeight.ExtraBold,
@@ -427,9 +435,9 @@ private fun TeamInfoCard(
                     color = LMInk
                 )
 
-                Spacer(modifier = Modifier.height(3.dp))
+                Spacer(modifier = Modifier.height(3.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-                Text(
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = value,
                     fontFamily = Geist,
                     fontSize = 12.sp,
@@ -441,21 +449,21 @@ private fun TeamInfoCard(
 }
 
 @Composable
-private fun SimpleListCard(
+private fun SimpleListCard( // Declaração de função / método de lógica
     title: String,
     subtitle: String
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
         shape = RoundedCornerShape(16.dp),
         color = LMWhite,
         border = BorderStroke(1.dp, Color(0xFFE5E5EA)),
         shadowElevation = 1.dp
     ) {
-        Column(
-            modifier = Modifier.padding(14.dp)
+        Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+            modifier = Modifier.padding(14.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
         ) {
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = title,
                 fontFamily = Geist,
                 fontWeight = FontWeight.ExtraBold,
@@ -463,9 +471,9 @@ private fun SimpleListCard(
                 color = LMInk
             )
 
-            Spacer(modifier = Modifier.height(3.dp))
+            Spacer(modifier = Modifier.height(3.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = subtitle,
                 fontFamily = Geist,
                 fontSize = 12.sp,

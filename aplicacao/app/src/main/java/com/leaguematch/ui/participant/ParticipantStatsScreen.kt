@@ -1,56 +1,64 @@
-package com.leaguematch.ui.participant
+/**
+ * ESTUDAR PARA A APRESENTAÇÃO:
+ * Ficheiro: ParticipantStatsScreen.kt
+ * Tipo: Interface (Compose View) do Participante
+ *
+ * Descrição:
+ * Este ficheiro define um ecrã do fluxo do Jogador/Participante em Jetpack Compose.\n * Mostra ao participante o estado do seu torneio, código de equipas para inscrição, estatísticas e notificações.
+ */
+package com.leaguematch.ui.participant // Define o pacote deste ficheiro de código
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Assessment
-import androidx.compose.material.icons.filled.EmojiEvents
-import androidx.compose.material.icons.filled.SportsSoccer
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.leaguematch.translations.AppStrings
-import com.leaguematch.ui.components.ParticipantBottomBar
-import com.leaguematch.ui.theme.Bricolage
-import com.leaguematch.ui.theme.Geist
-import com.leaguematch.ui.theme.LMGray500
-import com.leaguematch.ui.theme.LMInk
-import com.leaguematch.ui.theme.LMWhite
+import androidx.compose.foundation.BorderStroke // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.background // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Arrangement // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Box // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Column // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Row // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Spacer // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.fillMaxSize // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.fillMaxWidth // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.height // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.padding // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.size // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.width // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.rememberScrollState // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.shape.RoundedCornerShape // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.verticalScroll // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.Icons // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Assessment // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.EmojiEvents // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.SportsSoccer // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Star // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Icon // Importa dependência / biblioteca necessária
+import androidx.compose.material3.MaterialTheme // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Scaffold // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Surface // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Text // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.Composable // Importa dependência / biblioteca necessária
+import androidx.compose.ui.Alignment // Importa dependência / biblioteca necessária
+import androidx.compose.ui.Modifier // Importa dependência / biblioteca necessária
+import androidx.compose.ui.graphics.Color // Importa dependência / biblioteca necessária
+import androidx.compose.ui.graphics.vector.ImageVector // Importa dependência / biblioteca necessária
+import androidx.compose.ui.text.font.FontWeight // Importa dependência / biblioteca necessária
+import androidx.compose.ui.unit.dp // Importa dependência / biblioteca necessária
+import androidx.compose.ui.unit.sp // Importa dependência / biblioteca necessária
+import com.leaguematch.translations.AppStrings // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.components.ParticipantBottomBar // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.Bricolage // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.Geist // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMGray500 // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMInk // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMWhite // Importa dependência / biblioteca necessária
 
-data class ParticipantStats(
-    val jogos: Int = 0,
-    val golos: Int = 0,
-    val faltas: Int = 0,
-    val cartoes: Int = 0
+data class ParticipantStats( // Declaração de classe para modelar objetos
+    val jogos: Int = 0, // Declara constante local (leitura única)
+    val golos: Int = 0, // Declara constante local (leitura única)
+    val faltas: Int = 0, // Declara constante local (leitura única)
+    val cartoes: Int = 0 // Declara constante local (leitura única)
 )
 
 @Composable
-fun ParticipantStatsScreen(
+fun ParticipantStatsScreen( // Declaração de função / método de lógica
     stats: ParticipantStats,
     strings: AppStrings,
     primaryColor: Color,
@@ -61,8 +69,8 @@ fun ParticipantStatsScreen(
     onEstatisticasClick: () -> Unit,
     onPerfilClick: () -> Unit
 ) {
-    val golosPorJogo = if (stats.jogos > 0) stats.golos.toDouble() / stats.jogos else 0.0
-    val assistPorJogo = if (stats.jogos > 0) stats.faltas.toDouble() / stats.jogos else 0.0
+    val golosPorJogo = if (stats.jogos > 0) stats.golos.toDouble() / stats.jogos else 0.0 // Estrutura de decisão condicional principal
+    val assistPorJogo = if (stats.jogos > 0) stats.faltas.toDouble() / stats.jogos else 0.0 // Estrutura de decisão condicional principal
 
     Scaffold(
         bottomBar = {
@@ -79,15 +87,15 @@ fun ParticipantStatsScreen(
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
 
-        Column(
-            modifier = Modifier
+        Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                 .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 18.dp, vertical = 18.dp)
                 .padding(bottom = 80.dp)
         ) {
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = strings.myStatsTitle,
                 fontFamily = Bricolage,
                 fontWeight = FontWeight.ExtraBold,
@@ -95,24 +103,24 @@ fun ParticipantStatsScreen(
                 color = LMInk
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(4.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = strings.myStatsSubtitle,
                 fontFamily = Geist,
                 fontSize = 13.sp,
                 color = LMGray500
             )
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(18.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) { // Contentor Compose: Alinha os filhos numa linha horizontal
                 StatCard(
                     label = strings.gamesStat,
                     value = stats.jogos.toString(),
                     icon = Icons.Default.Assessment,
                     primaryColor = primaryColor,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f) // Modificador Compose: Define tamanho, margem, padding ou clique
                 )
 
                 StatCard(
@@ -120,19 +128,19 @@ fun ParticipantStatsScreen(
                     value = stats.golos.toString(),
                     icon = Icons.Default.SportsSoccer,
                     primaryColor = primaryColor,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f) // Modificador Compose: Define tamanho, margem, padding ou clique
                 )
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) { // Contentor Compose: Alinha os filhos numa linha horizontal
                 StatCard(
                     label = strings.assistsStat,
                     value = stats.faltas.toString(),
                     icon = Icons.Default.EmojiEvents,
                     primaryColor = primaryColor,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f) // Modificador Compose: Define tamanho, margem, padding ou clique
                 )
 
                 StatCard(
@@ -140,11 +148,11 @@ fun ParticipantStatsScreen(
                     value = stats.cartoes.toString(),
                     icon = Icons.Default.Star,
                     primaryColor = primaryColor,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f) // Modificador Compose: Define tamanho, margem, padding ou clique
                 )
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(20.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             PerformanceChartCard(
                 stats = stats,
@@ -152,19 +160,19 @@ fun ParticipantStatsScreen(
                 primaryColor = primaryColor
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             Surface(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                 shape = RoundedCornerShape(18.dp),
                 color = LMWhite,
                 border = BorderStroke(1.dp, Color(0xFFE5E5EA)),
                 shadowElevation = 1.dp
             ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
+                Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+                    modifier = Modifier.padding(16.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
                 ) {
-                    Text(
+                    Text( // Componente Compose: Desenha texto estruturado no ecrã
                         text = strings.performanceTitle,
                         fontFamily = Bricolage,
                         fontWeight = FontWeight.ExtraBold,
@@ -172,25 +180,25 @@ fun ParticipantStatsScreen(
                         color = LMInk
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(12.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) { // Contentor Compose: Alinha os filhos numa linha horizontal
                         MiniPerformanceCard(
                             label = strings.goalsPerGame,
                             value = String.format("%.1f", golosPorJogo),
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f) // Modificador Compose: Define tamanho, margem, padding ou clique
                         )
 
                         MiniPerformanceCard(
                             label = strings.assistsPerGame,
                             value = String.format("%.1f", assistPorJogo),
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f) // Modificador Compose: Define tamanho, margem, padding ou clique
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             InfoCard(
                 stats = stats,
@@ -202,12 +210,12 @@ fun ParticipantStatsScreen(
 }
 
 @Composable
-private fun StatCard(
+private fun StatCard( // Declaração de função / método de lógica
     label: String,
     value: String,
     icon: ImageVector,
     primaryColor: Color,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
 ) {
     Surface(
         modifier = modifier.height(114.dp),
@@ -216,19 +224,19 @@ private fun StatCard(
         border = BorderStroke(1.dp, Color(0xFFE5E5EA)),
         shadowElevation = 1.dp
     ) {
-        Column(
-            modifier = Modifier.padding(14.dp)
+        Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+            modifier = Modifier.padding(14.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
         ) {
-            Icon(
+            Icon( // Componente Compose: Desenha um ícone vetorial
                 imageVector = icon,
                 contentDescription = null,
                 tint = primaryColor,
-                modifier = Modifier.size(26.dp)
+                modifier = Modifier.size(26.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = value,
                 fontFamily = Bricolage,
                 fontWeight = FontWeight.ExtraBold,
@@ -236,7 +244,7 @@ private fun StatCard(
                 color = LMInk
             )
 
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = label,
                 fontFamily = Geist,
                 fontSize = 12.sp,
@@ -247,12 +255,12 @@ private fun StatCard(
 }
 
 @Composable
-private fun PerformanceChartCard(
+private fun PerformanceChartCard( // Declaração de função / método de lógica
     stats: ParticipantStats,
     strings: AppStrings,
     primaryColor: Color
 ) {
-    val maxValue = listOf(
+    val maxValue = listOf( // Declara constante local (leitura única)
         stats.jogos,
         stats.golos,
         stats.faltas,
@@ -260,16 +268,16 @@ private fun PerformanceChartCard(
     ).maxOrNull()?.coerceAtLeast(1) ?: 1
 
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
         shape = RoundedCornerShape(20.dp),
         color = LMWhite,
         border = BorderStroke(1.dp, Color(0xFFE5E5EA)),
         shadowElevation = 1.dp
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
+        Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+            modifier = Modifier.padding(16.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
         ) {
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = strings.overallPerformance,
                 fontFamily = Bricolage,
                 fontWeight = FontWeight.ExtraBold,
@@ -277,32 +285,32 @@ private fun PerformanceChartCard(
                 color = LMInk
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(4.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = strings.overallPerformanceSubtitle,
                 fontFamily = Geist,
                 fontSize = 12.sp,
                 color = LMGray500
             )
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(18.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             ChartBar(strings.gamesStat, stats.jogos, maxValue, primaryColor)
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             ChartBar(strings.goalsStat, stats.golos, maxValue, primaryColor)
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             ChartBar(strings.assistsStat, stats.faltas, maxValue, primaryColor)
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             ChartBar(strings.mvpStat, stats.cartoes, maxValue, primaryColor)
 
-            if (stats.jogos == 0 && stats.golos == 0 && stats.faltas == 0 && stats.cartoes == 0) {
-                Spacer(modifier = Modifier.height(14.dp))
+            if (stats.jogos == 0 && stats.golos == 0 && stats.faltas == 0 && stats.cartoes == 0) { // Estrutura de decisão condicional principal
+                Spacer(modifier = Modifier.height(14.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-                Text(
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = strings.notEnoughStats,
                     fontFamily = Geist,
                     fontSize = 12.sp,
@@ -314,20 +322,20 @@ private fun PerformanceChartCard(
 }
 
 @Composable
-private fun ChartBar(
+private fun ChartBar( // Declaração de função / método de lógica
     label: String,
     value: Int,
     maxValue: Int,
     primaryColor: Color
 ) {
-    val progress = if (maxValue > 0) value.toFloat() / maxValue.toFloat() else 0f
+    val progress = if (maxValue > 0) value.toFloat() / maxValue.toFloat() else 0f // Estrutura de decisão condicional principal
 
-    Column {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
+    Column { // Contentor Compose: Alinha os filhos numa coluna vertical
+        Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+            modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = label,
                 fontFamily = Geist,
                 fontSize = 13.sp,
@@ -335,7 +343,7 @@ private fun ChartBar(
                 fontWeight = FontWeight.Medium
             )
 
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = value.toString(),
                 fontFamily = Geist,
                 fontSize = 13.sp,
@@ -343,16 +351,16 @@ private fun ChartBar(
             )
         }
 
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(6.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-        Box(
-            modifier = Modifier
+        Box( // Contentor Compose: Sobrepõe os elementos filhos
+            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                 .fillMaxWidth()
                 .height(10.dp)
                 .background(Color(0xFFF0F0F4), RoundedCornerShape(50.dp))
         ) {
-            Box(
-                modifier = Modifier
+            Box( // Contentor Compose: Sobrepõe os elementos filhos
+                modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                     .fillMaxWidth(progress.coerceIn(0f, 1f))
                     .height(10.dp)
                     .background(primaryColor, RoundedCornerShape(50.dp))
@@ -362,21 +370,21 @@ private fun ChartBar(
 }
 
 @Composable
-private fun MiniPerformanceCard(
+private fun MiniPerformanceCard( // Declaração de função / método de lógica
     label: String,
     value: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
 ) {
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(14.dp),
         color = Color(0xFFF7F7FA)
     ) {
-        Column(
-            modifier = Modifier.padding(14.dp),
+        Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+            modifier = Modifier.padding(14.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
             horizontalAlignment = Alignment.Start
         ) {
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = value,
                 fontFamily = Bricolage,
                 fontWeight = FontWeight.ExtraBold,
@@ -384,7 +392,7 @@ private fun MiniPerformanceCard(
                 color = LMInk
             )
 
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = label,
                 fontFamily = Geist,
                 fontSize = 12.sp,
@@ -395,37 +403,37 @@ private fun MiniPerformanceCard(
 }
 
 @Composable
-private fun InfoCard(
+private fun InfoCard( // Declaração de função / método de lógica
     stats: ParticipantStats,
     strings: AppStrings,
     primaryColor: Color
 ) {
-    val message = if (stats.jogos == 0) {
+    val message = if (stats.jogos == 0) { // Estrutura de decisão condicional principal
         strings.statsStartMessage
-    } else {
+    } else { // Fluxo condicional alternativo caso o 'if' seja falso
         strings.statsContinueMessage
     }
 
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
         shape = RoundedCornerShape(18.dp),
         color = primaryColor.copy(alpha = 0.08f),
         border = BorderStroke(1.dp, primaryColor.copy(alpha = 0.20f))
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
+        Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+            modifier = Modifier.padding(16.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
+            Icon( // Componente Compose: Desenha um ícone vetorial
                 imageVector = Icons.Default.Star,
                 contentDescription = null,
                 tint = primaryColor,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(28.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
             )
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(12.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = message,
                 fontFamily = Geist,
                 fontSize = 13.sp,

@@ -1,91 +1,99 @@
-package com.leaguematch.ui.organizer
+/**
+ * ESTUDAR PARA A APRESENTAÇÃO:
+ * Ficheiro: OrgEditarEstatisticasJogosScreen.kt
+ * Tipo: Interface (Compose View) do Organizador
+ *
+ * Descrição:
+ * Este ficheiro define um ecrã da área do Organizador em Jetpack Compose.\n * Fornece interface e lógica visual para criar torneios, gerir equipas, registar e editar jogos e estatísticas.
+ */
+package com.leaguematch.ui.organizer // Define o pacote deste ficheiro de código
 
-import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Groups
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.leaguematch.data.remote.model.EstatisticaJogo
-import com.leaguematch.data.remote.model.Jogo
-import com.leaguematch.data.repository.LeagueMatchRepository
-import com.leaguematch.ui.components.TranslatedText
-import com.leaguematch.ui.theme.Bricolage
-import com.leaguematch.ui.theme.Geist
-import com.leaguematch.ui.theme.LMRed
-import kotlinx.coroutines.launch
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import com.leaguematch.data.remote.model.Utilizador
+import android.widget.Toast // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.BorderStroke // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.background // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.clickable // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Arrangement // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Box // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Column // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.PaddingValues // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Row // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Spacer // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.fillMaxHeight // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.fillMaxSize // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.fillMaxWidth // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.height // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.padding // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.size // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.width // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.rememberScrollState // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.shape.RoundedCornerShape // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.verticalScroll // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.Icons // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Groups // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Person // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Schedule // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.rounded.ArrowBack // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Button // Importa dependência / biblioteca necessária
+import androidx.compose.material3.ButtonDefaults // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Icon // Importa dependência / biblioteca necessária
+import androidx.compose.material3.IconButton // Importa dependência / biblioteca necessária
+import androidx.compose.material3.OutlinedTextField // Importa dependência / biblioteca necessária
+import androidx.compose.material3.OutlinedTextFieldDefaults // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Scaffold // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Surface // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Text // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.Composable // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.LaunchedEffect // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.getValue // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.mutableStateListOf // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.mutableStateOf // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.remember // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.rememberCoroutineScope // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.setValue // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.snapshots.SnapshotStateList // Importa dependência / biblioteca necessária
+import androidx.compose.ui.Alignment // Importa dependência / biblioteca necessária
+import androidx.compose.ui.Modifier // Importa dependência / biblioteca necessária
+import androidx.compose.ui.graphics.Color // Importa dependência / biblioteca necessária
+import androidx.compose.ui.graphics.vector.ImageVector // Importa dependência / biblioteca necessária
+import androidx.compose.ui.text.font.FontWeight // Importa dependência / biblioteca necessária
+import androidx.compose.ui.unit.dp // Importa dependência / biblioteca necessária
+import androidx.compose.ui.unit.sp // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.EstatisticaJogo // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.Jogo // Importa dependência / biblioteca necessária
+import com.leaguematch.data.repository.LeagueMatchRepository // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.components.TranslatedText // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.Bricolage // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.Geist // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMRed // Importa dependência / biblioteca necessária
+import kotlinx.coroutines.launch // Importa dependência / biblioteca necessária
+import androidx.compose.material3.DropdownMenu // Importa dependência / biblioteca necessária
+import androidx.compose.material3.DropdownMenuItem // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.Utilizador // Importa dependência / biblioteca necessária
 
 @Composable
-fun OrgEditarEstatisticasJogoScreen(
+fun OrgEditarEstatisticasJogoScreen( // Declaração de função / método de lógica
     jogo: Jogo,
     modalidade: String,
     repository: LeagueMatchRepository,
     onBackClick: () -> Unit,
     onGuardarClick: () -> Unit
 ) {
-    var tabSelecionada by remember { mutableStateOf("Eventos") }
+    var tabSelecionada by remember { mutableStateOf("Eventos") } // Declara estado mutável local do Compose
 
-    var scoreCasa by remember { mutableStateOf(jogo.resultadoCasa) }
-    var scoreFora by remember { mutableStateOf(jogo.resultadoFora) }
-    var estadoJogo by remember { mutableStateOf(jogo.estado) }
-    var iniciadoEmJogo by remember { mutableStateOf(jogo.iniciado_em) }
-    var dataText by remember { mutableStateOf(jogo.data) }
-    var horaText by remember { mutableStateOf(jogo.hora) }
-    var isSavingScore by remember { mutableStateOf(false) }
+    var scoreCasa by remember { mutableStateOf(jogo.resultadoCasa) } // Declara estado mutável local do Compose
+    var scoreFora by remember { mutableStateOf(jogo.resultadoFora) } // Declara estado mutável local do Compose
+    var estadoJogo by remember { mutableStateOf(jogo.estado) } // Declara estado mutável local do Compose
+    var iniciadoEmJogo by remember { mutableStateOf(jogo.iniciado_em) } // Declara estado mutável local do Compose
+    var dataText by remember { mutableStateOf(jogo.data) } // Declara estado mutável local do Compose
+    var horaText by remember { mutableStateOf(jogo.hora) } // Declara estado mutável local do Compose
+    var isSavingScore by remember { mutableStateOf(false) } // Declara estado mutável local do Compose
 
-    val scope = rememberCoroutineScope()
-    val context = androidx.compose.ui.platform.LocalContext.current
+    val scope = rememberCoroutineScope() // Cria escopo local para lançar coroutines em cliques na UI
+    val context = androidx.compose.ui.platform.LocalContext.current // Declara constante local (leitura única)
 
     Scaffold(containerColor = Color(0xFFF7F7F7)) { innerPadding ->
-        Column(
-            modifier = Modifier
+        Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                 .fillMaxSize()
                 .padding(innerPadding)
                 .background(Color(0xFFF7F7F7))
@@ -107,7 +115,7 @@ fun OrgEditarEstatisticasJogoScreen(
                 onSaveScoreClick = {
                     scope.launch {
                         isSavingScore = true
-                        val result = repository.atualizarJogo(
+                        val result = repository.atualizarJogo( // Efetua chamada remota ou local ao repositório de dados
                             id = jogo.id,
                             resultadoCasa = scoreCasa,
                             resultadoFora = scoreFora,
@@ -117,9 +125,9 @@ fun OrgEditarEstatisticasJogoScreen(
                             atualizarInicio = false
                         )
                         isSavingScore = false
-                        if (result != null) {
+                        if (result != null) { // Estrutura de decisão condicional principal
                             Toast.makeText(context, "Jogo guardado com sucesso!", Toast.LENGTH_SHORT).show()
-                        } else {
+                        } else { // Fluxo condicional alternativo caso o 'if' seja falso
                             Toast.makeText(context, "Erro ao guardar alterações.", Toast.LENGTH_SHORT).show()
                         }
                     }
@@ -127,7 +135,7 @@ fun OrgEditarEstatisticasJogoScreen(
                 onStartGameClick = {
                     scope.launch {
                         isSavingScore = true
-                        val result = repository.atualizarJogo(
+                        val result = repository.atualizarJogo( // Efetua chamada remota ou local ao repositório de dados
                             id = jogo.id,
                             resultadoCasa = 0,
                             resultadoFora = 0,
@@ -137,13 +145,13 @@ fun OrgEditarEstatisticasJogoScreen(
                             atualizarInicio = true
                         )
                         isSavingScore = false
-                        if (result != null) {
+                        if (result != null) { // Estrutura de decisão condicional principal
                             scoreCasa = 0
                             scoreFora = 0
                             estadoJogo = "A Decorrer"
                             iniciadoEmJogo = result.iniciado_em
                             Toast.makeText(context, "O jogo começou a zeros!", Toast.LENGTH_SHORT).show()
-                        } else {
+                        } else { // Fluxo condicional alternativo caso o 'if' seja falso
                             Toast.makeText(context, "Erro ao começar o jogo.", Toast.LENGTH_SHORT).show()
                         }
                     }
@@ -151,7 +159,7 @@ fun OrgEditarEstatisticasJogoScreen(
                 onFinishGameClick = {
                     scope.launch {
                         isSavingScore = true
-                        val result = repository.atualizarJogo(
+                        val result = repository.atualizarJogo( // Efetua chamada remota ou local ao repositório de dados
                             id = jogo.id,
                             resultadoCasa = scoreCasa,
                             resultadoFora = scoreFora,
@@ -161,10 +169,10 @@ fun OrgEditarEstatisticasJogoScreen(
                             atualizarInicio = false
                         )
                         isSavingScore = false
-                        if (result != null) {
+                        if (result != null) { // Estrutura de decisão condicional principal
                             estadoJogo = "Finalizado"
                             Toast.makeText(context, "Jogo finalizado com sucesso!", Toast.LENGTH_SHORT).show()
-                        } else {
+                        } else { // Fluxo condicional alternativo caso o 'if' seja falso
                             Toast.makeText(context, "Erro ao finalizar o jogo.", Toast.LENGTH_SHORT).show()
                         }
                     }
@@ -177,30 +185,30 @@ fun OrgEditarEstatisticasJogoScreen(
                 onSelected = { tabSelecionada = it }
             )
 
-            if (tabSelecionada == "Eventos") {
+            if (tabSelecionada == "Eventos") { // Estrutura de decisão condicional principal
                 EventosJogoContent(
                     jogo = jogo,
                     modalidade = modalidade,
                     repository = repository,
                     bloqueado = estadoJogo.equals("Finalizado", ignoreCase = true),
                     onEventRegistered = { tipo, equipa ->
-                        val tipoUpper = tipo.uppercase()
-                        val incremento = when (tipoUpper) {
+                        val tipoUpper = tipo.uppercase() // Declara constante local (leitura única)
+                        val incremento = when (tipoUpper) { // Escolha múltipla condicional (semelhante a switch-case)
                             "GOLO", "ACE", "LANCE_LIVRE" -> 1
                             "DOIS_PONTOS" -> 2
                             "TRES_PONTOS" -> 3
-                            else -> 0
+                            else -> 0 // Fluxo condicional alternativo caso o 'if' seja falso
                         }
-                        if (incremento > 0) {
-                            if (equipa == "casa") {
+                        if (incremento > 0) { // Estrutura de decisão condicional principal
+                            if (equipa == "casa") { // Estrutura de decisão condicional principal
                                 scoreCasa += incremento
-                            } else {
+                            } else { // Fluxo condicional alternativo caso o 'if' seja falso
                                 scoreFora += incremento
                             }
                         }
                     }
                 )
-            } else {
+            } else { // Fluxo condicional alternativo caso o 'if' seja falso
                 EstatisticasJogoContent(
                     jogo = jogo,
                     modalidade = modalidade,
@@ -213,16 +221,16 @@ fun OrgEditarEstatisticasJogoScreen(
 }
 
 @Composable
-private fun TopBarEditarEstatisticas(onBackClick: () -> Unit) {
-    Row(
-        modifier = Modifier
+private fun TopBarEditarEstatisticas(onBackClick: () -> Unit) { // Declaração de função / método de lógica
+    Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+        modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
             .fillMaxWidth()
             .background(Color.White)
             .padding(horizontal = 8.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = onBackClick) {
-            Icon(
+        IconButton(onClick = onBackClick) { // Componente Compose: Desenha um botão com ícone
+            Icon( // Componente Compose: Desenha um ícone vetorial
                 Icons.Rounded.ArrowBack,
                 contentDescription = null,
                 tint = Color.Black
@@ -235,7 +243,7 @@ private fun TopBarEditarEstatisticas(onBackClick: () -> Unit) {
             fontWeight = FontWeight.ExtraBold,
             fontSize = 20.sp,
             color = Color.Black,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f) // Modificador Compose: Define tamanho, margem, padding ou clique
         )
 
         Surface(
@@ -248,14 +256,14 @@ private fun TopBarEditarEstatisticas(onBackClick: () -> Unit) {
                 fontFamily = Geist,
                 fontWeight = FontWeight.Bold,
                 fontSize = 11.sp,
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp)
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
             )
         }
     }
 }
 
 @Composable
-private fun JogoHeaderCard(
+private fun JogoHeaderCard( // Declaração de função / método de lógica
     jogo: Jogo,
     modalidade: String,
     scoreCasa: Int,
@@ -273,12 +281,12 @@ private fun JogoHeaderCard(
     isSavingScore: Boolean,
     iniciadoEm: String?,
 ) {
-    val isAgendado = estadoJogo.uppercase() == "AGENDADO" || estadoJogo.uppercase() == "AGENDADO"
-    val isLive = estadoJogo.uppercase() == "EM_CURSO" || estadoJogo.uppercase() == "A DECORRER" || estadoJogo.uppercase() == "EM DIRETO"
-    val isFinalizado = estadoJogo.uppercase() == "FINALIZADO"
+    val isAgendado = estadoJogo.uppercase() == "AGENDADO" || estadoJogo.uppercase() == "AGENDADO" // Declara constante local (leitura única)
+    val isLive = estadoJogo.uppercase() == "EM_CURSO" || estadoJogo.uppercase() == "A DECORRER" || estadoJogo.uppercase() == "EM DIRETO" // Declara constante local (leitura única)
+    val isFinalizado = estadoJogo.uppercase() == "FINALIZADO" // Declara constante local (leitura única)
 
-    Box(
-        modifier = Modifier
+    Box( // Contentor Compose: Sobrepõe os elementos filhos
+        modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
             .fillMaxWidth()
             .padding(horizontal = 18.dp, vertical = 12.dp)
             .background(
@@ -288,26 +296,26 @@ private fun JogoHeaderCard(
             .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) { // Contentor Compose: Alinha os filhos numa coluna vertical
             // Live / Estado header
-            Row(
+            Row( // Contentor Compose: Alinha os filhos numa linha horizontal
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                Box(
-                    modifier = Modifier
+                Box( // Contentor Compose: Sobrepõe os elementos filhos
+                    modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                         .size(8.dp)
                         .background(
-                            if (isLive) Color(0xFF22C55E) else if (isFinalizado) Color(0xFF9CA3AF) else Color(0xFFEF4444),
+                            if (isLive) Color(0xFF22C55E) else if (isFinalizado) Color(0xFF9CA3AF) else Color(0xFFEF4444), // Estrutura de decisão condicional principal
                             shape = androidx.compose.foundation.shape.CircleShape
                         )
                 )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = when {
+                Spacer(modifier = Modifier.width(6.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
+                    text = when { // Escolha múltipla condicional (semelhante a switch-case)
                         isLive -> "A DECORRER"
                         isFinalizado -> "FINALIZADO"
-                        else -> "AGENDADO"
+                        else -> "AGENDADO" // Fluxo condicional alternativo caso o 'if' seja falso
                     },
                     color = Color.White.copy(alpha = 0.8f),
                     fontFamily = Geist,
@@ -317,21 +325,21 @@ private fun JogoHeaderCard(
             }
 
             // Dynamic ticking clock for active match (Football / Handball / Basketball)
-            if (isLive) {
-                val isBasquetebol = modalidade.lowercase() == "basquetebol"
+            if (isLive) { // Estrutura de decisão condicional principal
+                val isBasquetebol = modalidade.lowercase() == "basquetebol" // Declara constante local (leitura única)
 
-                var elapsedSeconds by remember(iniciadoEm) {
-                    mutableStateOf(0)
+                var elapsedSeconds by remember(iniciadoEm) { // Memoriza estado para evitar perda durante a recomposição
+                    mutableStateOf(0) // Declara estado mutável local do Compose
                 }
 
-                LaunchedEffect(iniciadoEm, estadoJogo) {
+                LaunchedEffect(iniciadoEm, estadoJogo) { // Efeito colateral Compose: executa código assíncrono ao recompor
                     while (true) {
-                        val inicioMillis = com.leaguematch.util.parseIniciadoEmEpochMillis(iniciadoEm)
+                        val inicioMillis = com.leaguematch.util.parseIniciadoEmEpochMillis(iniciadoEm) // Declara constante local (leitura única)
 
-                        elapsedSeconds = if (inicioMillis != null) {
-                            val agoraMillis = java.time.Instant.now().toEpochMilli()
+                        elapsedSeconds = if (inicioMillis != null) { // Estrutura de decisão condicional principal
+                            val agoraMillis = java.time.Instant.now().toEpochMilli() // Declara constante local (leitura única)
                             ((agoraMillis - inicioMillis) / 1000).toInt().coerceAtLeast(0)
-                        } else {
+                        } else { // Fluxo condicional alternativo caso o 'if' seja falso
                             0
                         }
 
@@ -339,50 +347,50 @@ private fun JogoHeaderCard(
                     }
                 }
 
-                val secondsToShow =
-                    if (isBasquetebol) {
+                val secondsToShow = // Declara constante local (leitura única)
+                    if (isBasquetebol) { // Estrutura de decisão condicional principal
                         (2400 - elapsedSeconds).coerceAtLeast(0)
-                    } else {
+                    } else { // Fluxo condicional alternativo caso o 'if' seja falso
                         elapsedSeconds
                     }
 
-                val min = secondsToShow / 60
-                val sec = secondsToShow % 60
-                val clockText = String.format("%02d:%02d", min, sec)
+                val min = secondsToShow / 60 // Declara constante local (leitura única)
+                val sec = secondsToShow % 60 // Declara constante local (leitura única)
+                val clockText = String.format("%02d:%02d", min, sec) // Declara constante local (leitura única)
 
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(6.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
                 Surface(
                     shape = RoundedCornerShape(50),
                     color = Color.White.copy(alpha = 0.12f),
                     border = BorderStroke(1.dp, Color.White.copy(alpha = 0.25f))
                 ) {
-                    Text(
+                    Text( // Componente Compose: Desenha texto estruturado no ecrã
                         text = clockText,
                         color = Color.White,
                         fontFamily = Geist,
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 14.sp,
-                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 3.dp)
+                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 3.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
                     )
                 }
             }
 
             // Realtime Countdown (if state is AGENDADO)
-            if (isAgendado) {
-                var countdownText by remember { mutableStateOf("") }
+            if (isAgendado) { // Estrutura de decisão condicional principal
+                var countdownText by remember { mutableStateOf("") } // Declara estado mutável local do Compose
                 
-                LaunchedEffect(jogo.data, jogo.hora, dataText, horaText) {
+                LaunchedEffect(jogo.data, jogo.hora, dataText, horaText) { // Efeito colateral Compose: executa código assíncrono ao recompor
                     while (true) {
-                        val now = java.util.Calendar.getInstance()
-                        val matchCal = java.util.Calendar.getInstance()
+                        val now = java.util.Calendar.getInstance() // Declara constante local (leitura única)
+                        val matchCal = java.util.Calendar.getInstance() // Declara constante local (leitura única)
                         
-                        try {
-                            val activeData = dataText.ifBlank { jogo.data }
-                            val activeHora = horaText.ifBlank { jogo.hora }
-                            val dateSplit = activeData.split("/")
-                            val timeSplit = activeHora.split(":")
-                            if (dateSplit.size == 3 && timeSplit.size == 2) {
+                        try { // Tenta executar bloco que pode lançar exceções
+                            val activeData = dataText.ifBlank { jogo.data } // Declara constante local (leitura única)
+                            val activeHora = horaText.ifBlank { jogo.hora } // Declara constante local (leitura única)
+                            val dateSplit = activeData.split("/") // Declara constante local (leitura única)
+                            val timeSplit = activeHora.split(":") // Declara constante local (leitura única)
+                            if (dateSplit.size == 3 && timeSplit.size == 2) { // Estrutura de decisão condicional principal
                                 matchCal.set(
                                     dateSplit[2].toInt(),
                                     dateSplit[1].toInt() - 1,
@@ -392,27 +400,27 @@ private fun JogoHeaderCard(
                                     0
                                 )
                                 
-                                val diff = matchCal.timeInMillis - now.timeInMillis
-                                if (diff > 0) {
-                                    val days = diff / (24 * 60 * 60 * 1000)
-                                    val hours = (diff / (60 * 60 * 1000)) % 24
-                                    val minutes = (diff / (60 * 1000)) % 60
-                                    val seconds = (diff / 1000) % 60
+                                val diff = matchCal.timeInMillis - now.timeInMillis // Declara constante local (leitura única)
+                                if (diff > 0) { // Estrutura de decisão condicional principal
+                                    val days = diff / (24 * 60 * 60 * 1000) // Declara constante local (leitura única)
+                                    val hours = (diff / (60 * 60 * 1000)) % 24 // Declara constante local (leitura única)
+                                    val minutes = (diff / (60 * 1000)) % 60 // Declara constante local (leitura única)
+                                    val seconds = (diff / 1000) % 60 // Declara constante local (leitura única)
                                     
-                                    countdownText = if (days > 0) {
+                                    countdownText = if (days > 0) { // Estrutura de decisão condicional principal
                                         "Começa em: ${days}d ${hours}h ${minutes}m"
-                                    } else if (hours > 0) {
+                                    } else if (hours > 0) { // Estrutura de decisão condicional principal
                                         "Começa em: ${hours}h ${minutes}m ${seconds}s"
-                                    } else {
+                                    } else { // Fluxo condicional alternativo caso o 'if' seja falso
                                         "Começa em: ${minutes}m ${seconds}s"
                                     }
-                                } else {
+                                } else { // Fluxo condicional alternativo caso o 'if' seja falso
                                     countdownText = "Hora do jogo atingida"
                                 }
-                            } else {
+                            } else { // Fluxo condicional alternativo caso o 'if' seja falso
                                 countdownText = "Aguardando data/hora"
                             }
-                        } catch (e: Exception) {
+                        } catch (e: Exception) { // Captura e trata eventuais exceções ocorridas no bloco try
                             countdownText = ""
                         }
                         
@@ -420,9 +428,9 @@ private fun JogoHeaderCard(
                     }
                 }
                 
-                if (countdownText.isNotBlank()) {
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
+                if (countdownText.isNotBlank()) { // Estrutura de decisão condicional principal
+                    Spacer(modifier = Modifier.height(6.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
+                    Text( // Componente Compose: Desenha texto estruturado no ecrã
                         text = countdownText,
                         color = Color(0xFFEF4444),
                         fontFamily = Geist,
@@ -432,20 +440,20 @@ private fun JogoHeaderCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             // Score and team selector area
-            Row(
-                modifier = Modifier.fillMaxWidth(),
+            Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+                modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 // Team Casa
-                Column(
-                    modifier = Modifier.weight(1f),
+                Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+                    modifier = Modifier.weight(1f), // Modificador Compose: Define tamanho, margem, padding ou clique
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
+                    Text( // Componente Compose: Desenha texto estruturado no ecrã
                         text = jogo.casa,
                         color = Color.White,
                         fontFamily = Geist,
@@ -453,54 +461,54 @@ private fun JogoHeaderCard(
                         fontSize = 14.sp,
                         maxLines = 1
                     )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (isLive) {
-                            IconButton(
-                                onClick = { onCasaChange((scoreCasa - 1).coerceAtLeast(0)) },
-                                modifier = Modifier.size(28.dp).background(Color.White.copy(alpha = 0.1f), androidx.compose.foundation.shape.CircleShape)
+                    Spacer(modifier = Modifier.height(6.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
+                    Row(verticalAlignment = Alignment.CenterVertically) { // Contentor Compose: Alinha os filhos numa linha horizontal
+                        if (isLive) { // Estrutura de decisão condicional principal
+                            IconButton( // Componente Compose: Desenha um botão com ícone
+                                onClick = { onCasaChange((scoreCasa - 1).coerceAtLeast(0)) }, // Callback: Define a ação executada ao clicar no componente
+                                modifier = Modifier.size(28.dp).background(Color.White.copy(alpha = 0.1f), androidx.compose.foundation.shape.CircleShape) // Modificador Compose: Define tamanho, margem, padding ou clique
                             ) {
-                                Text("-", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                Text("-", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp) // Componente Compose: Desenha texto estruturado no ecrã
                             }
-                            Spacer(modifier = Modifier.width(12.dp))
+                            Spacer(modifier = Modifier.width(12.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
                         }
                         
-                        Text(
-                            text = if (isAgendado) "0" else scoreCasa.toString(),
+                        Text( // Componente Compose: Desenha texto estruturado no ecrã
+                            text = if (isAgendado) "0" else scoreCasa.toString(), // Estrutura de decisão condicional principal
                             color = Color.White,
                             fontFamily = Bricolage,
                             fontWeight = FontWeight.ExtraBold,
                             fontSize = 32.sp
                         )
                         
-                        if (isLive) {
-                            Spacer(modifier = Modifier.width(12.dp))
-                            IconButton(
-                                onClick = { onCasaChange(scoreCasa + 1) },
-                                modifier = Modifier.size(28.dp).background(Color.White.copy(alpha = 0.1f), androidx.compose.foundation.shape.CircleShape)
+                        if (isLive) { // Estrutura de decisão condicional principal
+                            Spacer(modifier = Modifier.width(12.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
+                            IconButton( // Componente Compose: Desenha um botão com ícone
+                                onClick = { onCasaChange(scoreCasa + 1) }, // Callback: Define a ação executada ao clicar no componente
+                                modifier = Modifier.size(28.dp).background(Color.White.copy(alpha = 0.1f), androidx.compose.foundation.shape.CircleShape) // Modificador Compose: Define tamanho, margem, padding ou clique
                             ) {
-                                Text("+", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                Text("+", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp) // Componente Compose: Desenha texto estruturado no ecrã
                             }
                         }
                     }
                 }
 
                 // Separator
-                Text(
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = "-",
                     color = Color.White.copy(alpha = 0.4f),
                     fontFamily = Bricolage,
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 24.sp,
-                    modifier = Modifier.padding(horizontal = 8.dp)
+                    modifier = Modifier.padding(horizontal = 8.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
                 )
 
                 // Team Fora
-                Column(
-                    modifier = Modifier.weight(1f),
+                Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+                    modifier = Modifier.weight(1f), // Modificador Compose: Define tamanho, margem, padding ou clique
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
+                    Text( // Componente Compose: Desenha texto estruturado no ecrã
                         text = jogo.fora,
                         color = Color.White,
                         fontFamily = Geist,
@@ -508,52 +516,52 @@ private fun JogoHeaderCard(
                         fontSize = 14.sp,
                         maxLines = 1
                     )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (isLive) {
-                            IconButton(
-                                onClick = { onForaChange((scoreFora - 1).coerceAtLeast(0)) },
-                                modifier = Modifier.size(28.dp).background(Color.White.copy(alpha = 0.1f), androidx.compose.foundation.shape.CircleShape)
+                    Spacer(modifier = Modifier.height(6.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
+                    Row(verticalAlignment = Alignment.CenterVertically) { // Contentor Compose: Alinha os filhos numa linha horizontal
+                        if (isLive) { // Estrutura de decisão condicional principal
+                            IconButton( // Componente Compose: Desenha um botão com ícone
+                                onClick = { onForaChange((scoreFora - 1).coerceAtLeast(0)) }, // Callback: Define a ação executada ao clicar no componente
+                                modifier = Modifier.size(28.dp).background(Color.White.copy(alpha = 0.1f), androidx.compose.foundation.shape.CircleShape) // Modificador Compose: Define tamanho, margem, padding ou clique
                             ) {
-                                Text("-", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                Text("-", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp) // Componente Compose: Desenha texto estruturado no ecrã
                             }
-                            Spacer(modifier = Modifier.width(12.dp))
+                            Spacer(modifier = Modifier.width(12.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
                         }
                         
-                        Text(
-                            text = if (isAgendado) "0" else scoreFora.toString(),
+                        Text( // Componente Compose: Desenha texto estruturado no ecrã
+                            text = if (isAgendado) "0" else scoreFora.toString(), // Estrutura de decisão condicional principal
                             color = Color.White,
                             fontFamily = Bricolage,
                             fontWeight = FontWeight.ExtraBold,
                             fontSize = 32.sp
                         )
                         
-                        if (isLive) {
-                            Spacer(modifier = Modifier.width(12.dp))
-                            IconButton(
-                                onClick = { onForaChange(scoreFora + 1) },
-                                modifier = Modifier.size(28.dp).background(Color.White.copy(alpha = 0.1f), androidx.compose.foundation.shape.CircleShape)
+                        if (isLive) { // Estrutura de decisão condicional principal
+                            Spacer(modifier = Modifier.width(12.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
+                            IconButton( // Componente Compose: Desenha um botão com ícone
+                                onClick = { onForaChange(scoreFora + 1) }, // Callback: Define a ação executada ao clicar no componente
+                                modifier = Modifier.size(28.dp).background(Color.White.copy(alpha = 0.1f), androidx.compose.foundation.shape.CircleShape) // Modificador Compose: Define tamanho, margem, padding ou clique
                             ) {
-                                Text("+", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                Text("+", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp) // Componente Compose: Desenha texto estruturado no ecrã
                             }
                         }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(14.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             // Schedule input fields (visible in all states, editable)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
+            Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+                modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                OutlinedTextField(
+                OutlinedTextField( // Campo Compose: Entrada de texto com contorno visual
                     value = dataText,
                     onValueChange = onDataChange,
-                    label = { Text("Data (DD/MM/AAAA)", color = Color.White.copy(alpha = 0.6f), fontSize = 10.sp) },
-                    placeholder = { Text("01/01/2026", color = Color.White.copy(alpha = 0.3f)) },
-                    modifier = Modifier.weight(1f).height(50.dp),
+                    label = { Text("Data (DD/MM/AAAA)", color = Color.White.copy(alpha = 0.6f), fontSize = 10.sp) }, // Componente Compose: Desenha texto estruturado no ecrã
+                    placeholder = { Text("01/01/2026", color = Color.White.copy(alpha = 0.3f)) }, // Componente Compose: Desenha texto estruturado no ecrã
+                    modifier = Modifier.weight(1f).height(50.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
                     shape = RoundedCornerShape(8.dp),
                     singleLine = true,
                     colors = OutlinedTextFieldDefaults.colors(
@@ -569,12 +577,12 @@ private fun JogoHeaderCard(
                     textStyle = androidx.compose.ui.text.TextStyle(fontSize = 12.sp)
                 )
 
-                OutlinedTextField(
+                OutlinedTextField( // Campo Compose: Entrada de texto com contorno visual
                     value = horaText,
                     onValueChange = onHoraChange,
-                    label = { Text("Hora (HH:MM)", color = Color.White.copy(alpha = 0.6f), fontSize = 10.sp) },
-                    placeholder = { Text("12:00", color = Color.White.copy(alpha = 0.3f)) },
-                    modifier = Modifier.weight(1f).height(50.dp),
+                    label = { Text("Hora (HH:MM)", color = Color.White.copy(alpha = 0.6f), fontSize = 10.sp) }, // Componente Compose: Desenha texto estruturado no ecrã
+                    placeholder = { Text("12:00", color = Color.White.copy(alpha = 0.3f)) }, // Componente Compose: Desenha texto estruturado no ecrã
+                    modifier = Modifier.weight(1f).height(50.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
                     shape = RoundedCornerShape(8.dp),
                     singleLine = true,
                     colors = OutlinedTextFieldDefaults.colors(
@@ -591,21 +599,21 @@ private fun JogoHeaderCard(
                 )
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(14.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             // Action Buttons based on status
-            when {
+            when { // Escolha múltipla condicional (semelhante a switch-case)
                 isAgendado -> {
-                    Button(
-                        onClick = onStartGameClick,
+                    Button( // Componente Compose: Desenha um botão interativo
+                        onClick = onStartGameClick, // Callback: Define a ação executada ao clicar no componente
                         enabled = !isSavingScore,
-                        modifier = Modifier.fillMaxWidth().height(40.dp),
+                        modifier = Modifier.fillMaxWidth().height(40.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
                         shape = RoundedCornerShape(10.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF22C55E)), // Green premium start button
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp)
                     ) {
-                        Text(
-                            text = if (isSavingScore) "A começar jogo..." else "Começar Jogo (A Zeros)",
+                        Text( // Componente Compose: Desenha texto estruturado no ecrã
+                            text = if (isSavingScore) "A começar jogo..." else "Começar Jogo (A Zeros)", // Estrutura de decisão condicional principal
                             color = Color.White,
                             fontFamily = Geist,
                             fontWeight = FontWeight.Bold,
@@ -615,20 +623,20 @@ private fun JogoHeaderCard(
                 }
                 
                 isLive -> {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
+                    Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+                        modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Button(
-                            onClick = onSaveScoreClick,
+                        Button( // Componente Compose: Desenha um botão interativo
+                            onClick = onSaveScoreClick, // Callback: Define a ação executada ao clicar no componente
                             enabled = !isSavingScore,
-                            modifier = Modifier.weight(1f).height(40.dp),
+                            modifier = Modifier.weight(1f).height(40.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
                             shape = RoundedCornerShape(10.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = LMRed),
                             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp)
                         ) {
-                            Text(
-                                text = if (isSavingScore) "A guardar..." else "Guardar Placar",
+                            Text( // Componente Compose: Desenha texto estruturado no ecrã
+                                text = if (isSavingScore) "A guardar..." else "Guardar Placar", // Estrutura de decisão condicional principal
                                 color = Color.White,
                                 fontFamily = Geist,
                                 fontWeight = FontWeight.Bold,
@@ -636,17 +644,17 @@ private fun JogoHeaderCard(
                             )
                         }
 
-                        Button(
-                            onClick = onFinishGameClick,
+                        Button( // Componente Compose: Desenha um botão interativo
+                            onClick = onFinishGameClick, // Callback: Define a ação executada ao clicar no componente
                             enabled = !isSavingScore,
-                            modifier = Modifier.weight(1f).height(40.dp),
+                            modifier = Modifier.weight(1f).height(40.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
                             shape = RoundedCornerShape(10.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Color.Black), // Premium black end match button
                             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
                             border = BorderStroke(1.dp, Color.White.copy(alpha = 0.3f))
                         ) {
-                            Text(
-                                text = if (isSavingScore) "A finalizar..." else "Finalizar Jogo",
+                            Text( // Componente Compose: Desenha texto estruturado no ecrã
+                                text = if (isSavingScore) "A finalizar..." else "Finalizar Jogo", // Estrutura de decisão condicional principal
                                 color = Color.White,
                                 fontFamily = Geist,
                                 fontWeight = FontWeight.Bold,
@@ -657,14 +665,14 @@ private fun JogoHeaderCard(
                 }
                 
                 isFinalizado -> {
-                    Box(
-                        modifier = Modifier
+                    Box( // Contentor Compose: Sobrepõe os elementos filhos
+                        modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                             .fillMaxWidth()
                             .height(40.dp)
                             .background(Color.White.copy(alpha = 0.1f), RoundedCornerShape(10.dp)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
+                        Text( // Componente Compose: Desenha texto estruturado no ecrã
                             text = "Jogo Terminado - Resultados Bloqueados",
                             color = Color.White.copy(alpha = 0.7f),
                             fontFamily = Geist,
@@ -679,34 +687,34 @@ private fun JogoHeaderCard(
 }
 
 @Composable
-private fun TabEventosEstatisticas(
+private fun TabEventosEstatisticas( // Declaração de função / método de lógica
     selected: String,
     onSelected: (String) -> Unit
 ) {
-    Row(
-        modifier = Modifier
+    Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+        modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
             .fillMaxWidth()
             .padding(horizontal = 26.dp, vertical = 6.dp)
             .background(Color(0xFFE5E5E5), RoundedCornerShape(50))
             .padding(3.dp)
     ) {
         listOf("Eventos", "Estatísticas").forEach { tab ->
-            val ativo = selected == tab
+            val ativo = selected == tab // Declara constante local (leitura única)
 
-            Box(
-                modifier = Modifier
+            Box( // Contentor Compose: Sobrepõe os elementos filhos
+                modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                     .weight(1f)
                     .background(
-                        if (ativo) LMRed else Color.Transparent,
+                        if (ativo) LMRed else Color.Transparent, // Estrutura de decisão condicional principal
                         RoundedCornerShape(50)
                     )
                     .clickable { onSelected(tab) }
                     .padding(vertical = 8.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = tab,
-                    color = if (ativo) Color.White else Color(0xFF6B7280),
+                    color = if (ativo) Color.White else Color(0xFF6B7280), // Estrutura de decisão condicional principal
                     fontFamily = Geist,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp
@@ -717,32 +725,32 @@ private fun TabEventosEstatisticas(
 }
 
 @Composable
-private fun EventosJogoContent(
+private fun EventosJogoContent( // Declaração de função / método de lógica
     jogo: Jogo,
     modalidade: String,
     repository: LeagueMatchRepository,
     bloqueado: Boolean,
     onEventRegistered: (String, String) -> Unit
 ) {
-    var eventoSelecionado by remember { mutableStateOf<MatchEventType?>(null) }
-    var equipaSelecionada by remember { mutableStateOf("casa") }
-    var tipoAlvo by remember { mutableStateOf("equipa") }
-    var jogadorSelecionado by remember { mutableStateOf<Utilizador?>(null) }
-    var jogadorSai by remember { mutableStateOf<Utilizador?>(null) }
-    var jogadorEntra by remember { mutableStateOf<Utilizador?>(null) }
-    var jogadoresEquipa by remember { mutableStateOf<List<Utilizador>>(emptyList()) }
-    var jogadoresExpanded by remember { mutableStateOf(false) }
-    var minutoAtual by remember { mutableStateOf(0) }
+    var eventoSelecionado by remember { mutableStateOf<MatchEventType?>(null) } // Declara estado mutável local do Compose
+    var equipaSelecionada by remember { mutableStateOf("casa") } // Declara estado mutável local do Compose
+    var tipoAlvo by remember { mutableStateOf("equipa") } // Declara estado mutável local do Compose
+    var jogadorSelecionado by remember { mutableStateOf<Utilizador?>(null) } // Declara estado mutável local do Compose
+    var jogadorSai by remember { mutableStateOf<Utilizador?>(null) } // Declara estado mutável local do Compose
+    var jogadorEntra by remember { mutableStateOf<Utilizador?>(null) } // Declara estado mutável local do Compose
+    var jogadoresEquipa by remember { mutableStateOf<List<Utilizador>>(emptyList()) } // Declara estado mutável local do Compose
+    var jogadoresExpanded by remember { mutableStateOf(false) } // Declara estado mutável local do Compose
+    var minutoAtual by remember { mutableStateOf(0) } // Declara estado mutável local do Compose
 
-    LaunchedEffect(jogo.iniciado_em) {
+    LaunchedEffect(jogo.iniciado_em) { // Efeito colateral Compose: executa código assíncrono ao recompor
         while (true) {
-            val inicioMillis = com.leaguematch.util.parseIniciadoEmEpochMillis(jogo.iniciado_em)
+            val inicioMillis = com.leaguematch.util.parseIniciadoEmEpochMillis(jogo.iniciado_em) // Declara constante local (leitura única)
 
-            minutoAtual = if (inicioMillis != null) {
+            minutoAtual = if (inicioMillis != null) { // Estrutura de decisão condicional principal
                 (((java.time.Instant.now().toEpochMilli() - inicioMillis) / 1000) / 60)
                     .toInt()
                     .coerceAtLeast(0)
-            } else {
+            } else { // Fluxo condicional alternativo caso o 'if' seja falso
                 0
             }
 
@@ -750,37 +758,37 @@ private fun EventosJogoContent(
         }
     }
 
-    var isSaving by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
-    val context = androidx.compose.ui.platform.LocalContext.current
+    var isSaving by remember { mutableStateOf(false) } // Declara estado mutável local do Compose
+    val scope = rememberCoroutineScope() // Cria escopo local para lançar coroutines em cliques na UI
+    val context = androidx.compose.ui.platform.LocalContext.current // Declara constante local (leitura única)
 
-    val eventos = eventosPorModalidade(modalidade)
+    val eventos = eventosPorModalidade(modalidade) // Declara constante local (leitura única)
 
-    LaunchedEffect(equipaSelecionada, jogo.equipaCasaId, jogo.equipaForaId) {
+    LaunchedEffect(equipaSelecionada, jogo.equipaCasaId, jogo.equipaForaId) { // Efeito colateral Compose: executa código assíncrono ao recompor
         jogadorSelecionado = null
 
-        val equipaId = if (equipaSelecionada == "casa") {
+        val equipaId = if (equipaSelecionada == "casa") { // Estrutura de decisão condicional principal
             jogo.equipaCasaId
-        } else {
+        } else { // Fluxo condicional alternativo caso o 'if' seja falso
             jogo.equipaForaId
         }
 
-        jogadoresEquipa = if (equipaId != null) {
-            repository.listarJogadoresEquipa(equipaId)
-        } else {
+        jogadoresEquipa = if (equipaId != null) { // Estrutura de decisão condicional principal
+            repository.listarJogadoresEquipa(equipaId) // Efetua chamada remota ou local ao repositório de dados
+        } else { // Fluxo condicional alternativo caso o 'if' seja falso
             emptyList()
         }
     }
 
-    Column(
-        modifier = Modifier
+    Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+        modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
             .fillMaxSize()
             .background(Color(0xFFF7F7F7))
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        Text(
+        Text( // Componente Compose: Desenha texto estruturado no ecrã
             text = "Tipo de evento",
             color = Color.Black,
             fontFamily = Geist,
@@ -789,23 +797,23 @@ private fun EventosJogoContent(
         )
 
         eventos.chunked(3).forEach { linha ->
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) { // Contentor Compose: Alinha os filhos numa linha horizontal
                 linha.forEach { evento ->
                     EventoButton(
                         evento = evento,
                         selected = eventoSelecionado == evento,
-                        onClick = { eventoSelecionado = evento },
-                        modifier = Modifier.weight(1f)
+                        onClick = { eventoSelecionado = evento }, // Callback: Define a ação executada ao clicar no componente
+                        modifier = Modifier.weight(1f) // Modificador Compose: Define tamanho, margem, padding ou clique
                     )
                 }
 
                 repeat(3 - linha.size) {
-                    Spacer(modifier = Modifier.weight(1f))
+                    Spacer(modifier = Modifier.weight(1f)) // Espaçador Compose: Cria distanciamento visual entre componentes
                 }
             }
         }
 
-        Text(
+        Text( // Componente Compose: Desenha texto estruturado no ecrã
             text = "Equipa",
             color = Color.Black,
             fontFamily = Geist,
@@ -813,23 +821,23 @@ private fun EventosJogoContent(
             fontSize = 15.sp
         )
 
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) { // Contentor Compose: Alinha os filhos numa linha horizontal
             TeamSelectButton(
                 text = jogo.casa,
                 selected = equipaSelecionada == "casa",
-                onClick = { equipaSelecionada = "casa" },
-                modifier = Modifier.weight(1f)
+                onClick = { equipaSelecionada = "casa" }, // Callback: Define a ação executada ao clicar no componente
+                modifier = Modifier.weight(1f) // Modificador Compose: Define tamanho, margem, padding ou clique
             )
 
             TeamSelectButton(
                 text = jogo.fora,
                 selected = equipaSelecionada == "fora",
-                onClick = { equipaSelecionada = "fora" },
-                modifier = Modifier.weight(1f)
+                onClick = { equipaSelecionada = "fora" }, // Callback: Define a ação executada ao clicar no componente
+                modifier = Modifier.weight(1f) // Modificador Compose: Define tamanho, margem, padding ou clique
             )
         }
 
-        Text(
+        Text( // Componente Compose: Desenha texto estruturado no ecrã
             text = "Aplicar a",
             color = Color.Black,
             fontFamily = Geist,
@@ -837,33 +845,33 @@ private fun EventosJogoContent(
             fontSize = 15.sp
         )
 
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) { // Contentor Compose: Alinha os filhos numa linha horizontal
             TargetButton(
                 text = "Equipa",
                 icon = Icons.Default.Groups,
                 selected = tipoAlvo == "equipa",
-                onClick = { tipoAlvo = "equipa" },
-                modifier = Modifier.weight(1f)
+                onClick = { tipoAlvo = "equipa" }, // Callback: Define a ação executada ao clicar no componente
+                modifier = Modifier.weight(1f) // Modificador Compose: Define tamanho, margem, padding ou clique
             )
 
             TargetButton(
                 text = "Jogador",
                 icon = Icons.Default.Person,
                 selected = tipoAlvo == "jogador",
-                onClick = { tipoAlvo = "jogador" },
-                modifier = Modifier.weight(1f)
+                onClick = { tipoAlvo = "jogador" }, // Callback: Define a ação executada ao clicar no componente
+                modifier = Modifier.weight(1f) // Modificador Compose: Define tamanho, margem, padding ou clique
             )
         }
 
-        if (tipoAlvo == "jogador") {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
+        if (tipoAlvo == "jogador") { // Estrutura de decisão condicional principal
+            Box(modifier = Modifier.fillMaxWidth()) { // Contentor Compose: Sobrepõe os elementos filhos
+                OutlinedTextField( // Campo Compose: Entrada de texto com contorno visual
                     value = jogadorSelecionado?.nome ?: "",
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Jogador") },
-                    placeholder = { Text("Selecionar jogador") },
-                    modifier = Modifier
+                    label = { Text("Jogador") }, // Componente Compose: Desenha texto estruturado no ecrã
+                    placeholder = { Text("Selecionar jogador") }, // Componente Compose: Desenha texto estruturado no ecrã
+                    modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                         .fillMaxWidth()
                         .clickable { jogadoresExpanded = true },
                     shape = RoundedCornerShape(12.dp),
@@ -880,18 +888,18 @@ private fun EventosJogoContent(
                 DropdownMenu(
                     expanded = jogadoresExpanded,
                     onDismissRequest = { jogadoresExpanded = false },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth() // Modificador Compose: Define tamanho, margem, padding ou clique
                 ) {
-                    if (jogadoresEquipa.isEmpty()) {
+                    if (jogadoresEquipa.isEmpty()) { // Estrutura de decisão condicional principal
                         DropdownMenuItem(
-                            text = { Text("Sem jogadores nesta equipa") },
-                            onClick = { jogadoresExpanded = false }
+                            text = { Text("Sem jogadores nesta equipa") }, // Componente Compose: Desenha texto estruturado no ecrã
+                            onClick = { jogadoresExpanded = false } // Callback: Define a ação executada ao clicar no componente
                         )
-                    } else {
+                    } else { // Fluxo condicional alternativo caso o 'if' seja falso
                         jogadoresEquipa.forEach { jogador ->
                             DropdownMenuItem(
-                                text = { Text(jogador.nome) },
-                                onClick = {
+                                text = { Text(jogador.nome) }, // Componente Compose: Desenha texto estruturado no ecrã
+                                onClick = { // Callback: Define a ação executada ao clicar no componente
                                     jogadorSelecionado = jogador
                                     jogadoresExpanded = false
                                 }
@@ -902,11 +910,11 @@ private fun EventosJogoContent(
             }
         }
 
-        if (eventoSelecionado?.name == "SUBSTITUICAO") {
-            var jogadorSaiExpanded by remember { mutableStateOf(false) }
-            var jogadorEntraExpanded by remember { mutableStateOf(false) }
+        if (eventoSelecionado?.name == "SUBSTITUICAO") { // Estrutura de decisão condicional principal
+            var jogadorSaiExpanded by remember { mutableStateOf(false) } // Declara estado mutável local do Compose
+            var jogadorEntraExpanded by remember { mutableStateOf(false) } // Declara estado mutável local do Compose
 
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = "Jogador que sai",
                 color = Color.Black,
                 fontFamily = Geist,
@@ -914,14 +922,14 @@ private fun EventosJogoContent(
                 fontSize = 15.sp
             )
 
-            Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
+            Box(modifier = Modifier.fillMaxWidth()) { // Contentor Compose: Sobrepõe os elementos filhos
+                OutlinedTextField( // Campo Compose: Entrada de texto com contorno visual
                     value = jogadorSai?.nome ?: "",
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Jogador que sai") },
-                    placeholder = { Text("Selecionar jogador") },
-                    modifier = Modifier
+                    label = { Text("Jogador que sai") }, // Componente Compose: Desenha texto estruturado no ecrã
+                    placeholder = { Text("Selecionar jogador") }, // Componente Compose: Desenha texto estruturado no ecrã
+                    modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                         .fillMaxWidth()
                         .clickable { jogadorSaiExpanded = true },
                     shape = RoundedCornerShape(12.dp),
@@ -938,12 +946,12 @@ private fun EventosJogoContent(
                 DropdownMenu(
                     expanded = jogadorSaiExpanded,
                     onDismissRequest = { jogadorSaiExpanded = false },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth() // Modificador Compose: Define tamanho, margem, padding ou clique
                 ) {
                     jogadoresEquipa.forEach { jogador ->
                         DropdownMenuItem(
-                            text = { Text(jogador.nome) },
-                            onClick = {
+                            text = { Text(jogador.nome) }, // Componente Compose: Desenha texto estruturado no ecrã
+                            onClick = { // Callback: Define a ação executada ao clicar no componente
                                 jogadorSai = jogador
                                 jogadorSaiExpanded = false
                             }
@@ -952,7 +960,7 @@ private fun EventosJogoContent(
                 }
             }
 
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = "Jogador que entra",
                 color = Color.Black,
                 fontFamily = Geist,
@@ -960,14 +968,14 @@ private fun EventosJogoContent(
                 fontSize = 15.sp
             )
 
-            Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
+            Box(modifier = Modifier.fillMaxWidth()) { // Contentor Compose: Sobrepõe os elementos filhos
+                OutlinedTextField( // Campo Compose: Entrada de texto com contorno visual
                     value = jogadorEntra?.nome ?: "",
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Jogador que entra") },
-                    placeholder = { Text("Selecionar jogador") },
-                    modifier = Modifier
+                    label = { Text("Jogador que entra") }, // Componente Compose: Desenha texto estruturado no ecrã
+                    placeholder = { Text("Selecionar jogador") }, // Componente Compose: Desenha texto estruturado no ecrã
+                    modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                         .fillMaxWidth()
                         .clickable { jogadorEntraExpanded = true },
                     shape = RoundedCornerShape(12.dp),
@@ -984,12 +992,12 @@ private fun EventosJogoContent(
                 DropdownMenu(
                     expanded = jogadorEntraExpanded,
                     onDismissRequest = { jogadorEntraExpanded = false },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth() // Modificador Compose: Define tamanho, margem, padding ou clique
                 ) {
                     jogadoresEquipa.forEach { jogador ->
                         DropdownMenuItem(
-                            text = { Text(jogador.nome) },
-                            onClick = {
+                            text = { Text(jogador.nome) }, // Componente Compose: Desenha texto estruturado no ecrã
+                            onClick = { // Callback: Define a ação executada ao clicar no componente
                                 jogadorEntra = jogador
                                 jogadorEntraExpanded = false
                             }
@@ -999,63 +1007,63 @@ private fun EventosJogoContent(
             }
         }
 
-        Button(
-            onClick = {
-                val ev = eventoSelecionado
-                if (ev == null) {
+        Button( // Componente Compose: Desenha um botão interativo
+            onClick = { // Callback: Define a ação executada ao clicar no componente
+                val ev = eventoSelecionado // Declara constante local (leitura única)
+                if (ev == null) { // Estrutura de decisão condicional principal
                     Toast.makeText(context, "Por favor, selecione um tipo de evento.", Toast.LENGTH_SHORT).show()
-                    return@Button
+                    return@Button // Componente Compose: Desenha um botão interativo
                 }
 
-                if (ev.name == "CANTO" && tipoAlvo == "jogador") {
+                if (ev.name == "CANTO" && tipoAlvo == "jogador") { // Estrutura de decisão condicional principal
                     Toast.makeText(
                         context,
                         "O canto só pode ser aplicado à equipa.",
                         Toast.LENGTH_SHORT
                     ).show()
-                    return@Button
+                    return@Button // Componente Compose: Desenha um botão interativo
                 }
 
-                if (tipoAlvo == "jogador" && jogadorSelecionado == null) {
+                if (tipoAlvo == "jogador" && jogadorSelecionado == null) { // Estrutura de decisão condicional principal
                     Toast.makeText(
                         context,
                         "Selecione um jogador.",
                         Toast.LENGTH_SHORT
                     ).show()
-                    return@Button
+                    return@Button // Componente Compose: Desenha um botão interativo
                 }
 
                 scope.launch {
                     isSaving = true
-                    val success = repository.registarEventoJogo(
+                    val success = repository.registarEventoJogo( // Efetua chamada remota ou local ao repositório de dados
                         partidaId = jogo.id,
                         tipo = ev.name,
                         equipa = equipaSelecionada,
                         tempo = minutoAtual,
-                        userId = if (tipoAlvo == "jogador") jogadorSelecionado?.id else null,
-                        jogadorSaiId = if (ev.name == "SUBSTITUICAO") jogadorSai?.id else null,
-                        jogadorEntraId = if (ev.name == "SUBSTITUICAO") jogadorEntra?.id else null
+                        userId = if (tipoAlvo == "jogador") jogadorSelecionado?.id else null, // Estrutura de decisão condicional principal
+                        jogadorSaiId = if (ev.name == "SUBSTITUICAO") jogadorSai?.id else null, // Estrutura de decisão condicional principal
+                        jogadorEntraId = if (ev.name == "SUBSTITUICAO") jogadorEntra?.id else null // Estrutura de decisão condicional principal
                     )
                     isSaving = false
 
-                    if (success) {
+                    if (success) { // Estrutura de decisão condicional principal
                         Toast.makeText(context, "Evento registado com sucesso!", Toast.LENGTH_SHORT).show()
                         onEventRegistered(ev.name, equipaSelecionada)
                         jogadorSelecionado = null
-                    } else {
+                    } else { // Fluxo condicional alternativo caso o 'if' seja falso
                         Toast.makeText(context, "Erro ao registar o evento.", Toast.LENGTH_SHORT).show()
                     }
                 }
             },
             enabled = !isSaving && !bloqueado,
-            modifier = Modifier
+            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                 .fillMaxWidth()
                 .height(50.dp),
             shape = RoundedCornerShape(14.dp),
             colors = ButtonDefaults.buttonColors(containerColor = LMRed)
         ) {
-            Text(
-                text = if (isSaving) "A registar..." else "Registar evento",
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
+                text = if (isSaving) "A registar..." else "Registar evento", // Estrutura de decisão condicional principal
                 color = Color.White,
                 fontFamily = Geist,
                 fontWeight = FontWeight.Bold,
@@ -1066,40 +1074,40 @@ private fun EventosJogoContent(
 }
 
 @Composable
-private fun EventoButton(
+private fun EventoButton( // Declaração de função / método de lógica
     evento: MatchEventType,
     selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    onClick: () -> Unit, // Callback: Define a ação executada ao clicar no componente
+    modifier: Modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
 ) {
     Surface(
-        onClick = onClick,
+        onClick = onClick, // Callback: Define a ação executada ao clicar no componente
         modifier = modifier.height(78.dp),
         shape = RoundedCornerShape(14.dp),
-        color = if (selected) LMRed else Color.White,
+        color = if (selected) LMRed else Color.White, // Estrutura de decisão condicional principal
         border = BorderStroke(
             1.dp,
-            if (selected) LMRed else Color(0xFFE5E7EB)
+            if (selected) LMRed else Color(0xFFE5E7EB) // Estrutura de decisão condicional principal
         ),
         shadowElevation = 2.dp
     ) {
-        Column(
-            modifier = Modifier.padding(8.dp),
+        Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+            modifier = Modifier.padding(8.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Icon(
+            Icon( // Componente Compose: Desenha um ícone vetorial
                 evento.icon,
                 contentDescription = null,
-                tint = if (selected) Color.White else LMRed,
-                modifier = Modifier.size(22.dp)
+                tint = if (selected) Color.White else LMRed, // Estrutura de decisão condicional principal
+                modifier = Modifier.size(22.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
             )
 
-            Spacer(modifier = Modifier.height(5.dp))
+            Spacer(modifier = Modifier.height(5.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = evento.label,
-                color = if (selected) Color.White else Color.Black,
+                color = if (selected) Color.White else Color.Black, // Estrutura de decisão condicional principal
                 fontFamily = Geist,
                 fontWeight = FontWeight.Bold,
                 fontSize = 10.sp,
@@ -1110,33 +1118,33 @@ private fun EventoButton(
 }
 
 @Composable
-private fun EstatisticasJogoContent(
+private fun EstatisticasJogoContent( // Declaração de função / método de lógica
     jogo: Jogo,
     modalidade: String,
     repository: LeagueMatchRepository,
     onGuardarClick: () -> Unit
 ) {
-    val scope = rememberCoroutineScope()
+    val scope = rememberCoroutineScope() // Cria escopo local para lançar coroutines em cliques na UI
 
-    var isSaving by remember { mutableStateOf(false) }
-    var mensagem by remember { mutableStateOf<String?>(null) }
+    var isSaving by remember { mutableStateOf(false) } // Declara estado mutável local do Compose
+    var mensagem by remember { mutableStateOf<String?>(null) } // Declara estado mutável local do Compose
 
-    val jogoFinalizado = jogo.estado.equals("Finalizado", ignoreCase = true) ||
+    val jogoFinalizado = jogo.estado.equals("Finalizado", ignoreCase = true) || // Declara constante local (leitura única)
             jogo.estado.equals("FINALIZADO", ignoreCase = true)
 
-    val estatisticas = remember(modalidade) {
+    val estatisticas = remember(modalidade) { // Memoriza estado para evitar perda durante a recomposição
         mutableStateListOf<EstatisticaEditavel>()
     }
 
-    fun estatisticaManual(titulo: String): Boolean {
-        return titulo.equals("Remates", ignoreCase = true) ||
+    fun estatisticaManual(titulo: String): Boolean { // Declaração de função / método de lógica
+        return titulo.equals("Remates", ignoreCase = true) || // Retorna o resultado da execução da função
                 titulo.equals("Remates à baliza", ignoreCase = true)
     }
 
-    LaunchedEffect(jogo.id) {
+    LaunchedEffect(jogo.id) { // Efeito colateral Compose: executa código assíncrono ao recompor
         estatisticas.clear()
 
-        val base = estatisticasPorModalidade(modalidade).map {
+        val base = estatisticasPorModalidade(modalidade).map { // Declara constante local (leitura única)
             EstatisticaEditavel(
                 titulo = it.titulo,
                 casa = it.casa,
@@ -1144,38 +1152,38 @@ private fun EstatisticasJogoContent(
             )
         }.toMutableList()
 
-        val salvas = repository.obterEstatisticasJogo(jogo.id)
+        val salvas = repository.obterEstatisticasJogo(jogo.id) // Efetua chamada remota ou local ao repositório de dados
 
         salvas.forEach { salva ->
-            val index = base.indexOfFirst {
+            val index = base.indexOfFirst { // Declara constante local (leitura única)
                 it.titulo.equals(salva.tipo, ignoreCase = true)
             }
 
-            if (index >= 0 && estatisticaManual(base[index].titulo)) {
-                val atual = base[index]
-                base[index] = if (salva.equipa.equals("casa", ignoreCase = true)) {
+            if (index >= 0 && estatisticaManual(base[index].titulo)) { // Estrutura de decisão condicional principal
+                val atual = base[index] // Declara constante local (leitura única)
+                base[index] = if (salva.equipa.equals("casa", ignoreCase = true)) { // Estrutura de decisão condicional principal
                     atual.copy(casa = salva.valor)
-                } else {
+                } else { // Fluxo condicional alternativo caso o 'if' seja falso
                     atual.copy(fora = salva.valor)
                 }
             }
         }
 
-        val eventos = repository.obterEventosJogo(jogo.id)
+        val eventos = repository.obterEventosJogo(jogo.id) // Efetua chamada remota ou local ao repositório de dados
 
-        fun contar(tipo: String, equipa: String): Int {
-            return eventos.count {
+        fun contar(tipo: String, equipa: String): Int { // Declaração de função / método de lógica
+            return eventos.count { // Retorna o resultado da execução da função
                 it.tipo.equals(tipo, ignoreCase = true) &&
                         it.equipa.equals(equipa, ignoreCase = true)
             }
         }
 
-        fun aplicarAutomatica(titulo: String, tipoEvento: String) {
-            val index = base.indexOfFirst {
+        fun aplicarAutomatica(titulo: String, tipoEvento: String) { // Declaração de função / método de lógica
+            val index = base.indexOfFirst { // Declara constante local (leitura única)
                 it.titulo.equals(titulo, ignoreCase = true)
             }
 
-            if (index >= 0) {
+            if (index >= 0) { // Estrutura de decisão condicional principal
                 base[index] = base[index].copy(
                     casa = contar(tipoEvento, "casa"),
                     fora = contar(tipoEvento, "fora")
@@ -1189,16 +1197,16 @@ private fun EstatisticasJogoContent(
         aplicarAutomatica("Cartões vermelhos", "CARTAO_VERMELHO")
 
         // Compatibilidade com eventos antigos que ficaram guardados como AMARELO/VERMELHO
-        val amarelosIndex = base.indexOfFirst { it.titulo.equals("Cartões amarelos", ignoreCase = true) }
-        if (amarelosIndex >= 0) {
+        val amarelosIndex = base.indexOfFirst { it.titulo.equals("Cartões amarelos", ignoreCase = true) } // Declara constante local (leitura única)
+        if (amarelosIndex >= 0) { // Estrutura de decisão condicional principal
             base[amarelosIndex] = base[amarelosIndex].copy(
                 casa = base[amarelosIndex].casa + contar("AMARELO", "casa"),
                 fora = base[amarelosIndex].fora + contar("AMARELO", "fora")
             )
         }
 
-        val vermelhosIndex = base.indexOfFirst { it.titulo.equals("Cartões vermelhos", ignoreCase = true) }
-        if (vermelhosIndex >= 0) {
+        val vermelhosIndex = base.indexOfFirst { it.titulo.equals("Cartões vermelhos", ignoreCase = true) } // Declara constante local (leitura única)
+        if (vermelhosIndex >= 0) { // Estrutura de decisão condicional principal
             base[vermelhosIndex] = base[vermelhosIndex].copy(
                 casa = base[vermelhosIndex].casa + contar("VERMELHO", "casa"),
                 fora = base[vermelhosIndex].fora + contar("VERMELHO", "fora")
@@ -1208,14 +1216,14 @@ private fun EstatisticasJogoContent(
         estatisticas.addAll(base)
     }
 
-    Column(
-        modifier = Modifier
+    Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+        modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
             .fillMaxSize()
             .background(Color(0xFFF7F7F7))
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        Text(
+        Text( // Componente Compose: Desenha texto estruturado no ecrã
             text = "Estatísticas do jogo",
             fontFamily = Geist,
             fontWeight = FontWeight.ExtraBold,
@@ -1223,9 +1231,9 @@ private fun EstatisticasJogoContent(
             color = Color.Black
         )
 
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(6.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-        Text(
+        Text( // Componente Compose: Desenha texto estruturado no ecrã
             text = "Remates são editáveis. Cantos, faltas e cartões vêm dos eventos registados.",
             fontFamily = Geist,
             fontWeight = FontWeight.Medium,
@@ -1233,10 +1241,10 @@ private fun EstatisticasJogoContent(
             color = Color(0xFF6B7280)
         )
 
-        Spacer(modifier = Modifier.height(18.dp))
+        Spacer(modifier = Modifier.height(18.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
         estatisticas.forEachIndexed { index, stat ->
-            val manual = estatisticaManual(stat.titulo)
+            val manual = estatisticaManual(stat.titulo) // Declara constante local (leitura única)
 
             StatBarEditable(
                 titulo = stat.titulo,
@@ -1244,42 +1252,42 @@ private fun EstatisticasJogoContent(
                 fora = stat.fora,
                 bloqueado = jogoFinalizado || !manual,
                 onCasaChange = { novoValor ->
-                    if (manual) {
+                    if (manual) { // Estrutura de decisão condicional principal
                         estatisticas[index] = stat.copy(casa = novoValor.coerceAtLeast(0))
                     }
                 },
                 onForaChange = { novoValor ->
-                    if (manual) {
+                    if (manual) { // Estrutura de decisão condicional principal
                         estatisticas[index] = stat.copy(fora = novoValor.coerceAtLeast(0))
                     }
                 }
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(14.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
         }
 
         mensagem?.let {
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = it,
                 fontFamily = Geist,
                 fontWeight = FontWeight.Bold,
                 fontSize = 13.sp,
-                color = if (it.contains("guardadas", ignoreCase = true)) Color(0xFF16A34A) else LMRed
+                color = if (it.contains("guardadas", ignoreCase = true)) Color(0xFF16A34A) else LMRed // Estrutura de decisão condicional principal
             )
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(12.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-        Button(
-            onClick = {
+        Button( // Componente Compose: Desenha um botão interativo
+            onClick = { // Callback: Define a ação executada ao clicar no componente
                 scope.launch {
                     isSaving = true
                     mensagem = null
 
-                    try {
-                        val listaParaGuardar = estatisticas
+                    try { // Tenta executar bloco que pode lançar exceções
+                        val listaParaGuardar = estatisticas // Declara constante local (leitura única)
                             .filter {
                                 it.titulo.equals("Remates", ignoreCase = true) ||
                                         it.titulo.equals("Remates à baliza", ignoreCase = true)
@@ -1287,34 +1295,34 @@ private fun EstatisticasJogoContent(
                             .toMutableStateListCompat()
                             .toEstatisticasJogo()
 
-                        val sucesso = repository.guardarEstatisticasJogo(
+                        val sucesso = repository.guardarEstatisticasJogo( // Efetua chamada remota ou local ao repositório de dados
                             partidaId = jogo.id,
                             estatisticas = listaParaGuardar
                         )
 
                         isSaving = false
 
-                        if (sucesso) {
+                        if (sucesso) { // Estrutura de decisão condicional principal
                             mensagem = "Estatísticas guardadas com sucesso."
                             onGuardarClick()
-                        } else {
+                        } else { // Fluxo condicional alternativo caso o 'if' seja falso
                             mensagem = "Erro ao guardar estatísticas."
                         }
-                    } catch (e: Exception) {
+                    } catch (e: Exception) { // Captura e trata eventuais exceções ocorridas no bloco try
                         isSaving = false
                         mensagem = "Erro: ${e.message}"
                     }
                 }
             },
             enabled = !isSaving && !jogoFinalizado,
-            modifier = Modifier
+            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                 .fillMaxWidth()
                 .height(50.dp),
             shape = RoundedCornerShape(14.dp),
             colors = ButtonDefaults.buttonColors(containerColor = LMRed)
         ) {
-            Text(
-                text = if (isSaving) "A guardar..." else "Guardar remates",
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
+                text = if (isSaving) "A guardar..." else "Guardar remates", // Estrutura de decisão condicional principal
                 color = Color.White,
                 fontFamily = Geist,
                 fontWeight = FontWeight.Bold,
@@ -1324,14 +1332,14 @@ private fun EstatisticasJogoContent(
     }
 }
 
-private fun List<EstatisticaEditavel>.toMutableStateListCompat(): SnapshotStateList<EstatisticaEditavel> {
-    return mutableStateListOf<EstatisticaEditavel>().apply {
+private fun List<EstatisticaEditavel>.toMutableStateListCompat(): SnapshotStateList<EstatisticaEditavel> { // Declaração de função / método de lógica
+    return mutableStateListOf<EstatisticaEditavel>().apply { // Retorna o resultado da execução da função
         addAll(this@toMutableStateListCompat)
     }
 }
 
-private fun SnapshotStateList<EstatisticaEditavel>.toEstatisticasJogo(): List<EstatisticaJogo> {
-    return flatMap { stat ->
+private fun SnapshotStateList<EstatisticaEditavel>.toEstatisticasJogo(): List<EstatisticaJogo> { // Declaração de função / método de lógica
+    return flatMap { stat -> // Retorna o resultado da execução da função
         listOf(
             EstatisticaJogo(
                 tipo = stat.titulo,
@@ -1348,7 +1356,7 @@ private fun SnapshotStateList<EstatisticaEditavel>.toEstatisticasJogo(): List<Es
 }
 
 @Composable
-private fun StatBarEditable(
+private fun StatBarEditable( // Declaração de função / método de lógica
     titulo: String,
     casa: Int,
     fora: Int,
@@ -1356,21 +1364,21 @@ private fun StatBarEditable(
     onCasaChange: (Int) -> Unit,
     onForaChange: (Int) -> Unit
 ) {
-    val total = (casa + fora).coerceAtLeast(1)
-    val casaPeso = casa.toFloat() / total
-    val foraPeso = fora.toFloat() / total
+    val total = (casa + fora).coerceAtLeast(1) // Declara constante local (leitura única)
+    val casaPeso = casa.toFloat() / total // Declara constante local (leitura única)
+    val foraPeso = fora.toFloat() / total // Declara constante local (leitura única)
 
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
         shape = RoundedCornerShape(18.dp),
         color = Color.White,
         border = BorderStroke(1.dp, Color(0xFFE5E7EB)),
         shadowElevation = 2.dp
     ) {
-        Column(
-            modifier = Modifier.padding(14.dp)
+        Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+            modifier = Modifier.padding(14.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
         ) {
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = titulo,
                 fontFamily = Geist,
                 fontWeight = FontWeight.ExtraBold,
@@ -1378,36 +1386,36 @@ private fun StatBarEditable(
                 color = Color.Black
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
+            Row(verticalAlignment = Alignment.CenterVertically) { // Contentor Compose: Alinha os filhos numa linha horizontal
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = casa.toString(),
                     color = LMRed,
                     fontFamily = Geist,
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 16.sp,
-                    modifier = Modifier.width(34.dp)
+                    modifier = Modifier.width(34.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
                 )
 
-                Row(
-                    modifier = Modifier
+                Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+                    modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                         .weight(1f)
                         .height(14.dp)
                         .background(Color(0xFFE5E7EB), RoundedCornerShape(50))
                 ) {
-                    if (casa > 0) {
-                        Box(
-                            modifier = Modifier
+                    if (casa > 0) { // Estrutura de decisão condicional principal
+                        Box( // Contentor Compose: Sobrepõe os elementos filhos
+                            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                                 .fillMaxHeight()
                                 .weight(casaPeso)
                                 .background(LMRed, RoundedCornerShape(50))
                         )
                     }
 
-                    if (fora > 0) {
-                        Box(
-                            modifier = Modifier
+                    if (fora > 0) { // Estrutura de decisão condicional principal
+                        Box( // Contentor Compose: Sobrepõe os elementos filhos
+                            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                                 .fillMaxHeight()
                                 .weight(foraPeso)
                                 .background(Color.Black, RoundedCornerShape(50))
@@ -1415,28 +1423,28 @@ private fun StatBarEditable(
                     }
                 }
 
-                Text(
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = fora.toString(),
                     color = Color.Black,
                     fontFamily = Geist,
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 16.sp,
-                    modifier = Modifier
+                    modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                         .width(34.dp)
                         .padding(start = 8.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) { // Contentor Compose: Alinha os filhos numa linha horizontal
                 StatCounterBox(
                     title = "Equipa Casa",
                     value = casa,
                     bloqueado = bloqueado,
                     onMinusClick = { onCasaChange(casa - 1) },
                     onPlusClick = { onCasaChange(casa + 1) },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f) // Modificador Compose: Define tamanho, margem, padding ou clique
                 )
 
                 StatCounterBox(
@@ -1445,7 +1453,7 @@ private fun StatBarEditable(
                     bloqueado = bloqueado,
                     onMinusClick = { onForaChange(fora - 1) },
                     onPlusClick = { onForaChange(fora + 1) },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f) // Modificador Compose: Define tamanho, margem, padding ou clique
                 )
             }
         }
@@ -1453,13 +1461,13 @@ private fun StatBarEditable(
 }
 
 @Composable
-private fun StatCounterBox(
+private fun StatCounterBox( // Declaração de função / método de lógica
     title: String,
     value: Int,
     bloqueado: Boolean,
     onMinusClick: () -> Unit,
     onPlusClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
 ) {
     Surface(
         modifier = modifier,
@@ -1467,11 +1475,11 @@ private fun StatCounterBox(
         color = Color(0xFFF7F7F7),
         border = BorderStroke(1.dp, Color(0xFFE5E7EB))
     ) {
-        Column(
-            modifier = Modifier.padding(10.dp),
+        Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+            modifier = Modifier.padding(10.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = title,
                 fontFamily = Geist,
                 fontWeight = FontWeight.Bold,
@@ -1479,32 +1487,32 @@ private fun StatCounterBox(
                 color = Color(0xFF6B7280)
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Row(
+            Row( // Contentor Compose: Alinha os filhos numa linha horizontal
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                if (!bloqueado) {
+                if (!bloqueado) { // Estrutura de decisão condicional principal
                     SmallStatButton(
                         text = "-",
-                        onClick = onMinusClick
+                        onClick = onMinusClick // Callback: Define a ação executada ao clicar no componente
                     )
                 }
 
-                Text(
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = value.toString(),
                     color = Color.Black,
                     fontFamily = Geist,
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 17.sp,
-                    modifier = Modifier.padding(horizontal = 10.dp)
+                    modifier = Modifier.padding(horizontal = 10.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
                 )
 
-                if (!bloqueado) {
+                if (!bloqueado) { // Estrutura de decisão condicional principal
                     SmallStatButton(
                         text = "+",
-                        onClick = onPlusClick
+                        onClick = onPlusClick // Callback: Define a ação executada ao clicar no componente
                     )
                 }
             }
@@ -1513,20 +1521,20 @@ private fun StatCounterBox(
 }
 
 @Composable
-private fun SmallStatButton(
+private fun SmallStatButton( // Declaração de função / método de lógica
     text: String,
-    onClick: () -> Unit
+    onClick: () -> Unit // Callback: Define a ação executada ao clicar no componente
 ) {
     Surface(
-        onClick = onClick,
+        onClick = onClick, // Callback: Define a ação executada ao clicar no componente
         shape = RoundedCornerShape(8.dp),
         color = LMRed
     ) {
-        Box(
-            modifier = Modifier.size(30.dp),
+        Box( // Contentor Compose: Sobrepõe os elementos filhos
+            modifier = Modifier.size(30.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
             contentAlignment = Alignment.Center
         ) {
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = text,
                 color = Color.White,
                 fontFamily = Geist,
@@ -1538,43 +1546,43 @@ private fun SmallStatButton(
 }
 
 @Composable
-private fun TeamSelectButton(
+private fun TeamSelectButton( // Declaração de função / método de lógica
     text: String,
     selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    onClick: () -> Unit, // Callback: Define a ação executada ao clicar no componente
+    modifier: Modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
 ) {
     Surface(
-        onClick = onClick,
+        onClick = onClick, // Callback: Define a ação executada ao clicar no componente
         modifier = modifier.height(52.dp),
         shape = RoundedCornerShape(14.dp),
-        color = if (selected) LMRed else Color.White,
+        color = if (selected) LMRed else Color.White, // Estrutura de decisão condicional principal
         border = BorderStroke(
             1.dp,
-            if (selected) LMRed else Color(0xFFE5E7EB)
+            if (selected) LMRed else Color(0xFFE5E7EB) // Estrutura de decisão condicional principal
         ),
         shadowElevation = 2.dp
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 10.dp),
+        Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+            modifier = Modifier.padding(horizontal = 10.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Icon(
+            Icon( // Componente Compose: Desenha um ícone vetorial
                 Icons.Default.Groups,
                 contentDescription = null,
-                tint = if (selected) Color.White else LMRed,
-                modifier = Modifier.size(18.dp)
+                tint = if (selected) Color.White else LMRed, // Estrutura de decisão condicional principal
+                modifier = Modifier.size(18.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
             )
 
-            Spacer(modifier = Modifier.width(6.dp))
+            Spacer(modifier = Modifier.width(6.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = text,
                 fontFamily = Geist,
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp,
-                color = if (selected) Color.White else Color.Black,
+                color = if (selected) Color.White else Color.Black, // Estrutura de decisão condicional principal
                 maxLines = 1
             )
         }
@@ -1582,51 +1590,51 @@ private fun TeamSelectButton(
 }
 
 @Composable
-private fun TargetButton(
+private fun TargetButton( // Declaração de função / método de lógica
     text: String,
     icon: ImageVector,
     selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    onClick: () -> Unit, // Callback: Define a ação executada ao clicar no componente
+    modifier: Modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
 ) {
     Surface(
-        onClick = onClick,
+        onClick = onClick, // Callback: Define a ação executada ao clicar no componente
         modifier = modifier.height(52.dp),
         shape = RoundedCornerShape(14.dp),
-        color = if (selected) LMRed else Color.White,
+        color = if (selected) LMRed else Color.White, // Estrutura de decisão condicional principal
         border = BorderStroke(
             1.dp,
-            if (selected) LMRed else Color(0xFFE5E7EB)
+            if (selected) LMRed else Color(0xFFE5E7EB) // Estrutura de decisão condicional principal
         ),
         shadowElevation = 2.dp
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 10.dp),
+        Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+            modifier = Modifier.padding(horizontal = 10.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Icon(
+            Icon( // Componente Compose: Desenha um ícone vetorial
                 icon,
                 contentDescription = null,
-                tint = if (selected) Color.White else LMRed,
-                modifier = Modifier.size(18.dp)
+                tint = if (selected) Color.White else LMRed, // Estrutura de decisão condicional principal
+                modifier = Modifier.size(18.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
             )
 
-            Spacer(modifier = Modifier.width(6.dp))
+            Spacer(modifier = Modifier.width(6.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = text,
                 fontFamily = Geist,
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp,
-                color = if (selected) Color.White else Color.Black
+                color = if (selected) Color.White else Color.Black // Estrutura de decisão condicional principal
             )
         }
     }
 }
 
-private data class EstatisticaEditavel(
-    val titulo: String,
-    val casa: Int,
-    val fora: Int
+private data class EstatisticaEditavel( // Declaração de classe para modelar objetos
+    val titulo: String, // Declara constante local (leitura única)
+    val casa: Int, // Declara constante local (leitura única)
+    val fora: Int // Declara constante local (leitura única)
 )

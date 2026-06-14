@@ -1,12 +1,20 @@
-package com.leaguematch.ui.organizer
+/**
+ * ESTUDAR PARA A APRESENTAÇÃO:
+ * Ficheiro: MatchEventConfig.kt
+ * Tipo: Interface (Compose View) do Organizador
+ *
+ * Descrição:
+ * Este ficheiro define um ecrã da área do Organizador em Jetpack Compose.\n * Fornece interface e lógica visual para criar torneios, gerir equipas, registar e editar jogos e estatísticas.
+ */
+package com.leaguematch.ui.organizer // Define o pacote deste ficheiro de código
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.material.icons.Icons // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.* // Importa dependência / biblioteca necessária
+import androidx.compose.ui.graphics.vector.ImageVector // Importa dependência / biblioteca necessária
 
-enum class MatchEventType(
-    val label: String,
-    val icon: ImageVector,
+enum class MatchEventType( // Declaração de classe para modelar objetos
+    val label: String, // Declara constante local (leitura única)
+    val icon: ImageVector, // Declara constante local (leitura única)
     val requerJogador: Boolean = true // Por defeito quase todos precisam de jogador
 ) {
     GOLO("Golo", Icons.Default.SportsSoccer),
@@ -28,8 +36,8 @@ enum class MatchEventType(
     BREAK_POINT("Break point", Icons.Default.Bolt)
 }
 
-fun eventosPorModalidade(modalidade: String): List<MatchEventType> {
-    return when (modalidade.trim().lowercase()) {
+fun eventosPorModalidade(modalidade: String): List<MatchEventType> { // Declaração de função / método de lógica
+    return when (modalidade.trim().lowercase()) { // Escolha múltipla condicional (semelhante a switch-case)
         "futebol" -> listOf(
             MatchEventType.GOLO,
             MatchEventType.FALTA,
@@ -83,32 +91,32 @@ fun eventosPorModalidade(modalidade: String): List<MatchEventType> {
             MatchEventType.FALTA
         )
 
-        else -> listOf(
+        else -> listOf( // Fluxo condicional alternativo caso o 'if' seja falso
             MatchEventType.GOLO,
             MatchEventType.FALTA
         )
     }
 }
 
-fun modalidadeUsaPosseBola(modalidade: String): Boolean {
-    return modalidade.trim().lowercase() in listOf(
+fun modalidadeUsaPosseBola(modalidade: String): Boolean { // Declaração de função / método de lógica
+    return modalidade.trim().lowercase() in listOf( // Retorna o resultado da execução da função
         "futebol",
         "andebol",
         "basquetebol"
     )
 }
 
-data class EstatisticaInicial(
-    val titulo: String,
-    val casa: Int,
-    val fora: Int,
+data class EstatisticaInicial( // Declaração de classe para modelar objetos
+    val titulo: String, // Declara constante local (leitura única)
+    val casa: Int, // Declara constante local (leitura única)
+    val fora: Int, // Declara constante local (leitura única)
     val isManual: Boolean = true // Se true: mostra + e -. Se false: conta eventos da BD.
 )
 
-fun estatisticasPorModalidade(modalidade: String): List<EstatisticaInicial> {
-    val lista = mutableListOf<EstatisticaInicial>()
+fun estatisticasPorModalidade(modalidade: String): List<EstatisticaInicial> { // Declaração de função / método de lógica
+    val lista = mutableListOf<EstatisticaInicial>() // Declara constante local (leitura única)
 
-    when (modalidade.trim().lowercase()) {
+    when (modalidade.trim().lowercase()) { // Escolha múltipla condicional (semelhante a switch-case)
         "futebol" -> {
             lista.add(EstatisticaInicial("Remates", 0, 0, isManual = true))
             lista.add(EstatisticaInicial("Remates à baliza", 0, 0, isManual = true))
@@ -160,11 +168,11 @@ fun estatisticasPorModalidade(modalidade: String): List<EstatisticaInicial> {
             lista.add(EstatisticaInicial("Faltas", 0, 0, isManual = false))
         }
 
-        else -> {
+        else -> { // Fluxo condicional alternativo caso o 'if' seja falso
             lista.add(EstatisticaInicial("Faltas", 0, 0, isManual = false))
             lista.add(EstatisticaInicial("Cartões", 0, 0, isManual = false))
         }
     }
 
-    return lista
+    return lista // Retorna o resultado da execução da função
 }

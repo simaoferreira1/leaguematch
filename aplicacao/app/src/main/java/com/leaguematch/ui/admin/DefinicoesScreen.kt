@@ -1,83 +1,91 @@
-package com.leaguematch.ui.admin
+/**
+ * ESTUDAR PARA A APRESENTAÇÃO:
+ * Ficheiro: DefinicoesScreen.kt
+ * Tipo: Interface (Compose View) do Administrador
+ *
+ * Descrição:
+ * Este ficheiro define um ecrã da área do Administrador em Jetpack Compose.\n * Ele desenha componentes visuais reativos baseado no estado fornecido pelo respetivo ViewModel.\n * Permite ao Admin gerir utilizadores (ativar/desativar), visualizar alertas do sistema e gráficos.
+ */
+package com.leaguematch.ui.admin // Define o pacote deste ficheiro de código
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.filled.BrightnessMedium
-import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Sync
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.leaguematch.data.remote.model.ConfiguracaoNotificacoes
-import com.leaguematch.data.remote.model.Utilizador
-import com.leaguematch.translations.Language
-import com.leaguematch.ui.components.AdminBottomBar
-import com.leaguematch.ui.components.Avatar
-import com.leaguematch.ui.components.CardWrapper
-import com.leaguematch.ui.components.LeagueMatchTextField
-import com.leaguematch.ui.components.Pill
-import com.leaguematch.ui.components.TopBar
-import com.leaguematch.ui.components.TranslatedText
-import com.leaguematch.ui.theme.BrandTheme
-import com.leaguematch.ui.theme.Bricolage
-import com.leaguematch.ui.theme.Geist
-import com.leaguematch.ui.theme.LMBorder
-import com.leaguematch.ui.theme.LMGray100
-import com.leaguematch.ui.theme.LMGray400
-import com.leaguematch.ui.theme.LMGray500
-import com.leaguematch.ui.theme.LMGray600
-import com.leaguematch.ui.theme.LMInk
-import com.leaguematch.ui.theme.LMRed
-import com.leaguematch.ui.theme.LMWhite
+import androidx.compose.foundation.BorderStroke // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.background // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.border // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.clickable // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Arrangement // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Box // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Column // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Row // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Spacer // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.fillMaxSize // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.fillMaxWidth // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.height // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.padding // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.size // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.width // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.rememberScrollState // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.shape.CircleShape // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.shape.RoundedCornerShape // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.verticalScroll // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.Icons // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.automirrored.filled.Logout // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.BrightnessMedium // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.ChevronRight // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Language // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Notifications // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Palette // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Settings // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Sync // Importa dependência / biblioteca necessária
+import androidx.compose.material3.AlertDialog // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Button // Importa dependência / biblioteca necessária
+import androidx.compose.material3.ButtonDefaults // Importa dependência / biblioteca necessária
+import androidx.compose.material3.HorizontalDivider // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Icon // Importa dependência / biblioteca necessária
+import androidx.compose.material3.MaterialTheme // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Scaffold // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Switch // Importa dependência / biblioteca necessária
+import androidx.compose.material3.SwitchDefaults // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Text // Importa dependência / biblioteca necessária
+import androidx.compose.material3.TextButton // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.Composable // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.getValue // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.mutableStateOf // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.remember // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.saveable.rememberSaveable // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.setValue // Importa dependência / biblioteca necessária
+import androidx.compose.ui.Alignment // Importa dependência / biblioteca necessária
+import androidx.compose.ui.Modifier // Importa dependência / biblioteca necessária
+import androidx.compose.ui.draw.clip // Importa dependência / biblioteca necessária
+import androidx.compose.ui.graphics.Color // Importa dependência / biblioteca necessária
+import androidx.compose.ui.graphics.vector.ImageVector // Importa dependência / biblioteca necessária
+import androidx.compose.ui.text.font.FontWeight // Importa dependência / biblioteca necessária
+import androidx.compose.ui.text.style.TextAlign // Importa dependência / biblioteca necessária
+import androidx.compose.ui.unit.dp // Importa dependência / biblioteca necessária
+import androidx.compose.ui.unit.sp // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.ConfiguracaoNotificacoes // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.Utilizador // Importa dependência / biblioteca necessária
+import com.leaguematch.translations.Language // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.components.AdminBottomBar // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.components.Avatar // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.components.CardWrapper // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.components.LeagueMatchTextField // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.components.Pill // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.components.TopBar // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.components.TranslatedText // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.BrandTheme // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.Bricolage // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.Geist // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMBorder // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMGray100 // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMGray400 // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMGray500 // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMGray600 // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMInk // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMRed // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMWhite // Importa dependência / biblioteca necessária
 
 @Composable
-fun DefinicoesScreen(
+fun DefinicoesScreen( // Declaração de função / método de lógica
     utilizadorLogado: Utilizador? = null,
     language: Language = Language.PT,
     onLanguageChange: (Language) -> Unit = {},
@@ -108,22 +116,22 @@ fun DefinicoesScreen(
     }
 ) {
     // Controla a abertura do diálogo de edição de perfil.
-    var showEditDialog by remember { mutableStateOf(false) }
+    var showEditDialog by remember { mutableStateOf(false) } // Declara estado mutável local do Compose
     // Guarda temporariamente os dados introduzidos pelo utilizador.
-    var newNome by remember(utilizadorLogado) { mutableStateOf(utilizadorLogado?.nome.orEmpty()) }
-    var newPassword by remember { mutableStateOf("") }
+    var newNome by remember(utilizadorLogado) { mutableStateOf(utilizadorLogado?.nome.orEmpty()) } // Declara estado mutável local do Compose
+    var newPassword by remember { mutableStateOf("") } // Declara estado mutável local do Compose
     // Controla a abertura do seletor de idioma.
-    var showLanguageDialog by remember { mutableStateOf(false) }
+    var showLanguageDialog by remember { mutableStateOf(false) } // Declara estado mutável local do Compose
     // Estados locais das preferências de notificações.
-    var notificacoesJogos by rememberSaveable { mutableStateOf(configuracaoNotificacoes?.notificacoesJogos ?: true) }
-    var notificacoesGolos by rememberSaveable { mutableStateOf(configuracaoNotificacoes?.notificacoesGolos ?: true) }
-    var notificacoesCartoes by rememberSaveable { mutableStateOf(configuracaoNotificacoes?.notificacoesCartoes ?: true) }
-    var notificacoesFimPartida by rememberSaveable { mutableStateOf(configuracaoNotificacoes?.notificacoesFimPartida ?: true) }
-    var somNotificacao by rememberSaveable { mutableStateOf(configuracaoNotificacoes?.somNotificacao ?: true) }
+    var notificacoesJogos by rememberSaveable { mutableStateOf(configuracaoNotificacoes?.notificacoesJogos ?: true) } // Declara estado mutável local do Compose
+    var notificacoesGolos by rememberSaveable { mutableStateOf(configuracaoNotificacoes?.notificacoesGolos ?: true) } // Declara estado mutável local do Compose
+    var notificacoesCartoes by rememberSaveable { mutableStateOf(configuracaoNotificacoes?.notificacoesCartoes ?: true) } // Declara estado mutável local do Compose
+    var notificacoesFimPartida by rememberSaveable { mutableStateOf(configuracaoNotificacoes?.notificacoesFimPartida ?: true) } // Declara estado mutável local do Compose
+    var somNotificacao by rememberSaveable { mutableStateOf(configuracaoNotificacoes?.somNotificacao ?: true) } // Declara estado mutável local do Compose
 
-    fun guardarConfig(transform: (ConfiguracaoNotificacoes) -> ConfiguracaoNotificacoes) {
-        val base = configuracaoNotificacoes ?: ConfiguracaoNotificacoes(
-            utilizadorId = utilizadorLogado?.id ?: return,
+    fun guardarConfig(transform: (ConfiguracaoNotificacoes) -> ConfiguracaoNotificacoes) { // Declaração de função / método de lógica
+        val base = configuracaoNotificacoes ?: ConfiguracaoNotificacoes( // Declara constante local (leitura única)
+            utilizadorId = utilizadorLogado?.id ?: return, // Retorna o resultado da execução da função
             notificacoesJogos = notificacoesJogos,
             notificacoesGolos = notificacoesGolos,
             notificacoesCartoes = notificacoesCartoes,
@@ -141,8 +149,8 @@ fun DefinicoesScreen(
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
 
-        Column(
-            modifier = Modifier
+        Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                 .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
@@ -152,33 +160,33 @@ fun DefinicoesScreen(
                 title = "Perfil",
                 big = true,
                 rightContent = {
-                    if (true) {
-                        Box(
-                            modifier = Modifier
+                    if (true) { // Estrutura de decisão condicional principal
+                        Box( // Contentor Compose: Sobrepõe os elementos filhos
+                            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                                 .size(36.dp)
                                 .background(LMGray100, RoundedCornerShape(10.dp))
                                 .clickable { onGerirNotificacoesClick() },
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(
+                            Icon( // Componente Compose: Desenha um ícone vetorial
                                 imageVector = Icons.Default.Notifications,
                                 contentDescription = "Notificações",
                                 tint = LMGray600,
-                                modifier = Modifier.size(16.dp)
+                                modifier = Modifier.size(16.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
                             )
                         }
-                    } else {
-                        Box(
-                            modifier = Modifier
+                    } else { // Fluxo condicional alternativo caso o 'if' seja falso
+                        Box( // Contentor Compose: Sobrepõe os elementos filhos
+                            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                                 .size(36.dp)
                                 .background(LMGray100, RoundedCornerShape(10.dp)),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(
+                            Icon( // Componente Compose: Desenha um ícone vetorial
                                 imageVector = Icons.Default.Settings,
                                 contentDescription = null,
                                 tint = LMGray600,
-                                modifier = Modifier.size(16.dp)
+                                modifier = Modifier.size(16.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
                             )
                         }
                     }
@@ -186,26 +194,26 @@ fun DefinicoesScreen(
             )
 
             // Cartão de apresentação do utilizador.
-            Box(
-                modifier = Modifier
+            Box( // Contentor Compose: Sobrepõe os elementos filhos
+                modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                     .fillMaxWidth()
                     .padding(horizontal = 18.dp, vertical = 6.dp)
                     .background(LMInk, RoundedCornerShape(16.dp))
                     .padding(14.dp)
             ) {
-                val nomeExibido = utilizadorLogado?.nome ?: "Utilizador LeagueMatch"
-                val tipoExibido = utilizadorLogado?.tipo?.descricao ?: "Participante"
+                val nomeExibido = utilizadorLogado?.nome ?: "Utilizador LeagueMatch" // Declara constante local (leitura única)
+                val tipoExibido = utilizadorLogado?.tipo?.descricao ?: "Participante" // Declara constante local (leitura única)
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically) { // Contentor Compose: Alinha os filhos numa linha horizontal
                     Avatar(
                         name = nomeExibido,
                         size = 56.dp,
                         color = primaryColor
                     )
 
-                    Spacer(modifier = Modifier.width(14.dp))
+                    Spacer(modifier = Modifier.width(14.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-                    Column(modifier = Modifier.weight(1f)) {
+                    Column(modifier = Modifier.weight(1f)) { // Contentor Compose: Alinha os filhos numa coluna vertical
                         TranslatedText(
                             text = nomeExibido,
                             fontFamily = Bricolage,
@@ -219,13 +227,13 @@ fun DefinicoesScreen(
                             fontFamily = Geist,
                             fontSize = 11.sp,
                             color = LMWhite.copy(alpha = 0.6f),
-                            modifier = Modifier.padding(top = 1.dp)
+                            modifier = Modifier.padding(top = 1.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
                         )
 
-                        Spacer(modifier = Modifier.height(6.dp))
+                        Spacer(modifier = Modifier.height(6.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-                        Box(
-                            modifier = Modifier
+                        Box( // Contentor Compose: Sobrepõe os elementos filhos
+                            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                                 .background(LMWhite.copy(alpha = 0.1f), RoundedCornerShape(99.dp))
                                 .border(
                                     BorderStroke(1.dp, LMWhite.copy(alpha = 0.2f)),
@@ -246,26 +254,26 @@ fun DefinicoesScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             // Configurações gerais da aplicação.
-            Box(
-                modifier = Modifier
+            Box( // Contentor Compose: Sobrepõe os elementos filhos
+                modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                     .fillMaxWidth()
                     .padding(horizontal = 18.dp, vertical = 6.dp)
             ) {
                 CardWrapper(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                     pad = 0.dp
                 ) {
-                    Column {
+                    Column { // Contentor Compose: Alinha os filhos numa coluna vertical
                         ProfileRow(
                             icon = Icons.Default.Language,
                             label = "Idioma",
-                            onClick = { showLanguageDialog = true },
+                            onClick = { showLanguageDialog = true }, // Callback: Define a ação executada ao clicar no componente
                             rightContent = {
-                                Text(
-                                    text = if (language == Language.PT) "Português ›" else "English ›",
+                                Text( // Componente Compose: Desenha texto estruturado no ecrã
+                                    text = if (language == Language.PT) "Português ›" else "English ›", // Estrutura de decisão condicional principal
                                     fontFamily = Geist,
                                     fontSize = 12.sp,
                                     color = LMGray500
@@ -274,7 +282,7 @@ fun DefinicoesScreen(
                         )
 
                         HorizontalDivider(
-                            modifier = Modifier.padding(start = 58.dp),
+                            modifier = Modifier.padding(start = 58.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
                             color = LMBorder,
                             thickness = 1.dp
                         )
@@ -293,7 +301,7 @@ fun DefinicoesScreen(
                         )
 
                         HorizontalDivider(
-                            modifier = Modifier.padding(start = 58.dp),
+                            modifier = Modifier.padding(start = 58.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
                             color = LMBorder,
                             thickness = 1.dp
                         )
@@ -302,32 +310,32 @@ fun DefinicoesScreen(
                             icon = Icons.Default.Palette,
                             label = "Cor da aplicação",
                             rightContent = {
-                                Row(
+                                Row( // Contentor Compose: Alinha os filhos numa linha horizontal
                                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     ColorOption(
                                         color = Color(0xFFE31734),
                                         selectedColor = primaryColor,
-                                        onClick = { onPrimaryColorChange(Color(0xFFE31734)) }
+                                        onClick = { onPrimaryColorChange(Color(0xFFE31734)) } // Callback: Define a ação executada ao clicar no componente
                                     )
 
                                     ColorOption(
                                         color = Color(0xFF2563EB),
                                         selectedColor = primaryColor,
-                                        onClick = { onPrimaryColorChange(Color(0xFF2563EB)) }
+                                        onClick = { onPrimaryColorChange(Color(0xFF2563EB)) } // Callback: Define a ação executada ao clicar no componente
                                     )
 
                                     ColorOption(
                                         color = Color(0xFF16A34A),
                                         selectedColor = primaryColor,
-                                        onClick = { onPrimaryColorChange(Color(0xFF16A34A)) }
+                                        onClick = { onPrimaryColorChange(Color(0xFF16A34A)) } // Callback: Define a ação executada ao clicar no componente
                                     )
 
                                     ColorOption(
                                         color = Color(0xFF9333EA),
                                         selectedColor = primaryColor,
-                                        onClick = { onPrimaryColorChange(Color(0xFF9333EA)) }
+                                        onClick = { onPrimaryColorChange(Color(0xFF9333EA)) } // Callback: Define a ação executada ao clicar no componente
                                     )
                                 }
                             }
@@ -336,36 +344,36 @@ fun DefinicoesScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             // Permite verificar o estado da sincronização e terminar sessão.
-            Box(
-                modifier = Modifier
+            Box( // Contentor Compose: Sobrepõe os elementos filhos
+                modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                     .fillMaxWidth()
                     .padding(horizontal = 18.dp, vertical = 6.dp)
             ) {
                 CardWrapper(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                     pad = 0.dp
                 ) {
-                    Column {
+                    Column { // Contentor Compose: Alinha os filhos numa coluna vertical
                         ProfileRow(
                             icon = Icons.Default.Sync,
-                            label = if (alteracoesPendentes > 0)
+                            label = if (alteracoesPendentes > 0) // Estrutura de decisão condicional principal
                                 "Sincronizar ($alteracoesPendentes pendentes)"
-                            else
+                            else // Fluxo condicional alternativo caso o 'if' seja falso
                                 "Sincronização offline",
-                            onClick = { if (alteracoesPendentes > 0) onSincronizarPendentesClick() },
+                            onClick = { if (alteracoesPendentes > 0) onSincronizarPendentesClick() }, // Callback: Define a ação executada ao clicar no componente
                             rightContent = {
                                 Pill(
-                                    text = if (alteracoesPendentes > 0) "$alteracoesPendentes" else "Ativa",
-                                    kind = if (alteracoesPendentes > 0) "warn" else "live"
+                                    text = if (alteracoesPendentes > 0) "$alteracoesPendentes" else "Ativa", // Estrutura de decisão condicional principal
+                                    kind = if (alteracoesPendentes > 0) "warn" else "live" // Estrutura de decisão condicional principal
                                 )
                             }
                         )
 
                         HorizontalDivider(
-                            modifier = Modifier.padding(start = 58.dp),
+                            modifier = Modifier.padding(start = 58.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
                             color = LMBorder,
                             thickness = 1.dp
                         )
@@ -375,13 +383,13 @@ fun DefinicoesScreen(
                             label = "Terminar sessão",
                             labelColor = LMRed,
                             iconTint = LMRed,
-                            onClick = onTerminarSessaoClick,
+                            onClick = onTerminarSessaoClick, // Callback: Define a ação executada ao clicar no componente
                             rightContent = {
-                                Icon(
+                                Icon( // Componente Compose: Desenha um ícone vetorial
                                     imageVector = Icons.Default.ChevronRight,
                                     contentDescription = null,
                                     tint = primaryColor,
-                                    modifier = Modifier.size(16.dp)
+                                    modifier = Modifier.size(16.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
                                 )
                             }
                         )
@@ -389,13 +397,13 @@ fun DefinicoesScreen(
                 }
             }
 
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = "LeagueMatch v1.0.0 · EI-3A-Grupo C · 2025/2026",
                 fontFamily = Geist,
                 fontSize = 10.sp,
                 color = LMGray400,
                 textAlign = TextAlign.Center,
-                modifier = Modifier
+                modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                     .fillMaxWidth()
                     .padding(vertical = 18.dp)
             )
@@ -403,7 +411,7 @@ fun DefinicoesScreen(
     }
 
     // Janela modal utilizada para editar os dados do perfil.
-    if (showEditDialog) {
+    if (showEditDialog) { // Estrutura de decisão condicional principal
         AlertDialog(
             onDismissRequest = {
                 showEditDialog = false
@@ -419,8 +427,8 @@ fun DefinicoesScreen(
                 )
             },
             text = {
-                Column(
-                    modifier = Modifier
+                Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+                    modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                         .fillMaxWidth()
                         .padding(vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -435,16 +443,16 @@ fun DefinicoesScreen(
                     LeagueMatchTextField(
                         value = newPassword,
                         onValueChange = { newPassword = it },
-                        label = if (language == Language.PT) "Nova palavra-passe (opcional)" else "New password (optional)",
+                        label = if (language == Language.PT) "Nova palavra-passe (opcional)" else "New password (optional)", // Estrutura de decisão condicional principal
                         placeholder = "••••••••",
                         isPassword = true
                     )
                 }
             },
             confirmButton = {
-                Button(
-                    onClick = {
-                        if (newNome.isNotBlank()) {
+                Button( // Componente Compose: Desenha um botão interativo
+                    onClick = { // Callback: Define a ação executada ao clicar no componente
+                        if (newNome.isNotBlank()) { // Estrutura de decisão condicional principal
                             onEditarPerfilClick(newNome, newPassword.takeIf { it.isNotBlank() })
                             showEditDialog = false
                             newPassword = ""
@@ -463,7 +471,7 @@ fun DefinicoesScreen(
             },
             dismissButton = {
                 TextButton(
-                    onClick = {
+                    onClick = { // Callback: Define a ação executada ao clicar no componente
                         showEditDialog = false
                         newPassword = ""
                     }
@@ -482,7 +490,7 @@ fun DefinicoesScreen(
     }
 
     // Janela modal para seleção do idioma da aplicação.
-    if (showLanguageDialog) {
+    if (showLanguageDialog) { // Estrutura de decisão condicional principal
             AlertDialog(
                 onDismissRequest = {
                     showLanguageDialog = false
@@ -500,13 +508,13 @@ fun DefinicoesScreen(
                     )
                 },
                 text = {
-                    Column(
+                    Column( // Contentor Compose: Alinha os filhos numa coluna vertical
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         ProfileRow(
                             icon = Icons.Default.Language,
                             label = "Português",
-                            onClick = {
+                            onClick = { // Callback: Define a ação executada ao clicar no componente
                                 onLanguageChange(Language.PT)
                                 showLanguageDialog = false
                             }
@@ -517,7 +525,7 @@ fun DefinicoesScreen(
                         ProfileRow(
                             icon = Icons.Default.Language,
                             label = "English",
-                            onClick = {
+                            onClick = { // Callback: Define a ação executada ao clicar no componente
                                 onLanguageChange(Language.EN)
                                 showLanguageDialog = false
                             }
@@ -531,37 +539,37 @@ fun DefinicoesScreen(
 
 // Componente reutilizável para apresentar uma preferência
 @Composable
-fun ProfileSwitchRow(
+fun ProfileSwitchRow( // Declaração de função / método de lógica
     icon: ImageVector,
     label: String,
     description: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
-    Row(
-        modifier = Modifier
+    Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+        modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
             .fillMaxWidth()
             .padding(horizontal = 14.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier
+        Box( // Contentor Compose: Sobrepõe os elementos filhos
+            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                 .size(32.dp)
                 .background(LMGray100, RoundedCornerShape(9.dp)),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
+            Icon( // Componente Compose: Desenha um ícone vetorial
                 imageVector = icon,
                 contentDescription = null,
                 tint = LMRed,
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier.size(16.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
             )
         }
 
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(12.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
+        Column(modifier = Modifier.weight(1f)) { // Contentor Compose: Alinha os filhos numa coluna vertical
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = label,
                 fontFamily = Geist,
                 fontSize = 13.sp,
@@ -569,7 +577,7 @@ fun ProfileSwitchRow(
                 color = LMInk
             )
 
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = description,
                 fontFamily = Geist,
                 fontSize = 10.sp,
@@ -594,45 +602,45 @@ fun ProfileSwitchRow(
 
 // Linha reutilizável utilizada nas definições.
 @Composable
-fun ProfileRow(
+fun ProfileRow( // Declaração de função / método de lógica
     icon: ImageVector,
     label: String,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier, // Modificador Compose: Define tamanho, margem, padding ou clique
     iconTint: Color = LMInk,
     labelColor: Color = LMInk,
-    onClick: () -> Unit = {},
+    onClick: () -> Unit = {}, // Callback: Define a ação executada ao clicar no componente
     rightContent: @Composable () -> Unit = {}
 ) {
-    Row(
+    Row( // Contentor Compose: Alinha os filhos numa linha horizontal
         modifier = modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .clickable { onClick() } // Callback: Define a ação executada ao clicar no componente
             .padding(horizontal = 14.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier
+        Box( // Contentor Compose: Sobrepõe os elementos filhos
+            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                 .size(32.dp)
                 .background(LMGray100, RoundedCornerShape(9.dp)),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
+            Icon( // Componente Compose: Desenha um ícone vetorial
                 imageVector = icon,
                 contentDescription = null,
                 tint = iconTint,
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier.size(16.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
             )
         }
 
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(12.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-        Text(
+        Text( // Componente Compose: Desenha texto estruturado no ecrã
             text = label,
             fontFamily = Geist,
             fontSize = 13.sp,
             fontWeight = FontWeight.SemiBold,
             color = labelColor,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f) // Modificador Compose: Define tamanho, margem, padding ou clique
         )
 
         rightContent()
@@ -641,23 +649,23 @@ fun ProfileRow(
 
 // Representa uma cor selecionável para personalizar
 @Composable
-fun ColorOption(
+fun ColorOption( // Declaração de função / método de lógica
     color: Color,
     selectedColor: Color,
-    onClick: () -> Unit
+    onClick: () -> Unit // Callback: Define a ação executada ao clicar no componente
 ) {
-    Box(
-        modifier = Modifier
+    Box( // Contentor Compose: Sobrepõe os elementos filhos
+        modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
             .size(18.dp)
             .clip(CircleShape)
             .background(color)
             .border(
                 BorderStroke(
-                    width = if (selectedColor == color) 2.dp else 0.dp,
+                    width = if (selectedColor == color) 2.dp else 0.dp, // Estrutura de decisão condicional principal
                     color = LMInk
                 ),
                 CircleShape
             )
-            .clickable { onClick() }
+            .clickable { onClick() } // Callback: Define a ação executada ao clicar no componente
     )
 }

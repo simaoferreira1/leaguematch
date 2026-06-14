@@ -1,37 +1,45 @@
-package com.leaguematch.ui.theme
+/**
+ * ESTUDAR PARA A APRESENTAÇÃO:
+ * Ficheiro: Type.kt
+ * Tipo: Lógica Utilitária / Auxiliar
+ *
+ * Descrição:
+ * Contém funções utilitárias ou auxiliares transversais à aplicação.
+ */
+package com.leaguematch.ui.theme // Define o pacote deste ficheiro de código
 
-import androidx.compose.material3.Typography
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.*
-import androidx.compose.ui.text.googlefonts.Font
-import androidx.compose.ui.text.googlefonts.GoogleFont
-import androidx.compose.ui.unit.sp
-import com.leaguematch.R
+import androidx.compose.material3.Typography // Importa dependência / biblioteca necessária
+import androidx.compose.ui.text.TextStyle // Importa dependência / biblioteca necessária
+import androidx.compose.ui.text.font.* // Importa dependência / biblioteca necessária
+import androidx.compose.ui.text.googlefonts.Font // Importa dependência / biblioteca necessária
+import androidx.compose.ui.text.googlefonts.GoogleFont // Importa dependência / biblioteca necessária
+import androidx.compose.ui.unit.sp // Importa dependência / biblioteca necessária
+import com.leaguematch.R // Importa dependência / biblioteca necessária
 
-private val provider = GoogleFont.Provider(
+private val provider = GoogleFont.Provider( // Declara constante local (leitura única)
     providerAuthority = "com.google.android.gms.fonts",
     providerPackage = "com.google.android.gms",
     certificates = R.array.com_google_android_gms_fonts_certs
 )
 
-val Geist = FontFamily(
+val Geist = FontFamily( // Declara constante local (leitura única)
     Font(GoogleFont("Geist"), provider, weight = FontWeight.Normal),
     Font(GoogleFont("Geist"), provider, weight = FontWeight.Medium),
     Font(GoogleFont("Geist"), provider, weight = FontWeight.SemiBold),
     Font(GoogleFont("Geist"), provider, weight = FontWeight.Bold),
     Font(GoogleFont("Geist"), provider, weight = FontWeight.ExtraBold),
 )
-val Bricolage = FontFamily(
+val Bricolage = FontFamily( // Declara constante local (leitura única)
     Font(GoogleFont("Bricolage Grotesque"), provider, weight = FontWeight.SemiBold),
     Font(GoogleFont("Bricolage Grotesque"), provider, weight = FontWeight.Bold),
     Font(GoogleFont("Bricolage Grotesque"), provider, weight = FontWeight.ExtraBold),
 )
-val GeistMono = FontFamily(
+val GeistMono = FontFamily( // Declara constante local (leitura única)
     Font(GoogleFont("Geist Mono"), provider, weight = FontWeight.Medium),
     Font(GoogleFont("Geist Mono"), provider, weight = FontWeight.Bold),
 )
 
-val LMTypography = Typography(
+val LMTypography = Typography( // Declara constante local (leitura única)
     displayLarge  = TextStyle(fontFamily = Bricolage, fontWeight = FontWeight.ExtraBold, fontSize = 40.sp, letterSpacing = (-0.8).sp),
     displayMedium = TextStyle(fontFamily = Bricolage, fontWeight = FontWeight.Bold,      fontSize = 32.sp, letterSpacing = (-0.6).sp),
     headlineLarge = TextStyle(fontFamily = Bricolage, fontWeight = FontWeight.Bold,      fontSize = 24.sp, letterSpacing = (-0.4).sp),
@@ -44,4 +52,4 @@ val LMTypography = Typography(
 )
 
 // Legacy alias for compatibility with unrefactored screens
-val Typography = LMTypography
+val Typography = LMTypography // Declara constante local (leitura única)

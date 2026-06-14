@@ -1,65 +1,73 @@
-package com.leaguematch.ui.auth
+/**
+ * ESTUDAR PARA A APRESENTAÇÃO:
+ * Ficheiro: LoginScreen.kt
+ * Tipo: Lógica Utilitária / Auxiliar
+ *
+ * Descrição:
+ * Contém funções utilitárias ou auxiliares transversais à aplicação.
+ */
+package com.leaguematch.ui.auth // Define o pacote deste ficheiro de código
 
-import android.widget.Toast
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.leaguematch.R
-import com.leaguematch.data.repository.TranslationRepository
-import com.leaguematch.translations.Language
-import com.leaguematch.ui.components.GhostBtn
-import com.leaguematch.ui.components.LMLogo
-import com.leaguematch.ui.components.LeagueMatchTextField
-import com.leaguematch.ui.components.PrimaryBtn
-import com.leaguematch.ui.components.TextBtn
-import com.leaguematch.ui.components.TranslatedText
-import com.leaguematch.ui.theme.Bricolage
-import com.leaguematch.ui.theme.Geist
-import com.leaguematch.ui.theme.LMBorder
-import com.leaguematch.ui.theme.LMGray400
-import com.leaguematch.ui.theme.LMGray500
-import com.leaguematch.ui.theme.LMGray600
-import com.leaguematch.ui.theme.LMInk
+import android.widget.Toast // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.background // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Arrangement // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Box // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Column // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Row // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Spacer // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.fillMaxSize // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.fillMaxWidth // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.height // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.offset // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.padding // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.size // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.width // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.rememberScrollState // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.shape.RoundedCornerShape // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.verticalScroll // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.Icons // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Language // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Lock // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Person // Importa dependência / biblioteca necessária
+import androidx.compose.material3.AlertDialog // Importa dependência / biblioteca necessária
+import androidx.compose.material3.HorizontalDivider // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Icon // Importa dependência / biblioteca necessária
+import androidx.compose.material3.IconButton // Importa dependência / biblioteca necessária
+import androidx.compose.material3.MaterialTheme // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Text // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.Composable // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.getValue // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.mutableStateOf // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.remember // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.setValue // Importa dependência / biblioteca necessária
+import androidx.compose.ui.Alignment // Importa dependência / biblioteca necessária
+import androidx.compose.ui.Modifier // Importa dependência / biblioteca necessária
+import androidx.compose.ui.graphics.Color // Importa dependência / biblioteca necessária
+import androidx.compose.ui.platform.LocalContext // Importa dependência / biblioteca necessária
+import androidx.compose.ui.res.painterResource // Importa dependência / biblioteca necessária
+import androidx.compose.ui.text.font.FontWeight // Importa dependência / biblioteca necessária
+import androidx.compose.ui.unit.dp // Importa dependência / biblioteca necessária
+import androidx.compose.ui.unit.sp // Importa dependência / biblioteca necessária
+import com.leaguematch.R // Importa dependência / biblioteca necessária
+import com.leaguematch.data.repository.TranslationRepository // Importa dependência / biblioteca necessária
+import com.leaguematch.translations.Language // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.components.GhostBtn // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.components.LMLogo // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.components.LeagueMatchTextField // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.components.PrimaryBtn // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.components.TextBtn // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.components.TranslatedText // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.Bricolage // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.Geist // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMBorder // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMGray400 // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMGray500 // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMGray600 // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMInk // Importa dependência / biblioteca necessária
 
 
 @Composable
-fun LoginScreen(
+fun LoginScreen( // Declaração de função / método de lógica
     erro: String? = null,
     language: Language,
     onLanguageChange: (Language) -> Unit,
@@ -67,12 +75,12 @@ fun LoginScreen(
     onLoginClick: (String, String) -> Unit,
     onRegisterClick: () -> Unit
 ) {
-    val context = LocalContext.current
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var showLanguageDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current // Declara constante local (leitura única)
+    var email by remember { mutableStateOf("") } // Declara estado mutável local do Compose
+    var password by remember { mutableStateOf("") } // Declara estado mutável local do Compose
+    var showLanguageDialog by remember { mutableStateOf(false) } // Declara estado mutável local do Compose
 
-    if (showLanguageDialog) {
+    if (showLanguageDialog) { // Estrutura de decisão condicional principal
         AlertDialog(
             onDismissRequest = { showLanguageDialog = false },
             shape = RoundedCornerShape(18.dp),
@@ -86,25 +94,25 @@ fun LoginScreen(
                 )
             },
             text = {
-                Column {
+                Column { // Contentor Compose: Alinha os filhos numa coluna vertical
                     TextBtn(
-                        onClick = {
+                        onClick = { // Callback: Define a ação executada ao clicar no componente
                             onLanguageChange(Language.PT)
                             showLanguageDialog = false
                         },
                         color = LMInk
                     ) {
-                        Text("Português", fontFamily = Geist)
+                        Text("Português", fontFamily = Geist) // Componente Compose: Desenha texto estruturado no ecrã
                     }
 
                     TextBtn(
-                        onClick = {
+                        onClick = { // Callback: Define a ação executada ao clicar no componente
                             onLanguageChange(Language.EN)
                             showLanguageDialog = false
                         },
                         color = LMInk
                     ) {
-                        Text("English", fontFamily = Geist)
+                        Text("English", fontFamily = Geist) // Componente Compose: Desenha texto estruturado no ecrã
                     }
                 }
             },
@@ -112,26 +120,26 @@ fun LoginScreen(
         )
     }
 
-    Box(
-        modifier = Modifier
+    Box( // Contentor Compose: Sobrepõe os elementos filhos
+        modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        Column(
-            modifier = Modifier
+        Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 22.dp, vertical = 28.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(20.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             LMLogo(size = 32f, variant = "full")
 
-            Spacer(modifier = Modifier.height(38.dp))
+            Spacer(modifier = Modifier.height(38.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Column(
-                modifier = Modifier.fillMaxWidth(),
+            Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+                modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                 horizontalAlignment = Alignment.Start
             ) {
                 TranslatedText(
@@ -149,7 +157,7 @@ fun LoginScreen(
                     fontFamily = Geist,
                     fontSize = 14.sp,
                     color = LMGray500,
-                    modifier = Modifier.padding(top = 10.dp, bottom = 28.dp)
+                    modifier = Modifier.padding(top = 10.dp, bottom = 28.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
                 )
             }
 
@@ -164,26 +172,26 @@ fun LoginScreen(
             LeagueMatchTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = if (language == Language.PT) "Palavra-passe" else "Password",
+                label = if (language == Language.PT) "Palavra-passe" else "Password", // Estrutura de decisão condicional principal
                 placeholder = "••••••••••",
                 icon = Icons.Default.Lock,
                 isPassword = true,
                 error = erro
             )
 
-            Row(
-                modifier = Modifier
+            Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+                modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                     .fillMaxWidth()
                     .offset(y = (-6).dp),
                 horizontalArrangement = Arrangement.End
             ) {
                 TextBtn(
-                    onClick = {
+                    onClick = { // Callback: Define a ação executada ao clicar no componente
                         Toast.makeText(
                             context,
-                            if (language == Language.PT)
+                            if (language == Language.PT) // Estrutura de decisão condicional principal
                                 "Contacte o administrador para repor a sua palavra-passe."
-                            else
+                            else // Fluxo condicional alternativo caso o 'if' seja falso
                                 "Please contact the administrator to reset your password.",
                             Toast.LENGTH_LONG
                         ).show()
@@ -198,20 +206,20 @@ fun LoginScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             PrimaryBtn(
-                onClick = {
-                    if (email.isBlank() || password.isBlank()) {
+                onClick = { // Callback: Define a ação executada ao clicar no componente
+                    if (email.isBlank() || password.isBlank()) { // Estrutura de decisão condicional principal
                         Toast.makeText(
                             context,
-                            if (language == Language.PT)
+                            if (language == Language.PT) // Estrutura de decisão condicional principal
                                 "Por favor, preencha todos os campos."
-                            else
+                            else // Fluxo condicional alternativo caso o 'if' seja falso
                                 "Please fill in all fields.",
                             Toast.LENGTH_SHORT
                         ).show()
-                    } else {
+                    } else { // Fluxo condicional alternativo caso o 'if' seja falso
                         onLoginClick(email, password)
                     }
                 },
@@ -222,10 +230,10 @@ fun LoginScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(28.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
+            Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+                modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -237,7 +245,7 @@ fun LoginScreen(
                 )
 
                 TextBtn(
-                    onClick = onRegisterClick,
+                    onClick = onRegisterClick, // Callback: Define a ação executada ao clicar no componente
                     color = LMInk
                 ) {
                     TranslatedText(
@@ -250,13 +258,13 @@ fun LoginScreen(
             }
         }
 
-        IconButton(
-            onClick = { showLanguageDialog = true },
-            modifier = Modifier
+        IconButton( // Componente Compose: Desenha um botão com ícone
+            onClick = { showLanguageDialog = true }, // Callback: Define a ação executada ao clicar no componente
+            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                 .align(Alignment.TopEnd)
                 .padding(top = 32.dp, end = 18.dp)
         ) {
-            Icon(
+            Icon( // Componente Compose: Desenha um ícone vetorial
                 imageVector = Icons.Default.Language,
                 contentDescription = "Idioma",
                 tint = LMInk

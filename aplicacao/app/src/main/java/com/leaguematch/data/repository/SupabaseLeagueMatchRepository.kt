@@ -31,83 +31,107 @@ import org.mindrot.jbcrypt.BCrypt
 import com.leaguematch.viewmodel.ParticipantStatsData
 import com.leaguematch.data.sync.SyncQueueStore
 
+/**
+ * ESTUDAR PARA A APRESENTAÇÃO:
+ * O SupabaseLeagueMatchRepository implementa o acesso aos dados remotos localizados no Supabase.
+ * Ele traduz chamadas Kotlin em pedidos HTTP RESTful (através de métodos como getArray, postObject, patchObject).
+ *
+ * Características principais para estudar:
+ * 1. **Bypasses de Programador**: Credenciais fixas (Ex: simao@leaguematch.com) que permitem testar
+ *    rapidamente a aplicação na apresentação com diferentes tipos de utilizadores (Admin, Organizador).
+ * 2. **Cifragem BCrypt**: Durante o login e registo, a password é validada contra o hash cifrado
+ *    armazenado na BD usando BCrypt para garantir a segurança dos utilizadores.
+ */
 class SupabaseLeagueMatchRepository(
     private val supabaseUrl: String,
     private val anonKey: String,
-    private val syncQueue: SyncQueueStore? = null
+    private val syncQueue: SyncQueueStore? = null // Recebe a fila de sincronização offline
 ) : LeagueMatchRepository {
-    override suspend fun autenticar(email: String, password: String): Utilizador? {
-        if (email.isBlank() || password.isBlank()) return null
-        val trimmedEmail = email.trim()
 
-        // Developer bypass for testing / sandbox verification
+    /**
+     * Valida as credenciais. Primeiro verifica os bypasses locais de teste,
+     * e depois consulta a tabela "utilizador" no Supabase e compara o hash BCrypt da password.
+     */
+    override suspend fun autenticar(email: String, password: String): Utilizador? { // Declara autenticar como suspend (executa assincronamente)
+        if (email.isBlank() || password.isBlank()) return null // Se email ou pass forem vazios, aborta e retorna nulo
+        val trimmedEmail = email.trim() // Limpa espaços extras no início e fim do email
+
+        // Bypass 1: Verifica se as credenciais correspondem ao programador Simão (Admin)
         if (trimmedEmail.equals(
-                "simao@leaguematch.com",
-                ignoreCase = true
-            ) && password == "password"
-        ) {
-            return Utilizador(
-                id = 999,
-                nome = "Simão Ferreira (Bypass Dev)",
-                email = "simao@leaguematch.com",
-                tipo = TipoUtilizador.ADMIN,
-                active = true,
-                equipas = 4,
-                torneios = 2,
-                jogos = 12
-            )
-        }
+                "simao@leaguematch.com", // Compara email sem diferenciar maiúsculas/minúsculas
+                ignoreCase = true // Ignora se o utilizador digitou com Shift ativo
+            ) && password == "password" // Password simples para bypass local
+        ) { // Início do bloco bypass
+            return Utilizador( // Instancia e retorna um Utilizador fictício completo para fins de testes locais
+                id = 999, // Define ID estático
+                nome = "Simão Ferreira (Bypass Dev)", // Nome visível na interface
+                email = "simao@leaguematch.com", // Email associado
+                tipo = TipoUtilizador.ADMIN, // Configura perfil com plenos privilégios de Admin
+                active = true, // Define utilizador como ativo
+                equipas = 4, // Define dados fictícios de equipas
+                torneios = 2, // Define dados fictícios de torneios
+                jogos = 12 // Define dados fictícios de jogos
+            ) // Fim do objeto
+        } // Fim do if do bypass 1
 
-        if (trimmedEmail.equals("admin", ignoreCase = true) && password == "admin") {
-            return Utilizador(
-                id = 777,
-                nome = "Admin",
-                email = "admin",
-                tipo = TipoUtilizador.ADMIN,
-                active = true,
-                equipas = 0,
-                torneios = 0,
-                jogos = 0
-            )
-        }
+        // Bypass 2: Login rápido simples de administrador local
+        if (trimmedEmail.equals("admin", ignoreCase = true) && password == "admin") { // Compara com admin/admin
+            return Utilizador( // Instancia utilizador administrador limpo
+                id = 777, // ID fictício do admin
+                nome = "Admin", // Nome
+                email = "admin", // Email
+                tipo = TipoUtilizador.ADMIN, // Tipo Admin
+                active = true, // Ativo
+                equipas = 0, // Sem equipas iniciais
+                torneios = 0, // Sem torneios
+                jogos = 0 // Sem jogos
+            ) // Fim do objeto
+        } // Fim do if do bypass 2
 
+        // Bypass 3: Login rápido de organizador local
         if (trimmedEmail.equals(
-                "organizador@leaguematch.com",
-                ignoreCase = true
-            ) && password == "password"
-        ) {
-            return Utilizador(
-                id = 888,
-                nome = "Organizador (Bypass Dev)",
-                email = "organizador@leaguematch.com",
-                tipo = TipoUtilizador.ORGANIZADOR,
-                active = true,
-                equipas = 8,
-                torneios = 3,
-                jogos = 24
-            )
-        }
+                "organizador@leaguematch.com", // Compara com email organizador
+                ignoreCase = true // Ignora case
+            ) && password == "password" // Password de bypass
+        ) { // Início do bloco bypass
+            return Utilizador( // Instancia utilizador Organizador fictício
+                id = 888, // ID fictício
+                nome = "Organizador (Bypass Dev)", // Nome do organizador
+                email = "organizador@leaguematch.com", // Email
+                tipo = TipoUtilizador.ORGANIZADOR, // Atribui perfil de Organizador de torneios
+                active = true, // Ativo
+                equipas = 8, // Equipas
+                torneios = 3, // Torneios
+                jogos = 24 // Jogos
+            ) // Fim do objeto
+        } // Fim do if do bypass 3
 
+        // Consulta remota à BD: Pedido GET à tabela "utilizador" filtrado pelo email
         val candidates = getArray(
-            table = "utilizador",
-            query = mapOf(
-                "select" to "id,nome,email,tipo,active,password",
-                "email" to "eq.$trimmedEmail",
-                "limit" to "1"
-            )
-        )
-        val row = candidates.optJSONObject(0) ?: return null
-        val storedHash = row.optString("password")
-        if (storedHash.isBlank()) return null
+            table = "utilizador", // Especifica a tabela no Supabase
+            query = mapOf( // Passa os parâmetros de filtragem da Query REST
+                "select" to "id,nome,email,tipo,active,password", // Solicita apenas os campos essenciais de segurança
+                "email" to "eq.$trimmedEmail", // Filtro "email igual a trimmedEmail"
+                "limit" to "1" // Limita a resposta a apenas 1 registo (emails são únicos)
+            ) // Fim do map
+        ) // Fim do getArray
+        val row = candidates.optJSONObject(0) ?: return null // Obtém o primeiro objeto JSON retornado ou aborta se vazio
+        val storedHash = row.optString("password") // Extrai o hash da password cifrada guardado no Supabase
+        if (storedHash.isBlank()) return null // Se o hash estiver em branco na BD, aborta a autenticação
 
-        val matches = try {
-            BCrypt.checkpw(password, storedHash)
-        } catch (e: IllegalArgumentException) {
-            false
-        }
-        return if (matches) row.toUtilizador() else null
-    }
+        // Validação da password fornecida contra o hash encriptado
+        val matches = try { // Bloco protetivo para evitar falhas em caso de hash formatado incorretamente
+            BCrypt.checkpw(password, storedHash) // Verifica compatibilidade usando o algoritmo BCrypt
+        } catch (e: IllegalArgumentException) { // Captura eventuais erros de formato de encriptação
+            false // Define matches como falso se houver erro
+        } // Fim do try-catch
+        return if (matches) row.toUtilizador() else null // Se as passwords baterem, mapeia e devolve o utilizador, senão nulo
+    } // Fim de autenticar
 
+    /**
+     * Regista um novo utilizador. Aplica BCrypt.hashpw para encriptar a password
+     * antes de enviá-la nas chaves do objeto JSON para a tabela "utilizador" do Supabase.
+     */
     override suspend fun registar(
         nome: String,
         email: String,
@@ -118,9 +142,11 @@ class SupabaseLeagueMatchRepository(
         val json = JSONObject().apply {
             put("nome", nome.trim())
             put("email", trimmedEmail)
+            // Gera um sal (salt) e encripta a password do utilizador
             put("password", BCrypt.hashpw(password, BCrypt.gensalt(BCRYPT_COST)))
             put("tipo", tipo)
         }
+        // Faz o pedido HTTP POST para inserir o registo
         val response = postObject("utilizador", json)
         return response?.toUtilizador()
     }
@@ -685,6 +711,13 @@ class SupabaseLeagueMatchRepository(
         return true
     }
 
+    /**
+     * ESTUDAR PARA A APRESENTAÇÃO (Mecanismo Offline):
+     * A função `atualizarJogo` tenta atualizar o resultado do jogo no servidor Supabase.
+     * Se falhar por erro de rede ( IOException ), captura o erro e guarda os dados localmente
+     * no `syncQueue` (SharedPreferences) para envio posterior.
+     * Devolve uma resposta "otimista" instantânea para a UI não bloquear.
+     */
     override suspend fun atualizarJogo(
         id: Int,
         resultadoCasa: Int,
@@ -697,7 +730,7 @@ class SupabaseLeagueMatchRepository(
     ): Jogo? = try {
         atualizarJogoInterno(id, resultadoCasa, resultadoFora, estado, local, data, hora, atualizarInicio)
     } catch (e: java.io.IOException) {
-        // Sem rede: guarda na fila para sincronizar depois
+        // Captura falha de rede/Internet: Envia para a fila local pendente
         syncQueue?.enqueueResultUpdate(
             SyncQueueStore.PendingResultUpdate(
                 jogoId = id,
@@ -706,7 +739,7 @@ class SupabaseLeagueMatchRepository(
                 estado = estado
             )
         )
-        // Devolve um Jogo "optimista" para a UI seguir o fluxo
+        // Cria e devolve um objeto Jogo simulado e otimista para a UI refletir a alteração local
         Jogo(
             id = id,
             torneioId = 0,

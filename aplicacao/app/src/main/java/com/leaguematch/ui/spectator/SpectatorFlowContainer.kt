@@ -1,80 +1,88 @@
-    package com.leaguematch.ui.spectator
+/**
+ * ESTUDAR PARA A APRESENTAÇÃO:
+ * Ficheiro: SpectatorFlowContainer.kt
+ * Tipo: Interface (Compose View) do Espectador
+ *
+ * Descrição:
+ * Este ficheiro define um ecrã de visualização pública (Espectador) em Jetpack Compose.\n * Apenas exibe dados para leitura (como tabelas de classificação, jogos ao vivo e calendários) sem permitir alteração.
+ */
+    package com.leaguematch.ui.spectator // Define o pacote deste ficheiro de código
 
-    import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import com.leaguematch.data.remote.model.Classificacao
-import com.leaguematch.data.remote.model.ConfiguracaoNotificacoes
-import com.leaguematch.data.remote.model.Equipa
-import com.leaguematch.data.remote.model.Jogo
-import com.leaguematch.data.remote.model.Torneio
-import com.leaguematch.data.remote.model.Utilizador
-import com.leaguematch.data.repository.LeagueMatchRepository
-import com.leaguematch.ui.admin.DefinicoesScreen
-import com.leaguematch.ui.components.RemoteContent
-import com.leaguematch.ui.components.SpectatorBottomBar
-import com.leaguematch.viewmodel.AuthViewModel
-import com.leaguematch.viewmodel.TorneiosViewModel
-import kotlinx.coroutines.launch
+    import androidx.compose.runtime.Composable // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.LaunchedEffect // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.collectAsState // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.getValue // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.mutableStateOf // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.produceState // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.remember // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.rememberCoroutineScope // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.setValue // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.Classificacao // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.ConfiguracaoNotificacoes // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.Equipa // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.Jogo // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.Torneio // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.Utilizador // Importa dependência / biblioteca necessária
+import com.leaguematch.data.repository.LeagueMatchRepository // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.admin.DefinicoesScreen // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.components.RemoteContent // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.components.SpectatorBottomBar // Importa dependência / biblioteca necessária
+import com.leaguematch.viewmodel.AuthViewModel // Importa dependência / biblioteca necessária
+import com.leaguematch.viewmodel.TorneiosViewModel // Importa dependência / biblioteca necessária
+import kotlinx.coroutines.launch // Importa dependência / biblioteca necessária
 
-    sealed interface SpectatorRoute {
-        data object Explorar : SpectatorRoute
-        data object EscolherTorneio : SpectatorRoute
-        data object TorneioDetalhe : SpectatorRoute
-        data object Classificacao : SpectatorRoute
-        data object Jogos : SpectatorRoute
-        data object Equipas : SpectatorRoute
-        data object Perfil : SpectatorRoute
-        data object Notificacoes : SpectatorRoute
-        data object InboxNotificacoes : SpectatorRoute
+    sealed interface SpectatorRoute { // Declaração de interface (contrato de métodos)
+        data object Explorar : SpectatorRoute // Declaração de objeto estático / Singleton
+        data object EscolherTorneio : SpectatorRoute // Declaração de objeto estático / Singleton
+        data object TorneioDetalhe : SpectatorRoute // Declaração de objeto estático / Singleton
+        data object Classificacao : SpectatorRoute // Declaração de objeto estático / Singleton
+        data object Jogos : SpectatorRoute // Declaração de objeto estático / Singleton
+        data object Equipas : SpectatorRoute // Declaração de objeto estático / Singleton
+        data object Perfil : SpectatorRoute // Declaração de objeto estático / Singleton
+        data object Notificacoes : SpectatorRoute // Declaração de objeto estático / Singleton
+        data object InboxNotificacoes : SpectatorRoute // Declaração de objeto estático / Singleton
 
-        data class JogoEmDireto(val jogo: Jogo, val voltarPara: SpectatorRoute) : SpectatorRoute
-        data class EstatisticasJogo(val jogo: Jogo) : SpectatorRoute
-        data class EquipaDetalhe(val equipa: Equipa) : SpectatorRoute
-        data class CalendarioEquipa(val equipa: Equipa) : SpectatorRoute
+        data class JogoEmDireto(val jogo: Jogo, val voltarPara: SpectatorRoute) : SpectatorRoute // Declaração de classe para modelar objetos
+        data class EstatisticasJogo(val jogo: Jogo) : SpectatorRoute // Declaração de classe para modelar objetos
+        data class EquipaDetalhe(val equipa: Equipa) : SpectatorRoute // Declaração de classe para modelar objetos
+        data class CalendarioEquipa(val equipa: Equipa) : SpectatorRoute // Declaração de classe para modelar objetos
     }
 
     @Composable
-    fun SpectatorFlowContainer(
+    fun SpectatorFlowContainer( // Declaração de função / método de lógica
         torneiosViewModel: TorneiosViewModel,
         authViewModel: AuthViewModel,
         repository: LeagueMatchRepository,
         usuarioLogado: Utilizador?,
         onTerminarSessao: () -> Unit
     ) {
-        val coroutineScope = rememberCoroutineScope()
+        val coroutineScope = rememberCoroutineScope() // Cria escopo local para lançar coroutines em cliques na UI
 
-        var currentSpectatorRoute by remember {
-            mutableStateOf<SpectatorRoute>(SpectatorRoute.Explorar)
+        var currentSpectatorRoute by remember { // Memoriza estado para evitar perda durante a recomposição
+            mutableStateOf<SpectatorRoute>(SpectatorRoute.Explorar) // Declara estado mutável local do Compose
         }
 
-        var torneioSelecionado by remember {
-            mutableStateOf<Torneio?>(null)
+        var torneioSelecionado by remember { // Memoriza estado para evitar perda durante a recomposição
+            mutableStateOf<Torneio?>(null) // Declara estado mutável local do Compose
         }
 
-        val dadosTorneios by torneiosViewModel.todosTorneiosState.collectAsState()
+        val dadosTorneios by torneiosViewModel.todosTorneiosState.collectAsState() // Subscreve ao fluxo de estado reativo (StateFlow)
 
-        LaunchedEffect(Unit) {
+        LaunchedEffect(Unit) { // Efeito colateral Compose: executa código assíncrono ao recompor
             torneiosViewModel.carregarTodosTorneios()
         }
 
-        when (currentSpectatorRoute) {
+        when (currentSpectatorRoute) { // Escolha múltipla condicional (semelhante a switch-case)
 
             SpectatorRoute.Explorar -> {
-                val dadosJogosAoVivo by torneiosViewModel.jogosAoVivoState.collectAsState()
+                val dadosJogosAoVivo by torneiosViewModel.jogosAoVivoState.collectAsState() // Subscreve ao fluxo de estado reativo (StateFlow)
 
-                LaunchedEffect(Unit) {
+                LaunchedEffect(Unit) { // Efeito colateral Compose: executa código assíncrono ao recompor
                     torneiosViewModel.carregarJogosAoVivo()
                 }
 
                 RemoteContent(dadosTorneios) { list: List<Torneio> ->
-                    val liveMatches = dadosJogosAoVivo?.getOrNull() ?: emptyList()
+                    val liveMatches = dadosJogosAoVivo?.getOrNull() ?: emptyList() // Declara constante local (leitura única)
 
                     ExplorarScreen(
                         liveMatches = liveMatches,
@@ -94,20 +102,20 @@ import kotlinx.coroutines.launch
             }
 
             SpectatorRoute.TorneioDetalhe -> {
-                val torneio = torneioSelecionado
+                val torneio = torneioSelecionado // Declara constante local (leitura única)
 
-                if (torneio == null) {
+                if (torneio == null) { // Estrutura de decisão condicional principal
                     currentSpectatorRoute = SpectatorRoute.Explorar
-                } else {
-                    val marcadoresResult by produceState<Result<List<MelhorMarcadorItem>>?>(null, torneio.id) {
+                } else { // Fluxo condicional alternativo caso o 'if' seja falso
+                    val marcadoresResult by produceState<Result<List<MelhorMarcadorItem>>?>(null, torneio.id) { // Declara constante local (leitura única)
                         value = runCatching {
-                            repository.obterMelhoresMarcadores(torneio.id)
+                            repository.obterMelhoresMarcadores(torneio.id) // Efetua chamada remota ou local ao repositório de dados
                         }
                     }
 
-                    val jogosResult by produceState<Result<List<JogoResumoItem>>?>(null, torneio.id) {
+                    val jogosResult by produceState<Result<List<JogoResumoItem>>?>(null, torneio.id) { // Declara constante local (leitura única)
                         value = runCatching {
-                            repository.obterJogosDoTorneio(torneio.id)
+                            repository.obterJogosDoTorneio(torneio.id) // Efetua chamada remota ou local ao repositório de dados
                         }
                     }
 
@@ -145,14 +153,14 @@ import kotlinx.coroutines.launch
             }
 
             SpectatorRoute.Classificacao -> {
-                val torneio = torneioSelecionado
+                val torneio = torneioSelecionado // Declara constante local (leitura única)
 
-                if (torneio == null) {
+                if (torneio == null) { // Estrutura de decisão condicional principal
                     currentSpectatorRoute = SpectatorRoute.Explorar
-                } else {
-                    val classificacaoResult by produceState<Result<List<Classificacao>>?>(null, torneio.id) {
+                } else { // Fluxo condicional alternativo caso o 'if' seja falso
+                    val classificacaoResult by produceState<Result<List<Classificacao>>?>(null, torneio.id) { // Declara constante local (leitura única)
                         value = runCatching {
-                            repository.obterClassificacao(torneio.id)
+                            repository.obterClassificacao(torneio.id) // Efetua chamada remota ou local ao repositório de dados
                         }
                     }
 
@@ -195,18 +203,18 @@ import kotlinx.coroutines.launch
             }
 
             SpectatorRoute.Jogos -> {
-                val torneio = torneioSelecionado
+                val torneio = torneioSelecionado // Declara constante local (leitura única)
 
-                if (torneio == null) {
+                if (torneio == null) { // Estrutura de decisão condicional principal
                     currentSpectatorRoute = SpectatorRoute.Explorar
-                } else {
-                    val jogosResult by produceState<Result<List<Jogo>>?>(null, torneio.id) {
+                } else { // Fluxo condicional alternativo caso o 'if' seja falso
+                    val jogosResult by produceState<Result<List<Jogo>>?>(null, torneio.id) { // Declara constante local (leitura única)
                         value = runCatching {
-                            repository.obterDetalheTorneio(torneio.id)?.jogos ?: emptyList()
+                            repository.obterDetalheTorneio(torneio.id)?.jogos ?: emptyList() // Efetua chamada remota ou local ao repositório de dados
                         }
                     }
 
-                    val jogos = jogosResult?.getOrNull() ?: emptyList()
+                    val jogos = jogosResult?.getOrNull() ?: emptyList() // Declara constante local (leitura única)
 
                     JogosScreen(
                         torneio = torneio,
@@ -235,18 +243,18 @@ import kotlinx.coroutines.launch
             }
 
             SpectatorRoute.Equipas -> {
-                val torneio = torneioSelecionado
+                val torneio = torneioSelecionado // Declara constante local (leitura única)
 
-                if (torneio == null) {
+                if (torneio == null) { // Estrutura de decisão condicional principal
                     currentSpectatorRoute = SpectatorRoute.Explorar
-                } else {
-                    val equipasResult by produceState<Result<List<Equipa>>?>(null, torneio.id) {
+                } else { // Fluxo condicional alternativo caso o 'if' seja falso
+                    val equipasResult by produceState<Result<List<Equipa>>?>(null, torneio.id) { // Declara constante local (leitura única)
                         value = runCatching {
-                            repository.listarEquipasTorneio(torneio.id)
+                            repository.listarEquipasTorneio(torneio.id) // Efetua chamada remota ou local ao repositório de dados
                         }
                     }
 
-                    val equipas = equipasResult?.getOrNull() ?: emptyList()
+                    val equipas = equipasResult?.getOrNull() ?: emptyList() // Declara constante local (leitura única)
 
                     EquipasScreen(
                         torneio = torneio,
@@ -275,19 +283,19 @@ import kotlinx.coroutines.launch
             }
 
             is SpectatorRoute.EquipaDetalhe -> {
-                val route = currentSpectatorRoute as SpectatorRoute.EquipaDetalhe
-                val torneio = torneioSelecionado
+                val route = currentSpectatorRoute as SpectatorRoute.EquipaDetalhe // Declara constante local (leitura única)
+                val torneio = torneioSelecionado // Declara constante local (leitura única)
 
-                if (torneio == null) {
+                if (torneio == null) { // Estrutura de decisão condicional principal
                     currentSpectatorRoute = SpectatorRoute.Explorar
-                } else {
-                    val jogosResult by produceState<Result<List<Jogo>>?>(null, torneio.id) {
+                } else { // Fluxo condicional alternativo caso o 'if' seja falso
+                    val jogosResult by produceState<Result<List<Jogo>>?>(null, torneio.id) { // Declara constante local (leitura única)
                         value = runCatching {
-                            repository.obterDetalheTorneio(torneio.id)?.jogos ?: emptyList()
+                            repository.obterDetalheTorneio(torneio.id)?.jogos ?: emptyList() // Efetua chamada remota ou local ao repositório de dados
                         }
                     }
 
-                    val jogos = jogosResult?.getOrNull() ?: emptyList()
+                    val jogos = jogosResult?.getOrNull() ?: emptyList() // Declara constante local (leitura única)
 
                     EquipaDetalheScreen(
                         torneio = torneio,
@@ -319,19 +327,19 @@ import kotlinx.coroutines.launch
             }
 
             is SpectatorRoute.CalendarioEquipa -> {
-                val route = currentSpectatorRoute as SpectatorRoute.CalendarioEquipa
-                val torneio = torneioSelecionado
+                val route = currentSpectatorRoute as SpectatorRoute.CalendarioEquipa // Declara constante local (leitura única)
+                val torneio = torneioSelecionado // Declara constante local (leitura única)
 
-                if (torneio == null) {
+                if (torneio == null) { // Estrutura de decisão condicional principal
                     currentSpectatorRoute = SpectatorRoute.Explorar
-                } else {
-                    val jogosResult by produceState<Result<List<Jogo>>?>(null, torneio.id) {
+                } else { // Fluxo condicional alternativo caso o 'if' seja falso
+                    val jogosResult by produceState<Result<List<Jogo>>?>(null, torneio.id) { // Declara constante local (leitura única)
                         value = runCatching {
-                            repository.obterDetalheTorneio(torneio.id)?.jogos ?: emptyList()
+                            repository.obterDetalheTorneio(torneio.id)?.jogos ?: emptyList() // Efetua chamada remota ou local ao repositório de dados
                         }
                     }
 
-                    val jogos = jogosResult?.getOrNull() ?: emptyList()
+                    val jogos = jogosResult?.getOrNull() ?: emptyList() // Declara constante local (leitura única)
 
                     CalendarioScreen(
 
@@ -368,27 +376,27 @@ import kotlinx.coroutines.launch
             }
 
             SpectatorRoute.InboxNotificacoes -> {
-                val utilizador = usuarioLogado
-                if (utilizador == null) {
+                val utilizador = usuarioLogado // Declara constante local (leitura única)
+                if (utilizador == null) { // Estrutura de decisão condicional principal
                     currentSpectatorRoute = SpectatorRoute.Perfil
-                } else {
-                    var notificacoes by remember { mutableStateOf<List<com.leaguematch.data.remote.model.NotificacaoItem>>(emptyList()) }
-                    LaunchedEffect(utilizador.id) {
-                        notificacoes = repository.listarNotificacoes(utilizador.id)
+                } else { // Fluxo condicional alternativo caso o 'if' seja falso
+                    var notificacoes by remember { mutableStateOf<List<com.leaguematch.data.remote.model.NotificacaoItem>>(emptyList()) } // Declara estado mutável local do Compose
+                    LaunchedEffect(utilizador.id) { // Efeito colateral Compose: executa código assíncrono ao recompor
+                        notificacoes = repository.listarNotificacoes(utilizador.id) // Efetua chamada remota ou local ao repositório de dados
                     }
                     InboxNotificacoesScreen(
                         notificacoes = notificacoes,
                         onBackClick = { currentSpectatorRoute = SpectatorRoute.Perfil },
                         onMarcarTodasLidas = {
                             coroutineScope.launch {
-                                repository.marcarTodasNotificacoesLidas(utilizador.id)
-                                notificacoes = repository.listarNotificacoes(utilizador.id)
+                                repository.marcarTodasNotificacoesLidas(utilizador.id) // Efetua chamada remota ou local ao repositório de dados
+                                notificacoes = repository.listarNotificacoes(utilizador.id) // Efetua chamada remota ou local ao repositório de dados
                             }
                         },
                         onNotificacaoClick = { item ->
                             coroutineScope.launch {
-                                repository.marcarNotificacaoLida(item.id)
-                                notificacoes = repository.listarNotificacoes(utilizador.id)
+                                repository.marcarNotificacaoLida(item.id) // Efetua chamada remota ou local ao repositório de dados
+                                notificacoes = repository.listarNotificacoes(utilizador.id) // Efetua chamada remota ou local ao repositório de dados
                             }
                         }
                     )
@@ -396,14 +404,14 @@ import kotlinx.coroutines.launch
             }
 
             SpectatorRoute.Notificacoes -> {
-                val utilizador = usuarioLogado
+                val utilizador = usuarioLogado // Declara constante local (leitura única)
 
-                if (utilizador == null) {
+                if (utilizador == null) { // Estrutura de decisão condicional principal
                     currentSpectatorRoute = SpectatorRoute.Perfil
-                } else {
-                    val configuracaoResult by produceState<Result<ConfiguracaoNotificacoes>?>(null, utilizador.id) {
+                } else { // Fluxo condicional alternativo caso o 'if' seja falso
+                    val configuracaoResult by produceState<Result<ConfiguracaoNotificacoes>?>(null, utilizador.id) { // Declara constante local (leitura única)
                         value = runCatching {
-                            repository.obterConfiguracaoNotificacoes(utilizador.id)
+                            repository.obterConfiguracaoNotificacoes(utilizador.id) // Efetua chamada remota ou local ao repositório de dados
                         }
                     }
 
@@ -412,7 +420,7 @@ import kotlinx.coroutines.launch
                             configuracao = configuracao,
                             onGuardarConfiguracao = { novaConfiguracao ->
                                 coroutineScope.launch {
-                                    repository.atualizarConfiguracaoNotificacoes(novaConfiguracao)
+                                    repository.atualizarConfiguracaoNotificacoes(novaConfiguracao) // Efetua chamada remota ou local ao repositório de dados
                                 }
                             },
                             onHomeClick = {
@@ -439,19 +447,19 @@ import kotlinx.coroutines.launch
             }
 
             is SpectatorRoute.JogoEmDireto -> {
-                val route = currentSpectatorRoute as SpectatorRoute.JogoEmDireto
-                val estatisticasResult by torneiosViewModel.estatisticasJogoState.collectAsState()
-                val eventosResult by torneiosViewModel.eventosJogoState.collectAsState()
+                val route = currentSpectatorRoute as SpectatorRoute.JogoEmDireto // Declara constante local (leitura única)
+                val estatisticasResult by torneiosViewModel.estatisticasJogoState.collectAsState() // Subscreve ao fluxo de estado reativo (StateFlow)
+                val eventosResult by torneiosViewModel.eventosJogoState.collectAsState() // Subscreve ao fluxo de estado reativo (StateFlow)
 
-                LaunchedEffect(route.jogo.id) {
+                LaunchedEffect(route.jogo.id) { // Efeito colateral Compose: executa código assíncrono ao recompor
                     torneiosViewModel.carregarEstatisticasJogo(route.jogo.id)
                     torneiosViewModel.carregarEventosJogo(route.jogo.id)
                 }
 
-                val estatisticas = estatisticasResult?.getOrNull() ?: emptyList()
-                val eventos = eventosResult?.getOrNull() ?: emptyList()
+                val estatisticas = estatisticasResult?.getOrNull() ?: emptyList() // Declara constante local (leitura única)
+                val eventos = eventosResult?.getOrNull() ?: emptyList() // Declara constante local (leitura única)
 
-                val modalidade = (dadosTorneios?.getOrNull() ?: emptyList())
+                val modalidade = (dadosTorneios?.getOrNull() ?: emptyList()) // Declara constante local (leitura única)
                     .firstOrNull { it.id == route.jogo.torneioId }?.modalidade
                     ?: torneioSelecionado?.modalidade
                     ?: "Futebol"
@@ -471,16 +479,16 @@ import kotlinx.coroutines.launch
             }
 
             is SpectatorRoute.EstatisticasJogo -> {
-                val route = currentSpectatorRoute as SpectatorRoute.EstatisticasJogo
-                val estatisticasResult by torneiosViewModel.estatisticasJogoState.collectAsState()
+                val route = currentSpectatorRoute as SpectatorRoute.EstatisticasJogo // Declara constante local (leitura única)
+                val estatisticasResult by torneiosViewModel.estatisticasJogoState.collectAsState() // Subscreve ao fluxo de estado reativo (StateFlow)
 
-                LaunchedEffect(route.jogo.id) {
+                LaunchedEffect(route.jogo.id) { // Efeito colateral Compose: executa código assíncrono ao recompor
                     torneiosViewModel.carregarEstatisticasJogo(route.jogo.id)
                 }
 
-                val estatisticas = estatisticasResult?.getOrNull() ?: emptyList()
+                val estatisticas = estatisticasResult?.getOrNull() ?: emptyList() // Declara constante local (leitura única)
 
-                val modalidade = (dadosTorneios?.getOrNull() ?: emptyList())
+                val modalidade = (dadosTorneios?.getOrNull() ?: emptyList()) // Declara constante local (leitura única)
                     .firstOrNull { it.id == route.jogo.torneioId }?.modalidade
                     ?: torneioSelecionado?.modalidade
                     ?: "Futebol"
@@ -506,7 +514,7 @@ import kotlinx.coroutines.launch
                     ),
                     onGuardarConfiguracaoNotificacoes = { config ->
                         coroutineScope.launch {
-                            repository.atualizarConfiguracaoNotificacoes(config)
+                            repository.atualizarConfiguracaoNotificacoes(config) // Efetua chamada remota ou local ao repositório de dados
                         }
                     },
                     onTerminarSessaoClick = {
@@ -541,8 +549,8 @@ import kotlinx.coroutines.launch
                 )
             }
 
-            else -> {
-                LaunchedEffect(Unit) {
+            else -> { // Fluxo condicional alternativo caso o 'if' seja falso
+                LaunchedEffect(Unit) { // Efeito colateral Compose: executa código assíncrono ao recompor
                     currentSpectatorRoute = SpectatorRoute.Explorar
                 }
             }

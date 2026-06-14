@@ -1,36 +1,44 @@
-package com.leaguematch.ui.participant
+/**
+ * ESTUDAR PARA A APRESENTAÇÃO:
+ * Ficheiro: ParticipantNotificationsScreen.kt
+ * Tipo: Interface (Compose View) do Participante
+ *
+ * Descrição:
+ * Este ficheiro define um ecrã do fluxo do Jogador/Participante em Jetpack Compose.\n * Mostra ao participante o estado do seu torneio, código de equipas para inscrição, estatísticas e notificações.
+ */
+package com.leaguematch.ui.participant // Define o pacote deste ficheiro de código
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.SportsBasketball
-import androidx.compose.material.icons.filled.SportsHandball
-import androidx.compose.material.icons.filled.SportsSoccer
-import androidx.compose.material.icons.filled.SportsTennis
-import androidx.compose.material.icons.filled.VolumeUp
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import com.leaguematch.data.remote.model.ConfiguracaoNotificacoes
-import com.leaguematch.ui.components.ParticipantBottomBar
-import com.leaguematch.ui.components.TranslatedText
-import com.leaguematch.ui.theme.RedDark
-import com.leaguematch.ui.theme.RedPrimary
+import androidx.compose.foundation.background // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.* // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.rememberScrollState // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.shape.CircleShape // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.shape.RoundedCornerShape // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.verticalScroll // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.Icons // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Notifications // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.SportsBasketball // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.SportsHandball // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.SportsSoccer // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.SportsTennis // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.VolumeUp // Importa dependência / biblioteca necessária
+import androidx.compose.material3.* // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.* // Importa dependência / biblioteca necessária
+import androidx.compose.ui.Alignment // Importa dependência / biblioteca necessária
+import androidx.compose.ui.Modifier // Importa dependência / biblioteca necessária
+import androidx.compose.ui.draw.clip // Importa dependência / biblioteca necessária
+import androidx.compose.ui.graphics.Brush // Importa dependência / biblioteca necessária
+import androidx.compose.ui.graphics.Color // Importa dependência / biblioteca necessária
+import androidx.compose.ui.graphics.vector.ImageVector // Importa dependência / biblioteca necessária
+import androidx.compose.ui.text.font.FontWeight // Importa dependência / biblioteca necessária
+import androidx.compose.ui.unit.dp // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.ConfiguracaoNotificacoes // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.components.ParticipantBottomBar // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.components.TranslatedText // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.RedDark // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.RedPrimary // Importa dependência / biblioteca necessária
 
 @Composable
-fun ParticipantNotificationsScreen(
+fun ParticipantNotificationsScreen( // Declaração de função / método de lógica
     configuracao: ConfiguracaoNotificacoes,
     onGuardarConfiguracao: (ConfiguracaoNotificacoes) -> Unit,
     onHomeClick: () -> Unit,
@@ -41,11 +49,11 @@ fun ParticipantNotificationsScreen(
     onPerfilClick: () -> Unit,
     onAbrirInbox: () -> Unit = {}
 ) {
-    var configuracaoAtual by remember(configuracao) {
-        mutableStateOf(configuracao)
+    var configuracaoAtual by remember(configuracao) { // Memoriza estado para evitar perda durante a recomposição
+        mutableStateOf(configuracao) // Declara estado mutável local do Compose
     }
 
-    fun atualizarConfiguracao(novaConfiguracao: ConfiguracaoNotificacoes) {
+    fun atualizarConfiguracao(novaConfiguracao: ConfiguracaoNotificacoes) { // Declaração de função / método de lógica
         configuracaoAtual = novaConfiguracao
         onGuardarConfiguracao(novaConfiguracao)
     }
@@ -65,8 +73,8 @@ fun ParticipantNotificationsScreen(
         }
     ) { innerPadding ->
 
-        Column(
-            modifier = Modifier
+        Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                 .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
@@ -74,27 +82,27 @@ fun ParticipantNotificationsScreen(
         ) {
             ParticipantNotificacoesHeader()
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(14.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Button(
-                onClick = onAbrirInbox,
-                modifier = Modifier.fillMaxWidth(),
+            Button( // Componente Compose: Desenha um botão interativo
+                onClick = onAbrirInbox, // Callback: Define a ação executada ao clicar no componente
+                modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = RedPrimary
                 )
             ) {
-                Row(
+                Row( // Contentor Compose: Alinha os filhos numa linha horizontal
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
+                    Icon( // Componente Compose: Desenha um ícone vetorial
                         imageVector = Icons.Default.Notifications,
                         contentDescription = null,
                         tint = Color.White,
-                        modifier = Modifier.size(18.dp)
+                        modifier = Modifier.size(18.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
                     )
 
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(8.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
                     TranslatedText(
                         text = "Ver caixa de entrada",
@@ -104,7 +112,7 @@ fun ParticipantNotificationsScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(14.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             ParticipantNotificationSectionCard(title = "Configuração Geral") {
                 ParticipantNotificationSwitchRow(
@@ -176,7 +184,7 @@ fun ParticipantNotificationsScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             ParticipantNotificationSectionCard(title = "Notificação por Desporto") {
                 ParticipantNotificationSwitchRow(
@@ -238,14 +246,14 @@ fun ParticipantNotificationsScreen(
 }
 
 @Composable
-private fun ParticipantNotificacoesHeader() {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
+private fun ParticipantNotificacoesHeader() { // Declaração de função / método de lógica
+    Card( // Contentor Compose: Cartão visual com elevação e cantos
+        modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
         shape = RoundedCornerShape(24.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
-        Row(
-            modifier = Modifier
+        Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                 .fillMaxWidth()
                 .background(
                     Brush.horizontalGradient(
@@ -255,24 +263,24 @@ private fun ParticipantNotificacoesHeader() {
                 .padding(18.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
+            Box( // Contentor Compose: Sobrepõe os elementos filhos
+                modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                     .size(50.dp)
                     .clip(CircleShape)
                     .background(Color.White.copy(alpha = 0.18f)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
+                Icon( // Componente Compose: Desenha um ícone vetorial
                     imageVector = Icons.Default.Notifications,
                     contentDescription = null,
                     tint = Color.White,
-                    modifier = Modifier.size(30.dp)
+                    modifier = Modifier.size(30.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
                 )
             }
 
-            Spacer(modifier = Modifier.width(14.dp))
+            Spacer(modifier = Modifier.width(14.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Column {
+            Column { // Contentor Compose: Alinha os filhos numa coluna vertical
                 TranslatedText(
                     text = "Notificações",
                     color = Color.White,
@@ -291,27 +299,27 @@ private fun ParticipantNotificacoesHeader() {
 }
 
 @Composable
-private fun ParticipantNotificationSectionCard(
+private fun ParticipantNotificationSectionCard( // Declaração de função / método de lógica
     title: String,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
+    Card( // Contentor Compose: Cartão visual com elevação e cantos
+        modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(14.dp)
+        Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+            modifier = Modifier.padding(14.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
         ) {
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = title,
                 color = RedDark,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleMedium
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             content()
         }
@@ -319,45 +327,45 @@ private fun ParticipantNotificationSectionCard(
 }
 
 @Composable
-private fun ParticipantNotificationSwitchRow(
+private fun ParticipantNotificationSwitchRow( // Declaração de função / método de lógica
     title: String,
     description: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     icon: ImageVector
 ) {
-    Row(
-        modifier = Modifier
+    Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+        modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
             .fillMaxWidth()
             .padding(vertical = 9.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier
+        Box( // Contentor Compose: Sobrepõe os elementos filhos
+            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                 .size(42.dp)
                 .clip(CircleShape)
                 .background(RedPrimary.copy(alpha = 0.10f)),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
+            Icon( // Componente Compose: Desenha um ícone vetorial
                 imageVector = icon,
                 contentDescription = null,
                 tint = RedPrimary,
-                modifier = Modifier.size(22.dp)
+                modifier = Modifier.size(22.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
             )
         }
 
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(12.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
+        Column(modifier = Modifier.weight(1f)) { // Contentor Compose: Alinha os filhos numa coluna vertical
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = title,
                 color = Color(0xFF17171C),
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.bodyMedium
             )
 
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = description,
                 color = Color(0xFF74747C),
                 style = MaterialTheme.typography.labelSmall
@@ -380,9 +388,9 @@ private fun ParticipantNotificationSwitchRow(
 }
 
 @Composable
-private fun ParticipantNotificationDivider() {
+private fun ParticipantNotificationDivider() { // Declaração de função / método de lógica
     HorizontalDivider(
-        modifier = Modifier.padding(start = 54.dp),
+        modifier = Modifier.padding(start = 54.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
         color = Color(0xFFE8E8EC),
         thickness = 1.dp
     )

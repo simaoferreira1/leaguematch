@@ -1,74 +1,82 @@
-package com.leaguematch.ui.spectator
+/**
+ * ESTUDAR PARA A APRESENTAÇÃO:
+ * Ficheiro: JogoEmDiretoScreen.kt
+ * Tipo: Interface (Compose View) do Espectador
+ *
+ * Descrição:
+ * Este ficheiro define um ecrã de visualização pública (Espectador) em Jetpack Compose.\n * Apenas exibe dados para leitura (como tabelas de classificação, jogos ao vivo e calendários) sem permitir alteração.
+ */
+package com.leaguematch.ui.spectator // Define o pacote deste ficheiro de código
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bolt
-import androidx.compose.material.icons.filled.EmojiEvents
-import androidx.compose.material.icons.filled.Flag
-import androidx.compose.material.icons.filled.Report
-import androidx.compose.material.icons.filled.SportsSoccer
-import androidx.compose.material.icons.filled.SportsTennis
-import androidx.compose.material.icons.filled.SwapHoriz
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.Share
-import androidx.compose.material.icons.rounded.Star
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.leaguematch.data.remote.model.EstatisticaJogo
-import com.leaguematch.data.remote.model.EventoJogo
-import com.leaguematch.data.remote.model.Jogo
-import com.leaguematch.ui.components.TranslatedText
-import com.leaguematch.ui.theme.Bricolage
-import com.leaguematch.ui.theme.Geist
-import com.leaguematch.ui.theme.GeistMono
-import com.leaguematch.ui.theme.LMGray400
-import com.leaguematch.ui.theme.LMGray500
-import com.leaguematch.ui.theme.LMGray600
-import com.leaguematch.ui.theme.LMInk
-import com.leaguematch.ui.theme.LMRed
-import com.leaguematch.ui.theme.LMWhite
+import androidx.compose.foundation.BorderStroke // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.background // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Arrangement // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Box // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Column // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Row // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Spacer // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.fillMaxHeight // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.fillMaxSize // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.fillMaxWidth // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.height // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.padding // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.size // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.statusBarsPadding // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.width // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.rememberScrollState // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.shape.CircleShape // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.shape.RoundedCornerShape // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.verticalScroll // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.Icons // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Bolt // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.EmojiEvents // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Flag // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Report // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.SportsSoccer // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.SportsTennis // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.SwapHoriz // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Visibility // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Warning // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.rounded.ArrowBack // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.rounded.Share // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.rounded.Star // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Button // Importa dependência / biblioteca necessária
+import androidx.compose.material3.ButtonDefaults // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Card // Importa dependência / biblioteca necessária
+import androidx.compose.material3.CardDefaults // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Divider // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Icon // Importa dependência / biblioteca necessária
+import androidx.compose.material3.IconButton // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Scaffold // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Surface // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Text // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.Composable // Importa dependência / biblioteca necessária
+import androidx.compose.ui.Alignment // Importa dependência / biblioteca necessária
+import androidx.compose.ui.Modifier // Importa dependência / biblioteca necessária
+import androidx.compose.ui.draw.clip // Importa dependência / biblioteca necessária
+import androidx.compose.ui.graphics.Brush // Importa dependência / biblioteca necessária
+import androidx.compose.ui.graphics.Color // Importa dependência / biblioteca necessária
+import androidx.compose.ui.text.font.FontWeight // Importa dependência / biblioteca necessária
+import androidx.compose.ui.text.style.TextAlign // Importa dependência / biblioteca necessária
+import androidx.compose.ui.text.style.TextOverflow // Importa dependência / biblioteca necessária
+import androidx.compose.ui.unit.dp // Importa dependência / biblioteca necessária
+import androidx.compose.ui.unit.sp // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.EstatisticaJogo // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.EventoJogo // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.Jogo // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.components.TranslatedText // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.Bricolage // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.Geist // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.GeistMono // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMGray400 // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMGray500 // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMGray600 // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMInk // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMRed // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMWhite // Importa dependência / biblioteca necessária
 
 @Composable
-fun JogoEmDiretoScreen(
+fun JogoEmDiretoScreen( // Declaração de função / método de lógica
     jogo: Jogo,
     estatisticas: List<EstatisticaJogo>,
     eventos: List<EventoJogo>,
@@ -76,8 +84,8 @@ fun JogoEmDiretoScreen(
     onVerEstatisticasClick: () -> Unit,
     modalidade: String = "Futebol"
 ) {
-    val isFinished = jogo.estado.equals("Finalizado", ignoreCase = true)
-    val isOngoing = jogo.estado.equals("A Decorrer", ignoreCase = true)
+    val isFinished = jogo.estado.equals("Finalizado", ignoreCase = true) // Declara constante local (leitura única)
+    val isOngoing = jogo.estado.equals("A Decorrer", ignoreCase = true) // Declara constante local (leitura única)
 
     Scaffold(
         topBar = {
@@ -85,8 +93,8 @@ fun JogoEmDiretoScreen(
         },
         containerColor = Color(0xFFF6F6F8)
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
+        Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                 .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
@@ -95,9 +103,9 @@ fun JogoEmDiretoScreen(
         ) {
             // Scoreboard Card
             ScoreboardHeaderCard(jogo = jogo, isFinished = isFinished, isOngoing = isOngoing)
-            Button(
-                onClick = onVerEstatisticasClick,
-                modifier = Modifier.fillMaxWidth(),
+            Button( // Componente Compose: Desenha um botão interativo
+                onClick = onVerEstatisticasClick, // Callback: Define a ação executada ao clicar no componente
+                modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                 colors = ButtonDefaults.buttonColors(
                     containerColor = LMRed
                 )
@@ -122,34 +130,34 @@ fun JogoEmDiretoScreen(
 }
 
 @Composable
-private fun TopBarJogoEmDireto(onBackClick: () -> Unit) {
-    Row(
-        modifier = Modifier
+private fun TopBarJogoEmDireto(onBackClick: () -> Unit) { // Declaração de função / método de lógica
+    Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+        modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
             .fillMaxWidth()
             .background(Color.White)
             .statusBarsPadding()
             .padding(horizontal = 8.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = onBackClick) {
-            Icon(
+        IconButton(onClick = onBackClick) { // Componente Compose: Desenha um botão com ícone
+            Icon( // Componente Compose: Desenha um ícone vetorial
                 imageVector = Icons.Rounded.ArrowBack,
                 contentDescription = "Retroceder",
                 tint = Color.Black
             )
         }
 
-        Text(
+        Text( // Componente Compose: Desenha texto estruturado no ecrã
             text = "Detalhes do Jogo",
             fontFamily = Geist,
             fontWeight = FontWeight.ExtraBold,
             fontSize = 18.sp,
             color = Color.Black,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f) // Modificador Compose: Define tamanho, margem, padding ou clique
         )
 
         IconButton(onClick = { /* Seguir jogo */ }) {
-            Icon(
+            Icon( // Componente Compose: Desenha um ícone vetorial
                 imageVector = Icons.Rounded.Star,
                 contentDescription = "Favorito",
                 tint = LMGray500
@@ -157,7 +165,7 @@ private fun TopBarJogoEmDireto(onBackClick: () -> Unit) {
         }
 
         IconButton(onClick = { /* Partilhar */ }) {
-            Icon(
+            Icon( // Componente Compose: Desenha um ícone vetorial
                 imageVector = Icons.Rounded.Share,
                 contentDescription = "Partilhar",
                 tint = LMGray500
@@ -167,13 +175,13 @@ private fun TopBarJogoEmDireto(onBackClick: () -> Unit) {
 }
 
 @Composable
-private fun ScoreboardHeaderCard(
+private fun ScoreboardHeaderCard( // Declaração de função / método de lógica
     jogo: Jogo,
     isFinished: Boolean,
     isOngoing: Boolean
 ) {
-    Box(
-        modifier = Modifier
+    Box( // Contentor Compose: Sobrepõe os elementos filhos
+        modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
             .fillMaxWidth()
             .background(
                 brush = Brush.verticalGradient(
@@ -183,48 +191,48 @@ private fun ScoreboardHeaderCard(
             )
             .padding(horizontal = 16.dp, vertical = 20.dp)
     ) {
-        Column(
+        Column( // Contentor Compose: Alinha os filhos numa coluna vertical
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Live / Finished Badge and viewer count
-            Row(
-                modifier = Modifier.fillMaxWidth(),
+            Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+                modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val badgeBg = when {
+                val badgeBg = when { // Escolha múltipla condicional (semelhante a switch-case)
                     isOngoing -> Color(0xFF22C55E).copy(alpha = 0.2f)
                     isFinished -> Color(0xFF52525B).copy(alpha = 0.2f)
-                    else -> Color(0xFFF59E0B).copy(alpha = 0.2f)
+                    else -> Color(0xFFF59E0B).copy(alpha = 0.2f) // Fluxo condicional alternativo caso o 'if' seja falso
                 }
-                val badgeColor = when {
+                val badgeColor = when { // Escolha múltipla condicional (semelhante a switch-case)
                     isOngoing -> Color(0xFF86EFAC)
                     isFinished -> Color(0xFFD4D4D8)
-                    else -> Color(0xFFFDE68A)
+                    else -> Color(0xFFFDE68A) // Fluxo condicional alternativo caso o 'if' seja falso
                 }
-                val badgeText = when {
+                val badgeText = when { // Escolha múltipla condicional (semelhante a switch-case)
                     isOngoing -> "Em direto"
                     isFinished -> "Terminado"
-                    else -> "Agendado"
+                    else -> "Agendado" // Fluxo condicional alternativo caso o 'if' seja falso
                 }
 
                 Surface(
                     shape = RoundedCornerShape(18.dp),
                     color = badgeBg
                 ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                    Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        if (isOngoing) {
-                            Box(
-                                modifier = Modifier
+                        if (isOngoing) { // Estrutura de decisão condicional principal
+                            Box( // Contentor Compose: Sobrepõe os elementos filhos
+                                modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                                     .padding(end = 6.dp)
                                     .size(6.dp)
                                     .background(Color(0xFF22C55E), CircleShape)
                             )
                         }
-                        Text(
+                        Text( // Componente Compose: Desenha texto estruturado no ecrã
                             text = badgeText.uppercase(),
                             fontFamily = Geist,
                             fontWeight = FontWeight.Bold,
@@ -234,16 +242,16 @@ private fun ScoreboardHeaderCard(
                     }
                 }
 
-                if (isOngoing) {
-                    Row(
+                if (isOngoing) { // Estrutura de decisão condicional principal
+                    Row( // Contentor Compose: Alinha os filhos numa linha horizontal
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        Icon(
+                        Icon( // Componente Compose: Desenha um ícone vetorial
                             imageVector = Icons.Default.Visibility,
                             contentDescription = null,
                             tint = Color.White.copy(alpha = 0.5f),
-                            modifier = Modifier.size(13.dp)
+                            modifier = Modifier.size(13.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
                         )
                         TranslatedText(
                             text = "142 a assistir",
@@ -256,22 +264,22 @@ private fun ScoreboardHeaderCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(18.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             // Scoreboard (Team names & Scores)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
+            Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+                modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 // Team A (Casa)
-                Column(
-                    modifier = Modifier.weight(1f),
+                Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+                    modifier = Modifier.weight(1f), // Modificador Compose: Define tamanho, margem, padding ou clique
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Box(
-                        modifier = Modifier
+                    Box( // Contentor Compose: Sobrepõe os elementos filhos
+                        modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                             .size(56.dp)
                             .background(
                                 brush = Brush.linearGradient(listOf(LMRed, Color(0xFF0A0A0B))),
@@ -279,7 +287,7 @@ private fun ScoreboardHeaderCard(
                             ),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
+                        Text( // Componente Compose: Desenha texto estruturado no ecrã
                             text = jogo.casa.split("\\s+".toRegex()).take(2).mapNotNull { it.firstOrNull()?.toString() }.joinToString("").uppercase(),
                             color = LMWhite,
                             fontFamily = Bricolage,
@@ -287,7 +295,7 @@ private fun ScoreboardHeaderCard(
                             fontSize = 20.sp
                         )
                     }
-                    Text(
+                    Text( // Componente Compose: Desenha texto estruturado no ecrã
                         text = jogo.casa,
                         fontFamily = Geist,
                         fontWeight = FontWeight.Bold,
@@ -300,35 +308,35 @@ private fun ScoreboardHeaderCard(
                 }
 
                 // Score / VS
-                Row(
-                    modifier = Modifier.padding(horizontal = 8.dp),
+                Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+                    modifier = Modifier.padding(horizontal = 8.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    if (isOngoing || isFinished) {
-                        Text(
+                    if (isOngoing || isFinished) { // Estrutura de decisão condicional principal
+                        Text( // Componente Compose: Desenha texto estruturado no ecrã
                             text = jogo.resultadoCasa.toString(),
                             fontFamily = Bricolage,
                             fontWeight = FontWeight.ExtraBold,
                             fontSize = 42.sp,
                             color = LMWhite
                         )
-                        Text(
+                        Text( // Componente Compose: Desenha texto estruturado no ecrã
                             text = "·",
                             fontFamily = Bricolage,
                             fontWeight = FontWeight.ExtraBold,
                             fontSize = 24.sp,
                             color = Color.White.copy(alpha = 0.3f)
                         )
-                        Text(
+                        Text( // Componente Compose: Desenha texto estruturado no ecrã
                             text = jogo.resultadoFora.toString(),
                             fontFamily = Bricolage,
                             fontWeight = FontWeight.ExtraBold,
                             fontSize = 42.sp,
                             color = LMWhite.copy(alpha = 0.9f)
                         )
-                    } else {
-                        Text(
+                    } else { // Fluxo condicional alternativo caso o 'if' seja falso
+                        Text( // Componente Compose: Desenha texto estruturado no ecrã
                             text = "VS",
                             fontFamily = Bricolage,
                             fontWeight = FontWeight.ExtraBold,
@@ -339,13 +347,13 @@ private fun ScoreboardHeaderCard(
                 }
 
                 // Team B (Fora)
-                Column(
-                    modifier = Modifier.weight(1f),
+                Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+                    modifier = Modifier.weight(1f), // Modificador Compose: Define tamanho, margem, padding ou clique
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Box(
-                        modifier = Modifier
+                    Box( // Contentor Compose: Sobrepõe os elementos filhos
+                        modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                             .size(56.dp)
                             .background(
                                 brush = Brush.linearGradient(listOf(Color(0xFF27272A), Color(0xFF0A0A0B))),
@@ -353,7 +361,7 @@ private fun ScoreboardHeaderCard(
                             ),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
+                        Text( // Componente Compose: Desenha texto estruturado no ecrã
                             text = jogo.fora.split("\\s+".toRegex()).take(2).mapNotNull { it.firstOrNull()?.toString() }.joinToString("").uppercase(),
                             color = LMWhite,
                             fontFamily = Bricolage,
@@ -361,7 +369,7 @@ private fun ScoreboardHeaderCard(
                             fontSize = 20.sp
                         )
                     }
-                    Text(
+                    Text( // Componente Compose: Desenha texto estruturado no ecrã
                         text = jogo.fora,
                         fontFamily = Geist,
                         fontWeight = FontWeight.Bold,
@@ -374,13 +382,13 @@ private fun ScoreboardHeaderCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(18.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
             Divider(color = Color.White.copy(alpha = 0.08f))
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             // Footer Information
-            Row(
-                modifier = Modifier.fillMaxWidth(),
+            Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+                modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -391,7 +399,7 @@ private fun ScoreboardHeaderCard(
                     color = Color.White.copy(alpha = 0.55f)
                 )
 
-                Text(
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = jogo.local,
                     fontFamily = Geist,
                     fontSize = 11.sp,
@@ -403,19 +411,19 @@ private fun ScoreboardHeaderCard(
 }
 
 @Composable
-private fun EstatisticasDiretoSection(
+private fun EstatisticasDiretoSection( // Declaração de função / método de lógica
     estatisticas: List<EstatisticaJogo>,
     eventos: List<EventoJogo>,
     modalidade: String = "Futebol"
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
+    Card( // Contentor Compose: Cartão visual com elevação e cantos
+        modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = LMWhite),
         border = BorderStroke(1.dp, Color(0xFFE2E2E7))
     ) {
-        Column(
-            modifier = Modifier.padding(14.dp),
+        Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+            modifier = Modifier.padding(14.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             TranslatedText(
@@ -427,7 +435,7 @@ private fun EstatisticasDiretoSection(
                 letterSpacing = 0.4.sp
             )
 
-            val base = com.leaguematch.ui.organizer.estatisticasPorModalidade(modalidade).flatMap {
+            val base = com.leaguematch.ui.organizer.estatisticasPorModalidade(modalidade).flatMap { // Declara constante local (leitura única)
                 listOf(
                     EstatisticaJogo(tipo = it.titulo, equipa = "casa", valor = it.casa),
                     EstatisticaJogo(tipo = it.titulo, equipa = "fora", valor = it.fora)
@@ -435,39 +443,39 @@ private fun EstatisticasDiretoSection(
             }.toMutableList()
 
             estatisticas.forEach { salva ->
-                val index = base.indexOfFirst {
+                val index = base.indexOfFirst { // Declara constante local (leitura única)
                     it.tipo.equals(salva.tipo, ignoreCase = true) &&
                             it.equipa.equals(salva.equipa, ignoreCase = true)
                 }
 
-                if (index >= 0) {
+                if (index >= 0) { // Estrutura de decisão condicional principal
                     base[index] = salva
                 }
             }
 
-            fun contarEvento(tipo: String, equipa: String): Int {
-                return eventos.count {
+            fun contarEvento(tipo: String, equipa: String): Int { // Declaração de função / método de lógica
+                return eventos.count { // Retorna o resultado da execução da função
                     it.tipo.equals(tipo, ignoreCase = true) &&
                             it.equipa.equals(equipa, ignoreCase = true)
                 }
             }
 
-            fun atualizarStat(titulo: String, casa: Int, fora: Int) {
-                val indexCasa = base.indexOfFirst {
+            fun atualizarStat(titulo: String, casa: Int, fora: Int) { // Declaração de função / método de lógica
+                val indexCasa = base.indexOfFirst { // Declara constante local (leitura única)
                     it.tipo.equals(titulo, ignoreCase = true) &&
                             it.equipa.equals("casa", ignoreCase = true)
                 }
 
-                val indexFora = base.indexOfFirst {
+                val indexFora = base.indexOfFirst { // Declara constante local (leitura única)
                     it.tipo.equals(titulo, ignoreCase = true) &&
                             it.equipa.equals("fora", ignoreCase = true)
                 }
 
-                if (indexCasa >= 0) {
+                if (indexCasa >= 0) { // Estrutura de decisão condicional principal
                     base[indexCasa] = base[indexCasa].copy(valor = casa)
                 }
 
-                if (indexFora >= 0) {
+                if (indexFora >= 0) { // Estrutura de decisão condicional principal
                     base[indexFora] = base[indexFora].copy(valor = fora)
                 }
             }
@@ -531,29 +539,29 @@ private fun EstatisticasDiretoSection(
                 0
             )
 
-            val estatisticasExibicao = base
+            val estatisticasExibicao = base // Declara constante local (leitura única)
 
             // Group by statistical metric (e.g. "Posse de Bola", "Remates", etc.)
-            val groupedStats = estatisticasExibicao.groupBy { it.tipo }
+            val groupedStats = estatisticasExibicao.groupBy { it.tipo } // Declara constante local (leitura única)
             groupedStats.forEach { (tipo, list) ->
-                val casaVal = list.firstOrNull { it.equipa == "casa" }?.valor ?: 0
-                val foraVal = list.firstOrNull { it.equipa == "fora" }?.valor ?: 0
+                val casaVal = list.firstOrNull { it.equipa == "casa" }?.valor ?: 0 // Declara constante local (leitura única)
+                val foraVal = list.firstOrNull { it.equipa == "fora" }?.valor ?: 0 // Declara constante local (leitura única)
 
-                val total = (casaVal + foraVal).coerceAtLeast(1)
-                val casaPeso = casaVal.toFloat() / total
-                val foraPeso = foraVal.toFloat() / total
+                val total = (casaVal + foraVal).coerceAtLeast(1) // Declara constante local (leitura única)
+                val casaPeso = casaVal.toFloat() / total // Declara constante local (leitura única)
+                val foraPeso = foraVal.toFloat() / total // Declara constante local (leitura única)
 
-                val suffix = if (tipo.contains("Posse", ignoreCase = true)) "%" else ""
+                val suffix = if (tipo.contains("Posse", ignoreCase = true)) "%" else "" // Estrutura de decisão condicional principal
 
-                    Column(
+                    Column( // Contentor Compose: Alinha os filhos numa coluna vertical
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
+                        Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+                            modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
+                            Text( // Componente Compose: Desenha texto estruturado no ecrã
                                 text = "$casaVal$suffix",
                                 fontFamily = GeistMono,
                                 fontSize = 12.sp,
@@ -561,7 +569,7 @@ private fun EstatisticasDiretoSection(
                                 color = LMInk
                             )
 
-                            Text(
+                            Text( // Componente Compose: Desenha texto estruturado no ecrã
                                 text = tipo,
                                 fontFamily = Geist,
                                 fontSize = 12.sp,
@@ -569,7 +577,7 @@ private fun EstatisticasDiretoSection(
                                 color = LMGray500
                             )
 
-                            Text(
+                            Text( // Componente Compose: Desenha texto estruturado no ecrã
                                 text = "$foraVal$suffix",
                                 fontFamily = GeistMono,
                                 fontSize = 12.sp,
@@ -579,24 +587,24 @@ private fun EstatisticasDiretoSection(
                         }
 
                         // Progressive comparison bar
-                        Row(
-                            modifier = Modifier
+                        Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+                            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                                 .fillMaxWidth()
                                 .height(6.dp)
                                 .clip(RoundedCornerShape(3.dp))
                                 .background(Color(0xFFF3F3F5))
                         ) {
-                            if (casaPeso > 0f) {
-                                Box(
-                                    modifier = Modifier
+                            if (casaPeso > 0f) { // Estrutura de decisão condicional principal
+                                Box( // Contentor Compose: Sobrepõe os elementos filhos
+                                    modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                                         .fillMaxHeight()
                                         .weight(casaPeso)
                                         .background(LMRed)
                                 )
                             }
-                            if (foraPeso > 0f) {
-                                Box(
-                                    modifier = Modifier
+                            if (foraPeso > 0f) { // Estrutura de decisão condicional principal
+                                Box( // Contentor Compose: Sobrepõe os elementos filhos
+                                    modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                                         .fillMaxHeight()
                                         .weight(foraPeso)
                                         .background(Color(0xFF0A0A0B))
@@ -610,8 +618,8 @@ private fun EstatisticasDiretoSection(
 }
 
 @Composable
-private fun TimelineEventosSection(eventos: List<EventoJogo>) {
-    Column(
+private fun TimelineEventosSection(eventos: List<EventoJogo>) { // Declaração de função / método de lógica
+    Column( // Contentor Compose: Alinha os filhos numa coluna vertical
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         TranslatedText(
@@ -622,15 +630,15 @@ private fun TimelineEventosSection(eventos: List<EventoJogo>) {
             color = LMInk
         )
 
-        if (eventos.isEmpty()) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
+        if (eventos.isEmpty()) { // Estrutura de decisão condicional principal
+            Card( // Contentor Compose: Cartão visual com elevação e cantos
+                modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                 shape = RoundedCornerShape(14.dp),
                 colors = CardDefaults.cardColors(containerColor = LMWhite),
                 border = BorderStroke(1.dp, Color(0xFFE2E2E7))
             ) {
-                Box(
-                    modifier = Modifier
+                Box( // Contentor Compose: Sobrepõe os elementos filhos
+                    modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                         .fillMaxWidth()
                         .padding(vertical = 24.dp),
                     contentAlignment = Alignment.Center
@@ -643,9 +651,9 @@ private fun TimelineEventosSection(eventos: List<EventoJogo>) {
                     )
                 }
             }
-        } else {
+        } else { // Fluxo condicional alternativo caso o 'if' seja falso
             eventos.forEach { evento ->
-                val icon = when (evento.tipo.uppercase()) {
+                val icon = when (evento.tipo.uppercase()) { // Escolha múltipla condicional (semelhante a switch-case)
                     "GOLO" -> Icons.Default.SportsSoccer
                     "FALTA" -> Icons.Default.Warning
                     "AMARELO" -> Icons.Default.Warning
@@ -654,24 +662,24 @@ private fun TimelineEventosSection(eventos: List<EventoJogo>) {
                     "SUBSTITUICAO" -> Icons.Default.SwapHoriz
                     "ACE" -> Icons.Default.SportsTennis
                     "BREAK_POINT" -> Icons.Default.Bolt
-                    else -> Icons.Default.EmojiEvents
+                    else -> Icons.Default.EmojiEvents // Fluxo condicional alternativo caso o 'if' seja falso
                 }
 
-                val iconBg = when (evento.tipo.uppercase()) {
+                val iconBg = when (evento.tipo.uppercase()) { // Escolha múltipla condicional (semelhante a switch-case)
                     "GOLO", "ACE" -> Color(0xFF22C55E).copy(alpha = 0.18f)
                     "FALTA", "AMARELO" -> Color(0xFFF59E0B).copy(alpha = 0.18f)
                     "VERMELHO" -> Color(0xFFEF4444).copy(alpha = 0.18f)
-                    else -> Color(0xFF3B82F6).copy(alpha = 0.18f)
+                    else -> Color(0xFF3B82F6).copy(alpha = 0.18f) // Fluxo condicional alternativo caso o 'if' seja falso
                 }
 
-                val iconColor = when (evento.tipo.uppercase()) {
+                val iconColor = when (evento.tipo.uppercase()) { // Escolha múltipla condicional (semelhante a switch-case)
                     "GOLO", "ACE" -> Color(0xFF16A34A)
                     "FALTA", "AMARELO" -> Color(0xFFD97706)
                     "VERMELHO" -> Color(0xFFDC2626)
-                    else -> Color(0xFF2563EB)
+                    else -> Color(0xFF2563EB) // Fluxo condicional alternativo caso o 'if' seja falso
                 }
 
-                val eventLabel = when (evento.tipo.uppercase()) {
+                val eventLabel = when (evento.tipo.uppercase()) { // Escolha múltipla condicional (semelhante a switch-case)
                     "GOLO" -> "Golo"
                     "FALTA" -> "Falta"
                     "AMARELO" -> "Cartão Amarelo"
@@ -683,53 +691,53 @@ private fun TimelineEventosSection(eventos: List<EventoJogo>) {
                     "LANCE_LIVRE" -> "Lance Livre"
                     "ACE" -> "Ace"
                     "BREAK_POINT" -> "Break Point"
-                    else -> evento.tipo
+                    else -> evento.tipo // Fluxo condicional alternativo caso o 'if' seja falso
                 }
 
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
+                Card( // Contentor Compose: Cartão visual com elevação e cantos
+                    modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                     shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(containerColor = LMWhite),
                     border = BorderStroke(1.dp, Color(0xFFE2E2E7))
                 ) {
-                    Row(
-                        modifier = Modifier
+                    Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+                        modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                             .fillMaxWidth()
                             .padding(horizontal = 12.dp, vertical = 10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         // Minute / Tempo
-                        Text(
+                        Text( // Componente Compose: Desenha texto estruturado no ecrã
                             text = "${evento.tempo}'",
                             fontFamily = GeistMono,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = LMGray600,
-                            modifier = Modifier.width(36.dp)
+                            modifier = Modifier.width(36.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
                         )
 
                         // Icon box
-                        Box(
-                            modifier = Modifier
+                        Box( // Contentor Compose: Sobrepõe os elementos filhos
+                            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                                 .size(28.dp)
                                 .background(iconBg, RoundedCornerShape(8.dp)),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(
+                            Icon( // Componente Compose: Desenha um ícone vetorial
                                 imageVector = icon,
                                 contentDescription = null,
                                 tint = iconColor,
-                                modifier = Modifier.size(14.dp)
+                                modifier = Modifier.size(14.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
                             )
                         }
 
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Spacer(modifier = Modifier.width(12.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
                         // Event content
-                        Column(
-                            modifier = Modifier.weight(1f)
+                        Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+                            modifier = Modifier.weight(1f) // Modificador Compose: Define tamanho, margem, padding ou clique
                         ) {
-                            Text(
+                            Text( // Componente Compose: Desenha texto estruturado no ecrã
                                 text = "$eventLabel de ${evento.userName}",
                                 fontFamily = Geist,
                                 fontSize = 13.sp,
@@ -739,9 +747,9 @@ private fun TimelineEventosSection(eventos: List<EventoJogo>) {
                         }
 
                         // Side
-                        if (evento.equipa != "center") {
+                        if (evento.equipa != "center") { // Estrutura de decisão condicional principal
                             TranslatedText(
-                                text = if (evento.equipa == "casa") "CASA" else "FORA",
+                                text = if (evento.equipa == "casa") "CASA" else "FORA", // Estrutura de decisão condicional principal
                                 fontFamily = Geist,
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,

@@ -1,66 +1,74 @@
-package com.leaguematch.ui.organizer
+/**
+ * ESTUDAR PARA A APRESENTAÇÃO:
+ * Ficheiro: CreateTournamentScreen.kt
+ * Tipo: Interface (Compose View) do Organizador
+ *
+ * Descrição:
+ * Este ficheiro define um ecrã da área do Organizador em Jetpack Compose.\n * Fornece interface e lógica visual para criar torneios, gerir equipas, registar e editar jogos e estatísticas.
+ */
+package com.leaguematch.ui.organizer // Define o pacote deste ficheiro de código
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.EmojiEvents
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.SportsSoccer
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.leaguematch.ui.components.TranslatedText
-import com.leaguematch.ui.theme.Bricolage
-import com.leaguematch.ui.theme.Geist
-import com.leaguematch.ui.theme.LMGray500
-import com.leaguematch.ui.theme.LMInk
-import com.leaguematch.ui.theme.LMRed
-import com.leaguematch.ui.theme.LMWhite
+import androidx.compose.foundation.BorderStroke // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.background // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.clickable // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Arrangement // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Box // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Column // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Row // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Spacer // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.fillMaxSize // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.fillMaxWidth // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.height // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.heightIn // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.padding // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.size // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.width // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.rememberScrollState // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.shape.RoundedCornerShape // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.verticalScroll // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.Icons // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.CalendarMonth // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.EmojiEvents // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.KeyboardArrowDown // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.SportsSoccer // Importa dependência / biblioteca necessária
+import androidx.compose.material3.DatePicker // Importa dependência / biblioteca necessária
+import androidx.compose.material3.DatePickerDialog // Importa dependência / biblioteca necessária
+import androidx.compose.material3.DropdownMenu // Importa dependência / biblioteca necessária
+import androidx.compose.material3.DropdownMenuItem // Importa dependência / biblioteca necessária
+import androidx.compose.material3.ExperimentalMaterial3Api // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Icon // Importa dependência / biblioteca necessária
+import androidx.compose.material3.LocalTextStyle // Importa dependência / biblioteca necessária
+import androidx.compose.material3.MaterialTheme // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Scaffold // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Surface // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Text // Importa dependência / biblioteca necessária
+import androidx.compose.material3.TextButton // Importa dependência / biblioteca necessária
+import androidx.compose.material3.TextField // Importa dependência / biblioteca necessária
+import androidx.compose.material3.TextFieldDefaults // Importa dependência / biblioteca necessária
+import androidx.compose.material3.rememberDatePickerState // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.Composable // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.getValue // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.mutableStateOf // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.remember // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.setValue // Importa dependência / biblioteca necessária
+import androidx.compose.ui.Alignment // Importa dependência / biblioteca necessária
+import androidx.compose.ui.Modifier // Importa dependência / biblioteca necessária
+import androidx.compose.ui.graphics.Brush // Importa dependência / biblioteca necessária
+import androidx.compose.ui.graphics.Color // Importa dependência / biblioteca necessária
+import androidx.compose.ui.text.font.FontWeight // Importa dependência / biblioteca necessária
+import androidx.compose.ui.unit.Dp // Importa dependência / biblioteca necessária
+import androidx.compose.ui.unit.dp // Importa dependência / biblioteca necessária
+import androidx.compose.ui.unit.sp // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.components.TranslatedText // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.Bricolage // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.Geist // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMGray500 // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMInk // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMRed // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.LMWhite // Importa dependência / biblioteca necessária
 
 @Composable
-fun CreateTournamentScreen(
+fun CreateTournamentScreen( // Declaração de função / método de lógica
     onBackClick: () -> Unit = {},
     onCancelClick: () -> Unit = {},
     onContinueClick: (
@@ -74,16 +82,16 @@ fun CreateTournamentScreen(
         regras: String
     ) -> Unit = { _, _, _, _, _, _, _, _ -> }
 ) {
-    var nome by remember { mutableStateOf("") }
-    var modalidade by remember { mutableStateOf("Futebol") }
-    var formato by remember { mutableStateOf("Liga") }
-    var dataInicio by remember { mutableStateOf("") }
-    var dataFim by remember { mutableStateOf("") }
-    var maxEquipas by remember { mutableStateOf("") }
-    var descricao by remember { mutableStateOf("") }
-    var regras by remember { mutableStateOf("") }
+    var nome by remember { mutableStateOf("") } // Declara estado mutável local do Compose
+    var modalidade by remember { mutableStateOf("Futebol") } // Declara estado mutável local do Compose
+    var formato by remember { mutableStateOf("Liga") } // Declara estado mutável local do Compose
+    var dataInicio by remember { mutableStateOf("") } // Declara estado mutável local do Compose
+    var dataFim by remember { mutableStateOf("") } // Declara estado mutável local do Compose
+    var maxEquipas by remember { mutableStateOf("") } // Declara estado mutável local do Compose
+    var descricao by remember { mutableStateOf("") } // Declara estado mutável local do Compose
+    var regras by remember { mutableStateOf("") } // Declara estado mutável local do Compose
 
-    val modalidades = listOf(
+    val modalidades = listOf( // Declara constante local (leitura única)
         "Futebol",
         "Basquetebol",
         "Andebol",
@@ -91,7 +99,7 @@ fun CreateTournamentScreen(
         "Padel"
     )
 
-    val formatos = listOf(
+    val formatos = listOf( // Declara constante local (leitura única)
         "Liga",
         "Eliminatória",
         "Grupos"
@@ -101,25 +109,25 @@ fun CreateTournamentScreen(
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
 
-        Column(
-            modifier = Modifier
+        Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                 .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 18.dp, vertical = 14.dp)
         ) {
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
+            Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+                modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = "‹",
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold,
                     color = LMInk,
-                    modifier = Modifier
+                    modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                         .clickable { onBackClick() }
                         .padding(end = 12.dp)
                 )
@@ -130,7 +138,7 @@ fun CreateTournamentScreen(
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 24.sp,
                     color = LMInk,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f) // Modificador Compose: Define tamanho, margem, padding ou clique
                 )
 
                 TranslatedText(
@@ -139,24 +147,24 @@ fun CreateTournamentScreen(
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
                     color = LMGray500,
-                    modifier = Modifier.clickable { onCancelClick() }
+                    modifier = Modifier.clickable { onCancelClick() } // Modificador Compose: Define tamanho, margem, padding ou clique
                 )
             }
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(18.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             Surface(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                 shape = RoundedCornerShape(18.dp),
                 color = Color(0xFFFFF5F6),
                 border = BorderStroke(1.dp, Color(0xFFFFCCD3))
             ) {
-                Row(
-                    modifier = Modifier.padding(14.dp),
+                Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+                    modifier = Modifier.padding(14.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(
-                        modifier = Modifier
+                    Box( // Contentor Compose: Sobrepõe os elementos filhos
+                        modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                             .size(42.dp)
                             .background(
                                 brush = Brush.linearGradient(
@@ -166,17 +174,17 @@ fun CreateTournamentScreen(
                             ),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(
+                        Icon( // Componente Compose: Desenha um ícone vetorial
                             imageVector = Icons.Default.EmojiEvents,
                             contentDescription = null,
                             tint = LMWhite,
-                            modifier = Modifier.size(22.dp)
+                            modifier = Modifier.size(22.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
                         )
                     }
 
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(12.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-                    Column {
+                    Column { // Contentor Compose: Alinha os filhos numa coluna vertical
                         TranslatedText(
                             text = "Novo torneio",
                             fontFamily = Geist,
@@ -196,7 +204,7 @@ fun CreateTournamentScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(22.dp))
+            Spacer(modifier = Modifier.height(22.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             FormLabel("NOME DO TORNEIO")
             FormTextField(
@@ -205,31 +213,31 @@ fun CreateTournamentScreen(
                 placeholder = "Ex: Liga do Vinho 2026"
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(14.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
+            Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+                modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Column(modifier = Modifier.weight(1f)) {
+                Column(modifier = Modifier.weight(1f)) { // Contentor Compose: Alinha os filhos numa coluna vertical
                     FormLabel("MODALIDADE")
 
                     SelectBox(
                         text = modalidade,
                         options = modalidades,
                         leadingIcon = {
-                            Icon(
+                            Icon( // Componente Compose: Desenha um ícone vetorial
                                 imageVector = Icons.Default.SportsSoccer,
                                 contentDescription = null,
                                 tint = LMInk,
-                                modifier = Modifier.size(17.dp)
+                                modifier = Modifier.size(17.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
                             )
                         },
                         onSelected = { modalidade = it }
                     )
                 }
 
-                Column(modifier = Modifier.weight(1f)) {
+                Column(modifier = Modifier.weight(1f)) { // Contentor Compose: Alinha os filhos numa coluna vertical
                     FormLabel("FORMATO")
 
                     SelectBox(
@@ -240,13 +248,13 @@ fun CreateTournamentScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(14.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
+            Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+                modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Column(modifier = Modifier.weight(1f)) {
+                Column(modifier = Modifier.weight(1f)) { // Contentor Compose: Alinha os filhos numa coluna vertical
                     FormLabel("DATA INÍCIO")
                     DateField(
                         value = dataInicio,
@@ -255,7 +263,7 @@ fun CreateTournamentScreen(
                     )
                 }
 
-                Column(modifier = Modifier.weight(1f)) {
+                Column(modifier = Modifier.weight(1f)) { // Contentor Compose: Alinha os filhos numa coluna vertical
                     FormLabel("DATA FIM")
                     DateField(
                         value = dataFim,
@@ -265,7 +273,7 @@ fun CreateTournamentScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(14.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             FormLabel("MÁXIMO DE EQUIPAS")
             FormTextField(
@@ -274,7 +282,7 @@ fun CreateTournamentScreen(
                 placeholder = "Ex: 16"
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(14.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             FormLabel("DESCRIÇÃO")
             FormTextField(
@@ -284,7 +292,7 @@ fun CreateTournamentScreen(
                 minHeight = 76.dp
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(14.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             FormLabel("REGRAS")
             FormTextField(
@@ -294,14 +302,14 @@ fun CreateTournamentScreen(
                 minHeight = 76.dp
             )
 
-            Spacer(modifier = Modifier.height(22.dp))
+            Spacer(modifier = Modifier.height(22.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
+            Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+                modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Surface(
-                    modifier = Modifier
+                    modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                         .weight(1f)
                         .height(54.dp)
                         .clickable { onBackClick() },
@@ -309,7 +317,7 @@ fun CreateTournamentScreen(
                     color = LMWhite,
                     border = BorderStroke(1.dp, Color(0xFFE2E2E7))
                 ) {
-                    Box(contentAlignment = Alignment.Center) {
+                    Box(contentAlignment = Alignment.Center) { // Contentor Compose: Sobrepõe os elementos filhos
                         TranslatedText(
                             text = "Anterior",
                             fontFamily = Geist,
@@ -320,8 +328,8 @@ fun CreateTournamentScreen(
                     }
                 }
 
-                Box(
-                    modifier = Modifier
+                Box( // Contentor Compose: Sobrepõe os elementos filhos
+                    modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                         .weight(1f)
                         .height(54.dp)
                         .background(
@@ -354,13 +362,13 @@ fun CreateTournamentScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
         }
     }
 }
 
 @Composable
-private fun FormLabel(text: String) {
+private fun FormLabel(text: String) { // Declaração de função / método de lógica
     TranslatedText(
         text = text,
         fontFamily = Geist,
@@ -369,17 +377,17 @@ private fun FormLabel(text: String) {
         color = LMGray500
     )
 
-    Spacer(modifier = Modifier.height(7.dp))
+    Spacer(modifier = Modifier.height(7.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 }
 
 @Composable
-private fun FormTextField(
+private fun FormTextField( // Declaração de função / método de lógica
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
     minHeight: Dp = 52.dp
 ) {
-    TextField(
+    TextField( // Campo Compose: Entrada de texto simples para utilizador
         value = value,
         onValueChange = onValueChange,
         placeholder = {
@@ -390,7 +398,7 @@ private fun FormTextField(
                 color = Color(0xFFA3A3AE)
             )
         },
-        modifier = Modifier
+        modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
             .fillMaxWidth()
             .heightIn(min = minHeight),
         shape = RoundedCornerShape(16.dp),
@@ -410,18 +418,18 @@ private fun FormTextField(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class) // Declaração de classe para modelar objetos
 @Composable
-private fun DateField(
+private fun DateField( // Declaração de função / método de lógica
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String
 ) {
-    var showDialog by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) } // Declara estado mutável local do Compose
 
-    if (showDialog) {
-        val initialMillis = parseDateToMillis(value)
-        val state = rememberDatePickerState(initialSelectedDateMillis = initialMillis)
+    if (showDialog) { // Estrutura de decisão condicional principal
+        val initialMillis = parseDateToMillis(value) // Declara constante local (leitura única)
+        val state = rememberDatePickerState(initialSelectedDateMillis = initialMillis) // Declara constante local (leitura única)
 
         DatePickerDialog(
             onDismissRequest = { showDialog = false },
@@ -429,21 +437,21 @@ private fun DateField(
             properties = androidx.compose.ui.window.DialogProperties(
                 usePlatformDefaultWidth = false
             ),
-            modifier = Modifier
+            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
             confirmButton = {
-                TextButton(onClick = {
+                TextButton(onClick = { // Callback: Define a ação executada ao clicar no componente
                     state.selectedDateMillis?.let {
                         onValueChange(formatMillisToDate(it))
                     }
                     showDialog = false
                 }) {
-                    Text("OK", color = LMRed, fontFamily = Geist, fontWeight = FontWeight.Bold)
+                    Text("OK", color = LMRed, fontFamily = Geist, fontWeight = FontWeight.Bold) // Componente Compose: Desenha texto estruturado no ecrã
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDialog = false }) {
+                TextButton(onClick = { showDialog = false }) { // Callback: Define a ação executada ao clicar no componente
                     TranslatedText(
                         text = "Cancelar",
                         color = LMGray500,
@@ -457,7 +465,7 @@ private fun DateField(
                 title = {
                     TranslatedText(
                         text = "Escolher data",
-                        modifier = Modifier.padding(start = 24.dp, top = 16.dp),
+                        modifier = Modifier.padding(start = 24.dp, top = 16.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
                         fontFamily = Geist,
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp,
@@ -465,10 +473,10 @@ private fun DateField(
                     )
                 },
                 headline = {
-                    val texto = state.selectedDateMillis?.let { formatMillisToDate(it) } ?: "—/—/——"
-                    Text(
+                    val texto = state.selectedDateMillis?.let { formatMillisToDate(it) } ?: "—/—/——" // Declara constante local (leitura única)
+                    Text( // Componente Compose: Desenha texto estruturado no ecrã
                         text = texto,
-                        modifier = Modifier.padding(start = 24.dp, bottom = 12.dp),
+                        modifier = Modifier.padding(start = 24.dp, bottom = 12.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
                         fontFamily = Bricolage,
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 26.sp,
@@ -481,26 +489,26 @@ private fun DateField(
     }
 
     Surface(
-        modifier = Modifier
+        modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
             .fillMaxWidth()
             .height(52.dp)
             .clickable { showDialog = true },
         shape = RoundedCornerShape(16.dp),
         color = LMWhite
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 14.dp),
+        Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+            modifier = Modifier.padding(horizontal = 14.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
+            Icon( // Componente Compose: Desenha um ícone vetorial
                 imageVector = Icons.Default.CalendarMonth,
                 contentDescription = null,
                 tint = LMGray500,
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier.size(16.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
             )
-            Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(10.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            if (value.isBlank()) {
+            if (value.isBlank()) { // Estrutura de decisão condicional principal
                 TranslatedText(
                     text = placeholder,
                     fontFamily = Geist,
@@ -508,8 +516,8 @@ private fun DateField(
                     fontWeight = FontWeight.Medium,
                     color = Color(0xFFA3A3AE)
                 )
-            } else {
-                Text(
+            } else { // Fluxo condicional alternativo caso o 'if' seja falso
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = value,
                     fontFamily = Geist,
                     fontSize = 13.sp,
@@ -521,39 +529,39 @@ private fun DateField(
     }
 }
 
-private fun parseDateToMillis(date: String): Long? {
-    if (date.isBlank()) return null
-    val parts = date.split("/")
-    if (parts.size != 3) return null
-    return runCatching {
-        val cal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC"))
+private fun parseDateToMillis(date: String): Long? { // Declaração de função / método de lógica
+    if (date.isBlank()) return null // Estrutura de decisão condicional principal
+    val parts = date.split("/") // Declara constante local (leitura única)
+    if (parts.size != 3) return null // Estrutura de decisão condicional principal
+    return runCatching { // Retorna o resultado da execução da função
+        val cal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC")) // Declara constante local (leitura única)
         cal.clear()
         cal.set(parts[2].toInt(), parts[1].toInt() - 1, parts[0].toInt())
         cal.timeInMillis
     }.getOrNull()
 }
 
-private fun formatMillisToDate(millis: Long): String {
-    val cal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC"))
+private fun formatMillisToDate(millis: Long): String { // Declaração de função / método de lógica
+    val cal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC")) // Declara constante local (leitura única)
     cal.timeInMillis = millis
-    val dia = cal.get(java.util.Calendar.DAY_OF_MONTH).toString().padStart(2, '0')
-    val mes = (cal.get(java.util.Calendar.MONTH) + 1).toString().padStart(2, '0')
-    val ano = cal.get(java.util.Calendar.YEAR)
-    return "$dia/$mes/$ano"
+    val dia = cal.get(java.util.Calendar.DAY_OF_MONTH).toString().padStart(2, '0') // Declara constante local (leitura única)
+    val mes = (cal.get(java.util.Calendar.MONTH) + 1).toString().padStart(2, '0') // Declara constante local (leitura única)
+    val ano = cal.get(java.util.Calendar.YEAR) // Declara constante local (leitura única)
+    return "$dia/$mes/$ano" // Retorna o resultado da execução da função
 }
 
 @Composable
-private fun SelectBox(
+private fun SelectBox( // Declaração de função / método de lógica
     text: String,
     options: List<String>,
     leadingIcon: @Composable (() -> Unit)? = null,
     onSelected: (String) -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(false) } // Declara estado mutável local do Compose
 
-    Box {
+    Box { // Contentor Compose: Sobrepõe os elementos filhos
         Surface(
-            modifier = Modifier
+            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                 .fillMaxWidth()
                 .height(52.dp)
                 .clickable { expanded = true },
@@ -561,13 +569,13 @@ private fun SelectBox(
             color = LMWhite,
             border = BorderStroke(1.dp, Color(0xFFE2E2E7))
         ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 12.dp),
+            Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+                modifier = Modifier.padding(horizontal = 12.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (leadingIcon != null) {
+                if (leadingIcon != null) { // Estrutura de decisão condicional principal
                     leadingIcon()
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(8.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
                 }
 
                 TranslatedText(
@@ -576,14 +584,14 @@ private fun SelectBox(
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
                     color = LMInk,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f) // Modificador Compose: Define tamanho, margem, padding ou clique
                 )
 
-                Icon(
+                Icon( // Componente Compose: Desenha um ícone vetorial
                     imageVector = Icons.Default.KeyboardArrowDown,
                     contentDescription = null,
                     tint = LMGray500,
-                    modifier = Modifier.size(18.dp)
+                    modifier = Modifier.size(18.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
                 )
             }
         }
@@ -603,7 +611,7 @@ private fun SelectBox(
                             color = LMInk
                         )
                     },
-                    onClick = {
+                    onClick = { // Callback: Define a ação executada ao clicar no componente
                         onSelected(option)
                         expanded = false
                     }

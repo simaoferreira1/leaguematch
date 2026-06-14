@@ -1,162 +1,170 @@
-package com.leaguematch.translations
+/**
+ * ESTUDAR PARA A APRESENTAÇÃO:
+ * Ficheiro: AppStrings.kt
+ * Tipo: Traduções e Dicionário (Localização)
+ *
+ * Descrição:
+ * Este ficheiro fornece suporte de multi-idioma (Localização) na app.\n * Mapeia chaves de texto dinâmicas para Strings traduzidas em Português ou Inglês.
+ */
+package com.leaguematch.translations // Define o pacote deste ficheiro de código
 
-interface AppStrings {
+interface AppStrings { // Declaração de interface (contrato de métodos)
     //Participante
     //ParticipantHomeScreen
-    val participantFallbackName: String
-    val participantGreetingPrefix: String
-    val participantHomeSubtitle: String
+    val participantFallbackName: String // Declara constante local (leitura única)
+    val participantGreetingPrefix: String // Declara constante local (leitura única)
+    val participantHomeSubtitle: String // Declara constante local (leitura única)
 
-    val participantAreaTitle: String
-    val participantAreaDescription: String
+    val participantAreaTitle: String // Declara constante local (leitura única)
+    val participantAreaDescription: String // Declara constante local (leitura única)
 
-    val registeredTournaments: String
-    val registeredTournamentsDescription: String
+    val registeredTournaments: String // Declara constante local (leitura única)
+    val registeredTournamentsDescription: String // Declara constante local (leitura única)
 
-    val upcomingGames: String
-    val upcomingGamesDescription: String
+    val upcomingGames: String // Declara constante local (leitura única)
+    val upcomingGamesDescription: String // Declara constante local (leitura única)
 
-    val myTeam: String
-    val myTeamDescription: String
+    val myTeam: String // Declara constante local (leitura única)
+    val myTeamDescription: String // Declara constante local (leitura única)
 
-    val statistics: String
-    val statisticsDescription: String
+    val statistics: String // Declara constante local (leitura única)
+    val statisticsDescription: String // Declara constante local (leitura única)
 
     //ParticipantTournamentScreen
-    val tournamentsAssociated: (Int) -> String
-    val searchTournamentsPlaceholder: String
-    val noRegisteredTournaments: String
-    val teamsLabel: (Int) -> String
+    val tournamentsAssociated: (Int) -> String // Declara constante local (leitura única)
+    val searchTournamentsPlaceholder: String // Declara constante local (leitura única)
+    val noRegisteredTournaments: String // Declara constante local (leitura única)
+    val teamsLabel: (Int) -> String // Declara constante local (leitura única)
 
     //ParticipantTournamenteDetailsScreen
-    val tournamentDetailsTitle: String
-    val tournamentDetailsLoadError: String
-    val standingsTitle: String
-    val noStandingsYet: String
-    val matchesTitle: String
-    val noMatchesYet: String
-    val topScorersTitle: String
-    val noScorersYet: String
-    val goalsLabel: (Int) -> String
-    val pointsLabel: (Int) -> String
-    val classificationRecord: (Int, Int, Int) -> String
+    val tournamentDetailsTitle: String // Declara constante local (leitura única)
+    val tournamentDetailsLoadError: String // Declara constante local (leitura única)
+    val standingsTitle: String // Declara constante local (leitura única)
+    val noStandingsYet: String // Declara constante local (leitura única)
+    val matchesTitle: String // Declara constante local (leitura única)
+    val noMatchesYet: String // Declara constante local (leitura única)
+    val topScorersTitle: String // Declara constante local (leitura única)
+    val noScorersYet: String // Declara constante local (leitura única)
+    val goalsLabel: (Int) -> String // Declara constante local (leitura única)
+    val pointsLabel: (Int) -> String // Declara constante local (leitura única)
+    val classificationRecord: (Int, Int, Int) -> String // Declara constante local (leitura única)
 
     //ParticipantGamesScreen
-    val myGamesTitle: String
-    val myGamesSubtitle: String
-    val upcomingTab: String
-    val resultsTab: String
-    val historyTab: String
-    val noUpcomingGames: String
-    val noResultsYet: String
-    val noGameHistory: String
+    val myGamesTitle: String // Declara constante local (leitura única)
+    val myGamesSubtitle: String // Declara constante local (leitura única)
+    val upcomingTab: String // Declara constante local (leitura única)
+    val resultsTab: String // Declara constante local (leitura única)
+    val historyTab: String // Declara constante local (leitura única)
+    val noUpcomingGames: String // Declara constante local (leitura única)
+    val noResultsYet: String // Declara constante local (leitura única)
+    val noGameHistory: String // Declara constante local (leitura única)
 
     //ParticipantJointTeamScreen
-    val teamsTitle: String
-    val joinTeamTitle: String
-    val joinTeamDescription: String
-    val confirmAndJoin: String
-    val cancel: String
+    val teamsTitle: String // Declara constante local (leitura única)
+    val joinTeamTitle: String // Declara constante local (leitura única)
+    val joinTeamDescription: String // Declara constante local (leitura única)
+    val confirmAndJoin: String // Declara constante local (leitura única)
+    val cancel: String // Declara constante local (leitura única)
 
     //ParticipantTeamScreen
-    val myTeamTitle: String
-    val myTeamSubtitle: String
-    val noTeamTitle: String
-    val noTeamDescription: String
-    val joinTeamButton: String
-    val teamCode: String
-    val teamName: String
-    val playersTitle: String
-    val playersCount: (Int) -> String
-    val teamStandingTitle: String
-    val noStandingYet: String
-    val lastGamesTitle: String
-    val noRegisteredGames: String
-    val gamesFound: (Int) -> String
-    val myTeamsTitle: String
-    val selectedTeamTitle: String
+    val myTeamTitle: String // Declara constante local (leitura única)
+    val myTeamSubtitle: String // Declara constante local (leitura única)
+    val noTeamTitle: String // Declara constante local (leitura única)
+    val noTeamDescription: String // Declara constante local (leitura única)
+    val joinTeamButton: String // Declara constante local (leitura única)
+    val teamCode: String // Declara constante local (leitura única)
+    val teamName: String // Declara constante local (leitura única)
+    val playersTitle: String // Declara constante local (leitura única)
+    val playersCount: (Int) -> String // Declara constante local (leitura única)
+    val teamStandingTitle: String // Declara constante local (leitura única)
+    val noStandingYet: String // Declara constante local (leitura única)
+    val lastGamesTitle: String // Declara constante local (leitura única)
+    val noRegisteredGames: String // Declara constante local (leitura única)
+    val gamesFound: (Int) -> String // Declara constante local (leitura única)
+    val myTeamsTitle: String // Declara constante local (leitura única)
+    val selectedTeamTitle: String // Declara constante local (leitura única)
 
-    val selectedTeam: String
-    val viewDetails: String
-    val selectTeam: String
-    val leaveTeam: String
+    val selectedTeam: String // Declara constante local (leitura única)
+    val viewDetails: String // Declara constante local (leitura única)
+    val selectTeam: String // Declara constante local (leitura única)
+    val leaveTeam: String // Declara constante local (leitura única)
 
-    val tournamentIdLabel: String
-    val codeLabel: String
+    val tournamentIdLabel: String // Declara constante local (leitura única)
+    val codeLabel: String // Declara constante local (leitura única)
 
     //ParticipantStatsScreen
-    val myStatsTitle: String
-    val myStatsSubtitle: String
-    val gamesStat: String
-    val goalsStat: String
-    val assistsStat: String
-    val mvpStat: String
-    val overallPerformance: String
-    val overallPerformanceSubtitle: String
-    val notEnoughStats: String
-    val performanceTitle: String
-    val goalsPerGame: String
-    val assistsPerGame: String
-    val statsStartMessage: String
-    val statsContinueMessage: String
+    val myStatsTitle: String // Declara constante local (leitura única)
+    val myStatsSubtitle: String // Declara constante local (leitura única)
+    val gamesStat: String // Declara constante local (leitura única)
+    val goalsStat: String // Declara constante local (leitura única)
+    val assistsStat: String // Declara constante local (leitura única)
+    val mvpStat: String // Declara constante local (leitura única)
+    val overallPerformance: String // Declara constante local (leitura única)
+    val overallPerformanceSubtitle: String // Declara constante local (leitura única)
+    val notEnoughStats: String // Declara constante local (leitura única)
+    val performanceTitle: String // Declara constante local (leitura única)
+    val goalsPerGame: String // Declara constante local (leitura única)
+    val assistsPerGame: String // Declara constante local (leitura única)
+    val statsStartMessage: String // Declara constante local (leitura única)
+    val statsContinueMessage: String // Declara constante local (leitura única)
 
     // Spectator
 
-    val spectatorHomeTitle: String
-    val spectatorHomeSubtitle: String
+    val spectatorHomeTitle: String // Declara constante local (leitura única)
+    val spectatorHomeSubtitle: String // Declara constante local (leitura única)
 
-    val liveMatches: String
-    val trendingTournaments: String
+    val liveMatches: String // Declara constante local (leitura única)
+    val trendingTournaments: String // Declara constante local (leitura única)
 
-    val tournamentDetails: String
-    val bestScorers: String
-    val standings: String
-    val teams: String
-    val matches: String
+    val tournamentDetails: String // Declara constante local (leitura única)
+    val bestScorers: String // Declara constante local (leitura única)
+    val standings: String // Declara constante local (leitura única)
+    val teams: String // Declara constante local (leitura única)
+    val matches: String // Declara constante local (leitura única)
 
-    val matchStatistics: String
-    val liveStatistics: String
-    val completeStatistics: String
+    val matchStatistics: String // Declara constante local (leitura única)
+    val liveStatistics: String // Declara constante local (leitura única)
+    val completeStatistics: String // Declara constante local (leitura única)
 
-    val timeline: String
-    val noEventsRegistered: String
+    val timeline: String // Declara constante local (leitura única)
+    val noEventsRegistered: String // Declara constante local (leitura única)
 
-    val live: String
-    val finished: String
-    val scheduled: String
+    val live: String // Declara constante local (leitura única)
+    val finished: String // Declara constante local (leitura única)
+    val scheduled: String // Declara constante local (leitura única)
 
-    val homeTeam: String
-    val awayTeam: String
+    val homeTeam: String // Declara constante local (leitura única)
+    val awayTeam: String // Declara constante local (leitura única)
 
-    val possession: String
-    val shots: String
-    val shotsOnTarget: String
-    val corners: String
-    val fouls: String
-    val yellowCards: String
-    val redCards: String
+    val possession: String // Declara constante local (leitura única)
+    val shots: String // Declara constante local (leitura única)
+    val shotsOnTarget: String // Declara constante local (leitura única)
+    val corners: String // Declara constante local (leitura única)
+    val fouls: String // Declara constante local (leitura única)
+    val yellowCards: String // Declara constante local (leitura única)
+    val redCards: String // Declara constante local (leitura única)
 
-    val noStatisticsAvailable: String
+    val noStatisticsAvailable: String // Declara constante local (leitura única)
 
-    val notifications: String
-    val notificationSettings: String
+    val notifications: String // Declara constante local (leitura única)
+    val notificationSettings: String // Declara constante local (leitura única)
 
-    val gameDetails: String
-    val matchResult: String
+    val gameDetails: String // Declara constante local (leitura única)
+    val matchResult: String // Declara constante local (leitura única)
 
     //ClassificacaoScreen Spectator
 
-    val classification: String
-    val noClassificationAvailable: String
-    val back: String
-    val participantsTeams: (Int) -> String
-    val positionShort: String
-    val team: String
-    val gamesShort: String
-    val winsShort: String
-    val drawsShort: String
-    val lossesShort: String
-    val goalDifferenceShort: String
-    val pointsShort: String
-    val noTeamsYet: String
+    val classification: String // Declara constante local (leitura única)
+    val noClassificationAvailable: String // Declara constante local (leitura única)
+    val back: String // Declara constante local (leitura única)
+    val participantsTeams: (Int) -> String // Declara constante local (leitura única)
+    val positionShort: String // Declara constante local (leitura única)
+    val team: String // Declara constante local (leitura única)
+    val gamesShort: String // Declara constante local (leitura única)
+    val winsShort: String // Declara constante local (leitura única)
+    val drawsShort: String // Declara constante local (leitura única)
+    val lossesShort: String // Declara constante local (leitura única)
+    val goalDifferenceShort: String // Declara constante local (leitura única)
+    val pointsShort: String // Declara constante local (leitura única)
+    val noTeamsYet: String // Declara constante local (leitura única)
 }

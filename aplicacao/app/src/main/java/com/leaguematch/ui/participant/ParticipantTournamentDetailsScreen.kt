@@ -1,28 +1,36 @@
-package com.leaguematch.ui.participant
+/**
+ * ESTUDAR PARA A APRESENTAÇÃO:
+ * Ficheiro: ParticipantTournamentDetailsScreen.kt
+ * Tipo: Interface (Compose View) do Participante
+ *
+ * Descrição:
+ * Este ficheiro define um ecrã do fluxo do Jogador/Participante em Jetpack Compose.\n * Mostra ao participante o estado do seu torneio, código de equipas para inscrição, estatísticas e notificações.
+ */
+package com.leaguematch.ui.participant // Define o pacote deste ficheiro de código
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.SportsSoccer
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.leaguematch.data.remote.model.Classificacao
-import com.leaguematch.data.remote.model.DetalheTorneio
-import com.leaguematch.translations.AppStrings
-import com.leaguematch.ui.theme.*
+import androidx.compose.foundation.BorderStroke // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.* // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.rememberScrollState // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.shape.RoundedCornerShape // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.verticalScroll // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.Icons // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.ArrowBack // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.SportsSoccer // Importa dependência / biblioteca necessária
+import androidx.compose.material3.* // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.Composable // Importa dependência / biblioteca necessária
+import androidx.compose.ui.Alignment // Importa dependência / biblioteca necessária
+import androidx.compose.ui.Modifier // Importa dependência / biblioteca necessária
+import androidx.compose.ui.graphics.Color // Importa dependência / biblioteca necessária
+import androidx.compose.ui.text.font.FontWeight // Importa dependência / biblioteca necessária
+import androidx.compose.ui.unit.dp // Importa dependência / biblioteca necessária
+import androidx.compose.ui.unit.sp // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.Classificacao // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.DetalheTorneio // Importa dependência / biblioteca necessária
+import com.leaguematch.translations.AppStrings // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.* // Importa dependência / biblioteca necessária
 
 @Composable
-fun ParticipantTournamentDetailScreen(
+fun ParticipantTournamentDetailScreen( // Declaração de função / método de lógica
     detalhe: DetalheTorneio?,
     classificacao: List<Classificacao>,
     strings: AppStrings,
@@ -33,25 +41,25 @@ fun ParticipantTournamentDetailScreen(
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
 
-        Column(
-            modifier = Modifier
+        Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                 .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 18.dp, vertical = 18.dp)
         ) {
-            Row(
+            Row( // Contentor Compose: Alinha os filhos numa linha horizontal
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = onBackClick) {
-                    Icon(
+                IconButton(onClick = onBackClick) { // Componente Compose: Desenha um botão com ícone
+                    Icon( // Componente Compose: Desenha um ícone vetorial
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = null,
                         tint = LMInk
                     )
                 }
 
-                Text(
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = strings.tournamentDetailsTitle,
                     fontFamily = Bricolage,
                     fontWeight = FontWeight.ExtraBold,
@@ -60,11 +68,11 @@ fun ParticipantTournamentDetailScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            if (detalhe == null) {
+            if (detalhe == null) { // Estrutura de decisão condicional principal
                 EmptyText(strings.tournamentDetailsLoadError)
-                return@Column
+                return@Column // Contentor Compose: Alinha os filhos numa coluna vertical
             }
 
             TournamentInfoCard(
@@ -73,15 +81,15 @@ fun ParticipantTournamentDetailScreen(
                 extra = detalhe.torneio.estado
             )
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(18.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             SectionTitle(strings.standingsTitle)
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            if (classificacao.isEmpty()) {
+            if (classificacao.isEmpty()) { // Estrutura de decisão condicional principal
                 EmptyText(strings.noStandingsYet)
-            } else {
+            } else { // Fluxo condicional alternativo caso o 'if' seja falso
                 classificacao.forEachIndexed { index, item ->
                     ClassificationCard(
                         posicao = index + 1,
@@ -89,19 +97,19 @@ fun ParticipantTournamentDetailScreen(
                         strings = strings,
                         primaryColor = primaryColor
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(8.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
                 }
             }
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(18.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             SectionTitle(strings.matchesTitle)
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            if (detalhe.jogos.isEmpty()) {
+            if (detalhe.jogos.isEmpty()) { // Estrutura de decisão condicional principal
                 EmptyText(strings.noMatchesYet)
-            } else {
+            } else { // Fluxo condicional alternativo caso o 'if' seja falso
                 detalhe.jogos.forEach { jogo ->
                     MatchCard(
                         title = "${jogo.casa} vs ${jogo.fora}",
@@ -109,26 +117,26 @@ fun ParticipantTournamentDetailScreen(
                         result = "${jogo.resultadoCasa}-${jogo.resultadoFora}",
                         primaryColor = primaryColor
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(8.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
                 }
             }
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(18.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             SectionTitle(strings.topScorersTitle)
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            if (detalhe.goleadores.isEmpty()) {
+            if (detalhe.goleadores.isEmpty()) { // Estrutura de decisão condicional principal
                 EmptyText(strings.noScorersYet)
-            } else {
+            } else { // Fluxo condicional alternativo caso o 'if' seja falso
                 detalhe.goleadores.forEach { goleador ->
                     SimpleInfoCard(
                         title = goleador.nome,
                         subtitle = strings.goalsLabel(goleador.golos),
                         primaryColor = primaryColor
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(8.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
                 }
             }
         }
@@ -136,8 +144,8 @@ fun ParticipantTournamentDetailScreen(
 }
 
 @Composable
-private fun SectionTitle(text: String) {
-    Text(
+private fun SectionTitle(text: String) { // Declaração de função / método de lógica
+    Text( // Componente Compose: Desenha texto estruturado no ecrã
         text = text,
         fontFamily = Bricolage,
         fontWeight = FontWeight.ExtraBold,
@@ -147,22 +155,22 @@ private fun SectionTitle(text: String) {
 }
 
 @Composable
-private fun TournamentInfoCard(
+private fun TournamentInfoCard( // Declaração de função / método de lógica
     title: String,
     subtitle: String,
     extra: String
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
         shape = RoundedCornerShape(20.dp),
         color = LMWhite,
         border = BorderStroke(1.dp, Color(0xFFE5E5EA)),
         shadowElevation = 1.dp
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
+        Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+            modifier = Modifier.padding(16.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
         ) {
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = title,
                 fontFamily = Bricolage,
                 fontWeight = FontWeight.ExtraBold,
@@ -170,24 +178,24 @@ private fun TournamentInfoCard(
                 color = LMInk
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(4.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = subtitle,
                 fontFamily = Geist,
                 fontSize = 13.sp,
                 color = LMGray500
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
             Surface(
                 shape = RoundedCornerShape(20.dp),
                 color = Color(0xFFEFFBF3)
             ) {
-                Text(
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = extra,
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
                     fontFamily = Geist,
                     fontWeight = FontWeight.Bold,
                     fontSize = 12.sp,
@@ -199,24 +207,24 @@ private fun TournamentInfoCard(
 }
 
 @Composable
-private fun ClassificationCard(
+private fun ClassificationCard( // Declaração de função / método de lógica
     posicao: Int,
     classificacao: Classificacao,
     strings: AppStrings,
     primaryColor: Color
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
         shape = RoundedCornerShape(16.dp),
         color = LMWhite,
         border = BorderStroke(1.dp, Color(0xFFE5E5EA)),
         shadowElevation = 1.dp
     ) {
-        Row(
-            modifier = Modifier.padding(14.dp),
+        Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+            modifier = Modifier.padding(14.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = "$posicao.º",
                 fontFamily = Bricolage,
                 fontWeight = FontWeight.ExtraBold,
@@ -224,10 +232,10 @@ private fun ClassificationCard(
                 color = primaryColor
             )
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(12.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
+            Column(modifier = Modifier.weight(1f)) { // Contentor Compose: Alinha os filhos numa coluna vertical
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = classificacao.nomeEquipa,
                     fontFamily = Geist,
                     fontWeight = FontWeight.ExtraBold,
@@ -235,7 +243,7 @@ private fun ClassificationCard(
                     color = LMInk
                 )
 
-                Text(
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = strings.classificationRecord(
                         classificacao.vitorias,
                         classificacao.empates,
@@ -247,7 +255,7 @@ private fun ClassificationCard(
                 )
             }
 
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = strings.pointsLabel(classificacao.pontos),
                 fontFamily = Geist,
                 fontWeight = FontWeight.ExtraBold,
@@ -259,34 +267,34 @@ private fun ClassificationCard(
 }
 
 @Composable
-private fun MatchCard(
+private fun MatchCard( // Declaração de função / método de lógica
     title: String,
     subtitle: String,
     result: String,
     primaryColor: Color
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
         shape = RoundedCornerShape(16.dp),
         color = LMWhite,
         border = BorderStroke(1.dp, Color(0xFFE5E5EA)),
         shadowElevation = 1.dp
     ) {
-        Row(
-            modifier = Modifier.padding(14.dp),
+        Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+            modifier = Modifier.padding(14.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
+            Icon( // Componente Compose: Desenha um ícone vetorial
                 imageVector = Icons.Default.SportsSoccer,
                 contentDescription = null,
                 tint = primaryColor,
-                modifier = Modifier.size(30.dp)
+                modifier = Modifier.size(30.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
             )
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(12.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
+            Column(modifier = Modifier.weight(1f)) { // Contentor Compose: Alinha os filhos numa coluna vertical
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = title,
                     fontFamily = Geist,
                     fontWeight = FontWeight.ExtraBold,
@@ -294,7 +302,7 @@ private fun MatchCard(
                     color = LMInk
                 )
 
-                Text(
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = subtitle,
                     fontFamily = Geist,
                     fontSize = 12.sp,
@@ -302,7 +310,7 @@ private fun MatchCard(
                 )
             }
 
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = result,
                 fontFamily = Bricolage,
                 fontWeight = FontWeight.ExtraBold,
@@ -314,33 +322,33 @@ private fun MatchCard(
 }
 
 @Composable
-private fun SimpleInfoCard(
+private fun SimpleInfoCard( // Declaração de função / método de lógica
     title: String,
     subtitle: String,
     primaryColor: Color
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
         shape = RoundedCornerShape(16.dp),
         color = LMWhite,
         border = BorderStroke(1.dp, Color(0xFFE5E5EA)),
         shadowElevation = 1.dp
     ) {
-        Row(
-            modifier = Modifier.padding(14.dp),
+        Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+            modifier = Modifier.padding(14.dp), // Modificador Compose: Define tamanho, margem, padding ou clique
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
+            Icon( // Componente Compose: Desenha um ícone vetorial
                 imageVector = Icons.Default.SportsSoccer,
                 contentDescription = null,
                 tint = primaryColor,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(28.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
             )
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(12.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Column {
-                Text(
+            Column { // Contentor Compose: Alinha os filhos numa coluna vertical
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = title,
                     fontFamily = Geist,
                     fontWeight = FontWeight.ExtraBold,
@@ -348,7 +356,7 @@ private fun SimpleInfoCard(
                     color = LMInk
                 )
 
-                Text(
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = subtitle,
                     fontFamily = Geist,
                     fontSize = 12.sp,
@@ -360,8 +368,8 @@ private fun SimpleInfoCard(
 }
 
 @Composable
-private fun EmptyText(text: String) {
-    Text(
+private fun EmptyText(text: String) { // Declaração de função / método de lógica
+    Text( // Componente Compose: Desenha texto estruturado no ecrã
         text = text,
         fontFamily = Geist,
         fontSize = 14.sp,

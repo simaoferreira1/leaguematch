@@ -1,65 +1,73 @@
-package com.leaguematch.data.repository
+/**
+ * ESTUDAR PARA A APRESENTAÇÃO:
+ * Ficheiro: LeagueMatchRepository.kt
+ * Tipo: Camada de Acesso a Dados (Repositório)
+ *
+ * Descrição:
+ * Este ficheiro define a interface ou implementação do repositório de dados.\n * Abstrai a origem dos dados da aplicação, servindo de ponte entre os ViewModels e as APIs externas.
+ */
+package com.leaguematch.data.repository // Define o pacote deste ficheiro de código
 
-import com.leaguematch.data.remote.model.DetalheTorneio
-import com.leaguematch.data.remote.model.Equipa
-import com.leaguematch.data.remote.model.EstatisticasAdmin
-import com.leaguematch.data.remote.model.Jogo
-import com.leaguematch.data.remote.model.ResumoDashboard
-import com.leaguematch.data.remote.model.ResumoModalidade
-import com.leaguematch.data.remote.model.Torneio
-import com.leaguematch.data.remote.model.Utilizador
-import com.leaguematch.data.remote.model.Classificacao
-import com.leaguematch.data.remote.model.EstatisticaJogo
-import com.leaguematch.data.remote.model.EventoJogo
-import com.leaguematch.ui.spectator.JogoResumoItem
-import com.leaguematch.ui.spectator.MelhorMarcadorItem
-import com.leaguematch.data.remote.model.ConfiguracaoNotificacoes
-import com.leaguematch.data.remote.model.NotificacaoItem
-import com.leaguematch.viewmodel.ParticipantStatsData
+import com.leaguematch.data.remote.model.DetalheTorneio // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.Equipa // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.EstatisticasAdmin // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.Jogo // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.ResumoDashboard // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.ResumoModalidade // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.Torneio // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.Utilizador // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.Classificacao // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.EstatisticaJogo // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.EventoJogo // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.spectator.JogoResumoItem // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.spectator.MelhorMarcadorItem // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.ConfiguracaoNotificacoes // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.NotificacaoItem // Importa dependência / biblioteca necessária
+import com.leaguematch.viewmodel.ParticipantStatsData // Importa dependência / biblioteca necessária
 
-interface LeagueMatchRepository {
-    suspend fun autenticar(email: String, password: String): Utilizador?
-    suspend fun registar(nome: String, email: String, password: String, tipo: String): Utilizador?
-    suspend fun obterDashboard(): ResumoDashboard
-    suspend fun listarUtilizadores(): List<Utilizador>
-    suspend fun obterUtilizador(id: Int): Utilizador?
-    suspend fun alterarEstadoUtilizador(
+interface LeagueMatchRepository { // Declaração de interface (contrato de métodos)
+    suspend fun autenticar(email: String, password: String): Utilizador? // Declaração de função / método de lógica
+    suspend fun registar(nome: String, email: String, password: String, tipo: String): Utilizador? // Declaração de função / método de lógica
+    suspend fun obterDashboard(): ResumoDashboard // Declaração de função / método de lógica
+    suspend fun listarUtilizadores(): List<Utilizador> // Declaração de função / método de lógica
+    suspend fun obterUtilizador(id: Int): Utilizador? // Declaração de função / método de lógica
+    suspend fun alterarEstadoUtilizador( // Declaração de função / método de lógica
         id: Int,
         ativo: Boolean
     ): Boolean
-    suspend fun listarModalidades(): List<ResumoModalidade>
-    suspend fun listarTorneiosPorModalidade(modalidade: String): List<Torneio>
-    suspend fun obterClassificacao(torneioId: Int): List<Classificacao>
-    suspend fun obterDetalheTorneio(id: Int): DetalheTorneio?
-    suspend fun obterEstatisticasAdmin(): EstatisticasAdmin
-    suspend fun atualizarUtilizador(id: Int, nome: String, password: String?): Utilizador?
-    suspend fun redefinirPasswordPorEmail(email: String, novaPassword: String): Boolean
-    suspend fun removerTorneio(id: Int): Boolean
-    suspend fun atualizarTorneio(
+    suspend fun listarModalidades(): List<ResumoModalidade> // Declaração de função / método de lógica
+    suspend fun listarTorneiosPorModalidade(modalidade: String): List<Torneio> // Declaração de função / método de lógica
+    suspend fun obterClassificacao(torneioId: Int): List<Classificacao> // Declaração de função / método de lógica
+    suspend fun obterDetalheTorneio(id: Int): DetalheTorneio? // Declaração de função / método de lógica
+    suspend fun obterEstatisticasAdmin(): EstatisticasAdmin // Declaração de função / método de lógica
+    suspend fun atualizarUtilizador(id: Int, nome: String, password: String?): Utilizador? // Declaração de função / método de lógica
+    suspend fun redefinirPasswordPorEmail(email: String, novaPassword: String): Boolean // Declaração de função / método de lógica
+    suspend fun removerTorneio(id: Int): Boolean // Declaração de função / método de lógica
+    suspend fun atualizarTorneio( // Declaração de função / método de lógica
         id: Int,
         nome: String,
         regras: String,
         formato: String
     ): Torneio?
-    suspend fun obterMelhoresMarcadores(torneioId: Int): List<MelhorMarcadorItem>
-    suspend fun obterJogosDoTorneio(torneioId: Int): List<JogoResumoItem>
-    suspend fun listarJogosAoVivo(): List<Jogo>
-    suspend fun listarTodosJogos(): List<Jogo>
-    suspend fun obterEstatisticasJogo(partidaId: Int): List<EstatisticaJogo>
-    suspend fun obterEventosJogo(partidaId: Int): List<EventoJogo>
-    suspend fun criarTorneio(
+    suspend fun obterMelhoresMarcadores(torneioId: Int): List<MelhorMarcadorItem> // Declaração de função / método de lógica
+    suspend fun obterJogosDoTorneio(torneioId: Int): List<JogoResumoItem> // Declaração de função / método de lógica
+    suspend fun listarJogosAoVivo(): List<Jogo> // Declaração de função / método de lógica
+    suspend fun listarTodosJogos(): List<Jogo> // Declaração de função / método de lógica
+    suspend fun obterEstatisticasJogo(partidaId: Int): List<EstatisticaJogo> // Declaração de função / método de lógica
+    suspend fun obterEventosJogo(partidaId: Int): List<EventoJogo> // Declaração de função / método de lógica
+    suspend fun criarTorneio( // Declaração de função / método de lógica
         nome: String,
         modalidade: String,
         regras: String,
         formato: String,
         organizadorId: Int
     ): Torneio?
-    suspend fun listarEquipasTorneio(torneioId: Int): List<Equipa>
-    suspend fun criarEquipa(nome: String, torneioId: Int): Equipa?
-    suspend fun removerEquipa(equipaId: Int): Boolean
-    suspend fun atualizarEquipa(id: Int, nome: String): Equipa?
-    suspend fun removerJogo(id: Int): Boolean
-    suspend fun atualizarJogo(
+    suspend fun listarEquipasTorneio(torneioId: Int): List<Equipa> // Declaração de função / método de lógica
+    suspend fun criarEquipa(nome: String, torneioId: Int): Equipa? // Declaração de função / método de lógica
+    suspend fun removerEquipa(equipaId: Int): Boolean // Declaração de função / método de lógica
+    suspend fun atualizarEquipa(id: Int, nome: String): Equipa? // Declaração de função / método de lógica
+    suspend fun removerJogo(id: Int): Boolean // Declaração de função / método de lógica
+    suspend fun atualizarJogo( // Declaração de função / método de lógica
         id: Int,
         resultadoCasa: Int,
         resultadoFora: Int,
@@ -69,7 +77,7 @@ interface LeagueMatchRepository {
         hora: String? = null,
         atualizarInicio: Boolean = false
     ): Jogo?
-    suspend fun criarJogo(
+    suspend fun criarJogo( // Declaração de função / método de lógica
         torneioId: Int,
         equipaCasaId: Int,
         equipaForaId: Int,
@@ -77,8 +85,8 @@ interface LeagueMatchRepository {
         hora: String,
         local: String
     ): Jogo?
-    suspend fun guardarEstatisticasJogo(partidaId: Int, estatisticas: List<EstatisticaJogo>): Boolean
-    suspend fun registarEventoJogo(
+    suspend fun guardarEstatisticasJogo(partidaId: Int, estatisticas: List<EstatisticaJogo>): Boolean // Declaração de função / método de lógica
+    suspend fun registarEventoJogo( // Declaração de função / método de lógica
         partidaId: Int,
         tipo: String,
         equipa: String,
@@ -87,35 +95,35 @@ interface LeagueMatchRepository {
         jogadorSaiId: Int? = null,
         jogadorEntraId: Int? = null
     ): Boolean
-    suspend fun obterConfiguracaoNotificacoes(utilizadorId: Int): ConfiguracaoNotificacoes
-    suspend fun listarNotificacoes(utilizadorId: Int): List<NotificacaoItem>
-    suspend fun marcarNotificacaoLida(notificacaoId: Int): Boolean
-    suspend fun marcarTodasNotificacoesLidas(utilizadorId: Int): Boolean
-    suspend fun criarNotificacaoParaTodos(mensagem: String): Boolean
-    suspend fun contarAlteracoesPendentes(): Int
-    suspend fun sincronizarPendentes(): Int
-    suspend fun listarNotificacoesAdmin(): List<NotificacaoItem>
-    suspend fun marcarTodasNotificacoesAdminLidas(): Boolean
-    suspend fun atualizarConfiguracaoNotificacoes(
+    suspend fun obterConfiguracaoNotificacoes(utilizadorId: Int): ConfiguracaoNotificacoes // Declaração de função / método de lógica
+    suspend fun listarNotificacoes(utilizadorId: Int): List<NotificacaoItem> // Declaração de função / método de lógica
+    suspend fun marcarNotificacaoLida(notificacaoId: Int): Boolean // Declaração de função / método de lógica
+    suspend fun marcarTodasNotificacoesLidas(utilizadorId: Int): Boolean // Declaração de função / método de lógica
+    suspend fun criarNotificacaoParaTodos(mensagem: String): Boolean // Declaração de função / método de lógica
+    suspend fun contarAlteracoesPendentes(): Int // Declaração de função / método de lógica
+    suspend fun sincronizarPendentes(): Int // Declaração de função / método de lógica
+    suspend fun listarNotificacoesAdmin(): List<NotificacaoItem> // Declaração de função / método de lógica
+    suspend fun marcarTodasNotificacoesAdminLidas(): Boolean // Declaração de função / método de lógica
+    suspend fun atualizarConfiguracaoNotificacoes( // Declaração de função / método de lógica
         configuracao: ConfiguracaoNotificacoes
     ): ConfiguracaoNotificacoes?
-    suspend fun criarNotificacaoParaOrganizadorDoTorneio(
+    suspend fun criarNotificacaoParaOrganizadorDoTorneio( // Declaração de função / método de lógica
         torneioId: Int,
         mensagem: String
     ): Boolean
-    suspend fun listarTorneios(): List<Torneio>
-    suspend fun listarTorneiosDoOrganizador(organizadorId: Int): List<Torneio>
-    suspend fun obterEquipaDoParticipante(utilizadorId: Int): Equipa?
-    suspend fun listarJogadoresEquipa(equipaId: Int): List<Utilizador>
-    suspend fun obterClassificacaoEquipa(equipaId: Int, torneioId: Int): Classificacao?
-    suspend fun listarJogosDaEquipa(equipaId: Int): List<Jogo>
-    suspend fun obterEstatisticasParticipante(
+    suspend fun listarTorneios(): List<Torneio> // Declaração de função / método de lógica
+    suspend fun listarTorneiosDoOrganizador(organizadorId: Int): List<Torneio> // Declaração de função / método de lógica
+    suspend fun obterEquipaDoParticipante(utilizadorId: Int): Equipa? // Declaração de função / método de lógica
+    suspend fun listarJogadoresEquipa(equipaId: Int): List<Utilizador> // Declaração de função / método de lógica
+    suspend fun obterClassificacaoEquipa(equipaId: Int, torneioId: Int): Classificacao? // Declaração de função / método de lógica
+    suspend fun listarJogosDaEquipa(equipaId: Int): List<Jogo> // Declaração de função / método de lógica
+    suspend fun obterEstatisticasParticipante( // Declaração de função / método de lógica
         utilizadorId: Int,
         equipaId: Int
     ): ParticipantStatsData
-    suspend fun juntarEquipaPorCodigo(utilizadorId: Int, codigo: String): Result<Equipa>
-    suspend fun removerJogadorEquipa(equipaId: Int, utilizadorId: Int): Boolean
-    suspend fun listarEquipasDoParticipante(utilizadorId: Int): List<Equipa>
-    suspend fun obterEstatisticasAdmin(periodo: String): EstatisticasAdmin
-    suspend fun desativarTorneio(id: Int): Boolean
+    suspend fun juntarEquipaPorCodigo(utilizadorId: Int, codigo: String): Result<Equipa> // Declaração de função / método de lógica
+    suspend fun removerJogadorEquipa(equipaId: Int, utilizadorId: Int): Boolean // Declaração de função / método de lógica
+    suspend fun listarEquipasDoParticipante(utilizadorId: Int): List<Equipa> // Declaração de função / método de lógica
+    suspend fun obterEstatisticasAdmin(periodo: String): EstatisticasAdmin // Declaração de função / método de lógica
+    suspend fun desativarTorneio(id: Int): Boolean // Declaração de função / método de lógica
 }

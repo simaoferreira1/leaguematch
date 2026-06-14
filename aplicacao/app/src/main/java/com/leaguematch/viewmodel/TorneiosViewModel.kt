@@ -15,41 +15,67 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+/**
+ * ESTUDAR PARA A APRESENTAÇÃO:
+ * O TorneiosViewModel centraliza toda a lógica relacionada com Torneios, Equipas, Jogos,
+ * classificações e eventos de jogo.
+ *
+ * Características principais:
+ * 1. **Estados Baseados em Result**: Vários fluxos expõem um `Result<T>`, permitindo que a UI Compose saiba
+ *    se a operação remota está em LOADING (quando o fluxo é `null`), SUCCESS (quando é `Result.success(data)`)
+ *    ou FAILURE (quando é `Result.failure(exception)`).
+ * 2. **Chamadas Assíncronas (Coroutines)**: Todos os métodos que efetuam pedidos à rede ou base de dados
+ *    são executados dentro do `viewModelScope.launch`.
+ */
 class TorneiosViewModel(private val repository: LeagueMatchRepository) : ViewModel() {
 
+    // Lista de modalidades ativas e quantidade de torneios associados
     private val _modalidadesState = MutableStateFlow<Result<Pair<List<ResumoModalidade>, Int>>?>(null)
     val modalidadesState: StateFlow<Result<Pair<List<ResumoModalidade>, Int>>?> = _modalidadesState
 
+    // Lista global de todos os torneios no sistema
     private val _todosTorneiosState = MutableStateFlow<Result<List<Torneio>>?>(null)
     val todosTorneiosState: StateFlow<Result<List<Torneio>>?> = _todosTorneiosState
 
+    // Lista filtrada de torneios (ex: por modalidade)
     private val _torneiosState = MutableStateFlow<Result<List<Torneio>>?>(null)
     val torneiosState: StateFlow<Result<List<Torneio>>?> = _torneiosState
 
+    // Detalhe de um torneio específico selecionado (inclui jogos, goleadores, cartões)
     private val _detalheTorneioState = MutableStateFlow<Result<DetalheTorneio?>?>(null)
     val detalheTorneioState: StateFlow<Result<DetalheTorneio?>?> = _detalheTorneioState
 
+    // Lista de equipas associadas a um torneio específico
     private val _equipasState = MutableStateFlow<Result<List<Equipa>>?>(null)
     val equipasState: StateFlow<Result<List<Equipa>>?> = _equipasState
 
+    // Flag de loading para indicar progresso visual de criação de jogos
     private val _criarJogoLoading = MutableStateFlow(false)
     val criarJogoLoading: StateFlow<Boolean> = _criarJogoLoading
 
+    // Lista de jogos que estão a decorrer em tempo real
     private val _jogosAoVivoState = MutableStateFlow<Result<List<Jogo>>?>(null)
     val jogosAoVivoState: StateFlow<Result<List<Jogo>>?> = _jogosAoVivoState
 
+    // Estatísticas (golos, remates, faltas, cartões) de um jogo selecionado
     private val _estatisticasJogoState = MutableStateFlow<Result<List<EstatisticaJogo>>?>(null)
     val estatisticasJogoState: StateFlow<Result<List<EstatisticaJogo>>?> = _estatisticasJogoState
 
+    // Eventos cronológicos em tempo real (ex: "12' - Golo do Simão") de um jogo
     private val _eventosJogoState = MutableStateFlow<Result<List<EventoJogo>>?>(null)
     val eventosJogoState: StateFlow<Result<List<EventoJogo>>?> = _eventosJogoState
 
+    // Lista de utilizadores associados a uma equipa
     private val _jogadoresEquipaState = MutableStateFlow<List<Utilizador>>(emptyList())
     val jogadoresEquipaState: StateFlow<List<Utilizador>> = _jogadoresEquipaState
 
+    // Flag de loading para carregamento de jogadores
     private val _jogadoresLoading = MutableStateFlow(false)
     val jogadoresLoading: StateFlow<Boolean> = _jogadoresLoading
 
+    /**
+     * Carrega assincronamente a lista de jogadores de uma equipa.
+     */
     fun carregarJogadoresEquipa(equipaId: Int) {
         viewModelScope.launch {
             _jogadoresLoading.value = true
@@ -58,6 +84,9 @@ class TorneiosViewModel(private val repository: LeagueMatchRepository) : ViewMod
         }
     }
 
+    /**
+     * Remove um jogador de uma equipa e recarrega a lista atualizada do servidor.
+     */
     fun removerJogador(equipaId: Int, jogadorId: Int) {
         viewModelScope.launch {
             repository.removerJogadorEquipa(equipaId, jogadorId)
@@ -65,9 +94,12 @@ class TorneiosViewModel(private val repository: LeagueMatchRepository) : ViewMod
         }
     }
 
+    /**
+     * Obtém do repositório a lista de jogos com estado "EM_CURSO" (ao vivo).
+     */
     fun carregarJogosAoVivo() {
         viewModelScope.launch {
-            _jogosAoVivoState.value = null
+            _jogosAoVivoState.value = null // Reseta para estado de loading
             try {
                 val data = repository.listarJogosAoVivo()
                 _jogosAoVivoState.value = Result.success(data)
@@ -77,6 +109,9 @@ class TorneiosViewModel(private val repository: LeagueMatchRepository) : ViewMod
         }
     }
 
+    /**
+     * Obtém as estatísticas agregadas de um jogo específico.
+     */
     fun carregarEstatisticasJogo(partidaId: Int) {
         viewModelScope.launch {
             _estatisticasJogoState.value = null
@@ -89,6 +124,9 @@ class TorneiosViewModel(private val repository: LeagueMatchRepository) : ViewMod
         }
     }
 
+    /**
+     * Carrega cronologicamente a lista de eventos de um jogo em curso.
+     */
     fun carregarEventosJogo(partidaId: Int) {
         viewModelScope.launch {
             _eventosJogoState.value = null

@@ -1,52 +1,60 @@
-package com.leaguematch.ui.spectator
+/**
+ * ESTUDAR PARA A APRESENTAÇÃO:
+ * Ficheiro: EquipasScreen.kt
+ * Tipo: Interface (Compose View) do Espectador
+ *
+ * Descrição:
+ * Este ficheiro define um ecrã de visualização pública (Espectador) em Jetpack Compose.\n * Apenas exibe dados para leitura (como tabelas de classificação, jogos ao vivo e calendários) sem permitir alteração.
+ */
+package com.leaguematch.ui.spectator // Define o pacote deste ficheiro de código
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.EmojiEvents
-import androidx.compose.material.icons.filled.Groups
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import com.leaguematch.data.remote.model.Equipa
-import com.leaguematch.data.remote.model.Torneio
-import com.leaguematch.translations.AppStrings
-import com.leaguematch.translations.StringsPt
-import com.leaguematch.ui.components.SpectatorBottomBar
-import com.leaguematch.ui.theme.RedDark
-import com.leaguematch.ui.theme.RedPrimary
+import androidx.compose.foundation.background // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.clickable // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Arrangement // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Box // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Column // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.PaddingValues // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Row // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.Spacer // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.fillMaxSize // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.fillMaxWidth // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.height // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.padding // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.size // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.layout.width // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.lazy.LazyColumn // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.lazy.itemsIndexed // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.shape.CircleShape // Importa dependência / biblioteca necessária
+import androidx.compose.foundation.shape.RoundedCornerShape // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.Icons // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.ArrowBack // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.EmojiEvents // Importa dependência / biblioteca necessária
+import androidx.compose.material.icons.filled.Groups // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Card // Importa dependência / biblioteca necessária
+import androidx.compose.material3.CardDefaults // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Icon // Importa dependência / biblioteca necessária
+import androidx.compose.material3.IconButton // Importa dependência / biblioteca necessária
+import androidx.compose.material3.MaterialTheme // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Scaffold // Importa dependência / biblioteca necessária
+import androidx.compose.material3.Text // Importa dependência / biblioteca necessária
+import androidx.compose.runtime.Composable // Importa dependência / biblioteca necessária
+import androidx.compose.ui.Alignment // Importa dependência / biblioteca necessária
+import androidx.compose.ui.Modifier // Importa dependência / biblioteca necessária
+import androidx.compose.ui.draw.clip // Importa dependência / biblioteca necessária
+import androidx.compose.ui.graphics.Brush // Importa dependência / biblioteca necessária
+import androidx.compose.ui.graphics.Color // Importa dependência / biblioteca necessária
+import androidx.compose.ui.text.font.FontWeight // Importa dependência / biblioteca necessária
+import androidx.compose.ui.unit.dp // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.Equipa // Importa dependência / biblioteca necessária
+import com.leaguematch.data.remote.model.Torneio // Importa dependência / biblioteca necessária
+import com.leaguematch.translations.AppStrings // Importa dependência / biblioteca necessária
+import com.leaguematch.translations.StringsPt // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.components.SpectatorBottomBar // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.RedDark // Importa dependência / biblioteca necessária
+import com.leaguematch.ui.theme.RedPrimary // Importa dependência / biblioteca necessária
 
 @Composable
-fun EquipasScreen(
+fun EquipasScreen( // Declaração de função / método de lógica
     torneio: Torneio,
     equipas: List<Equipa>,
     onBackClick: () -> Unit,
@@ -71,8 +79,8 @@ fun EquipasScreen(
         },
         containerColor = Color(0xFFF6F6F8)
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
+        Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(16.dp)
@@ -83,47 +91,47 @@ fun EquipasScreen(
                 onBackClick = onBackClick
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(20.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = strings.teams,
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = RedDark
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            if (equipas.isEmpty()) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
+            if (equipas.isEmpty()) { // Estrutura de decisão condicional principal
+                Card( // Contentor Compose: Cartão visual com elevação e cantos
+                    modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
                     shape = RoundedCornerShape(18.dp),
                     colors = CardDefaults.cardColors(containerColor = Color(0xFF1B1B20))
                 ) {
-                    Column(
-                        modifier = Modifier
+                    Column( // Contentor Compose: Alinha os filhos numa coluna vertical
+                        modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                             .padding(24.dp)
                             .fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Icon(
+                        Icon( // Componente Compose: Desenha um ícone vetorial
                             Icons.Default.Groups,
                             contentDescription = null,
                             tint = Color.White.copy(alpha = 0.4f),
-                            modifier = Modifier.size(36.dp)
+                            modifier = Modifier.size(36.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
                         )
 
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(8.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-                        Text(
+                        Text( // Componente Compose: Desenha texto estruturado no ecrã
                             text = strings.noTeamsYet,
                             color = Color.White.copy(alpha = 0.65f),
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
                 }
-            } else {
-                LazyColumn(
+            } else { // Fluxo condicional alternativo caso o 'if' seja falso
+                LazyColumn( // Lista Compose: Renderiza uma lista vertical com scroll eficiente
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     contentPadding = PaddingValues(bottom = 12.dp)
                 ) {
@@ -131,7 +139,7 @@ fun EquipasScreen(
                         EquipaCard(
                             posicao = index + 1,
                             equipa = equipa,
-                            onClick = {
+                            onClick = { // Callback: Define a ação executada ao clicar no componente
                                 onEquipaClick(equipa)
                             }
 
@@ -144,35 +152,35 @@ fun EquipasScreen(
 }
 
 @Composable
-private fun EquipaCard(
+private fun EquipaCard( // Declaração de função / método de lógica
     posicao: Int,
     equipa: Equipa,
-    onClick: () -> Unit
+    onClick: () -> Unit // Callback: Define a ação executada ao clicar no componente
 
 
 ) {
-    Card(
-        modifier = Modifier
+    Card( // Contentor Compose: Cartão visual com elevação e cantos
+        modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
             .fillMaxWidth()
-            .clickable { onClick() },
+            .clickable { onClick() }, // Callback: Define a ação executada ao clicar no componente
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1B1B20)),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
-        Row(
-            modifier = Modifier
+        Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                 .fillMaxWidth()
                 .padding(14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
+            Box( // Contentor Compose: Sobrepõe os elementos filhos
+                modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                     .size(42.dp)
                     .clip(CircleShape)
                     .background(RedPrimary),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = equipa.nome.take(2).uppercase(),
                     color = Color.White,
                     fontWeight = FontWeight.ExtraBold,
@@ -180,17 +188,17 @@ private fun EquipaCard(
                 )
             }
 
-            Spacer(modifier = Modifier.width(14.dp))
+            Spacer(modifier = Modifier.width(14.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = equipa.nome,
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f) // Modificador Compose: Define tamanho, margem, padding ou clique
             )
 
-            Text(
+            Text( // Componente Compose: Desenha texto estruturado no ecrã
                 text = "#$posicao",
                 color = Color.White.copy(alpha = 0.45f),
                 style = MaterialTheme.typography.bodySmall
@@ -200,18 +208,18 @@ private fun EquipaCard(
 }
 
 @Composable
-private fun TorneioHeaderEquipas(
+private fun TorneioHeaderEquipas( // Declaração de função / método de lógica
     torneio: Torneio,
     strings: AppStrings,
     onBackClick: () -> Unit
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
+    Card( // Contentor Compose: Cartão visual com elevação e cantos
+        modifier = Modifier.fillMaxWidth(), // Modificador Compose: Define tamanho, margem, padding ou clique
         shape = RoundedCornerShape(22.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
-        Row(
-            modifier = Modifier
+        Row( // Contentor Compose: Alinha os filhos numa linha horizontal
+            modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                 .fillMaxWidth()
                 .background(
                     Brush.horizontalGradient(
@@ -221,48 +229,48 @@ private fun TorneioHeaderEquipas(
                 .padding(18.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(
-                onClick = onBackClick,
-                modifier = Modifier
+            IconButton( // Componente Compose: Desenha um botão com ícone
+                onClick = onBackClick, // Callback: Define a ação executada ao clicar no componente
+                modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                     .size(42.dp)
                     .clip(CircleShape)
                     .background(Color.White.copy(alpha = 0.18f))
             ) {
-                Icon(
+                Icon( // Componente Compose: Desenha um ícone vetorial
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Voltar",
                     tint = Color.White
                 )
             }
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(12.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Box(
-                modifier = Modifier
+            Box( // Contentor Compose: Sobrepõe os elementos filhos
+                modifier = Modifier // Modificador Compose: Define tamanho, margem, padding ou clique
                     .size(48.dp)
                     .clip(CircleShape)
                     .background(Color.White.copy(alpha = 0.18f)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
+                Icon( // Componente Compose: Desenha um ícone vetorial
                     Icons.Default.EmojiEvents,
                     contentDescription = null,
                     tint = Color.White,
-                    modifier = Modifier.size(30.dp)
+                    modifier = Modifier.size(30.dp) // Modificador Compose: Define tamanho, margem, padding ou clique
                 )
             }
 
-            Spacer(modifier = Modifier.width(14.dp))
+            Spacer(modifier = Modifier.width(14.dp)) // Espaçador Compose: Cria distanciamento visual entre componentes
 
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
+            Column(modifier = Modifier.weight(1f)) { // Contentor Compose: Alinha os filhos numa coluna vertical
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = torneio.nome,
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleMedium
                 )
 
-                Text(
+                Text( // Componente Compose: Desenha texto estruturado no ecrã
                     text = "${strings.teamsLabel(torneio.equipas)} • ${torneio.modalidade}",
                     color = Color.White.copy(alpha = 0.82f),
                     style = MaterialTheme.typography.bodySmall

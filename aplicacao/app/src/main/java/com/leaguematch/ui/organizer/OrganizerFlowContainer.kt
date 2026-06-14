@@ -28,6 +28,12 @@ import com.leaguematch.viewmodel.AuthViewModel
 import com.leaguematch.viewmodel.TorneiosViewModel
 import kotlinx.coroutines.launch
 
+/**
+ * ESTUDAR PARA A APRESENTAÇÃO:
+ * Define todas as rotas (ecrãs) possíveis no fluxo do Organizador.
+ * O uso de `sealed interface` com `data object` e `data class` garante tipagem estática forte
+ * para passagem de parâmetros entre ecrãs em Compose sem bibliotecas externas pesadas.
+ */
 sealed interface OrganizerRoute {
     data object MeusTorneios : OrganizerRoute
     data object CriarTorneio : OrganizerRoute
@@ -47,6 +53,17 @@ sealed interface OrganizerRoute {
     data object Notificacoes : OrganizerRoute
 }
 
+/**
+ * ESTUDAR PARA A APRESENTAÇÃO:
+ * O OrganizerFlowContainer serve como o controlador de navegação (NavHost customizado)
+ * para o perfil do Organizador.
+ *
+ * Características para estudar:
+ * 1. **Gestão de Rota Local**: Utiliza uma variável de estado simples `currentOrgRoute` e um bloco `when`
+ *    para comutar entre ecrãs (recomposição condicional).
+ * 2. **LaunchedEffect**: Utilizado para disparar ações secundárias (carregar dados do repositório)
+ *    de forma segura no arranque de cada ecrã ou quando os parâmetros de rota mudam.
+ */
 @Composable
 fun OrganizerFlowContainer(
     torneiosViewModel: TorneiosViewModel,
@@ -56,10 +73,14 @@ fun OrganizerFlowContainer(
     onTerminarSessao: () -> Unit
 ) {
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope() // Scope para lançar coroutines em callbacks de botões UI
+    
+    // Rota inicial activa do organizador
     var currentOrgRoute by remember { mutableStateOf<OrganizerRoute>(OrganizerRoute.MeusTorneios) }
     var currentOrgTorneioId by remember { mutableStateOf<Int?>(null) }
     var dadosCriarTorneio by remember { mutableStateOf<List<String>?>(null) }
+    
+    // Cor de destaque customizada configurada nas definições do utilizador (persiste no Compose)
     var primaryColorArgb by rememberSaveable { mutableStateOf(0xFFE31734.toInt()) }
     val primaryColor = androidx.compose.ui.graphics.Color(primaryColorArgb)
     var notificacoesOrganizador by remember {
@@ -70,15 +91,18 @@ fun OrganizerFlowContainer(
         com.leaguematch.ui.theme.BrandTheme.primaryColor = primaryColor
     }
 
+    // Atalhos de navegação comuns
     val goMeusTorneios = { currentOrgRoute = OrganizerRoute.MeusTorneios }
     val goPerfil = { currentOrgRoute = OrganizerRoute.Perfil }
 
+    // Roteamento condicional (Compose NavHost manual)
     when (currentOrgRoute) {
         OrganizerRoute.MeusTorneios -> {
             val dadosModalidades by torneiosViewModel.modalidadesState.collectAsState()
             val dadosTorneios by torneiosViewModel.todosTorneiosState.collectAsState()
 
             val orgId = usuarioLogado?.id
+            // Dispara carregamento assíncrono ao exibir o ecrã de Torneios
             LaunchedEffect(orgId) {
                 torneiosViewModel.carregarTorneios()
                 if (orgId != null) {
@@ -87,10 +111,12 @@ fun OrganizerFlowContainer(
             }
 
             when {
+                // Estado 1: Loading (dados ainda a carregar do Supabase)
                 dadosModalidades == null || dadosTorneios == null -> {
                     LoadingScreen()
                 }
 
+                // Estado 2: Erro no carregamento de modalidades
                 dadosModalidades!!.isFailure -> {
                     ErrorScreen(
                         dadosModalidades!!.exceptionOrNull()?.message
@@ -98,6 +124,7 @@ fun OrganizerFlowContainer(
                     )
                 }
 
+                // Estado 3: Erro no carregamento de torneios
                 dadosTorneios!!.isFailure -> {
                     ErrorScreen(
                         dadosTorneios!!.exceptionOrNull()?.message
@@ -105,6 +132,7 @@ fun OrganizerFlowContainer(
                     )
                 }
 
+                // Estado 4: Sucesso, exibe o ecrã com a lista de torneios
                 else -> {
                     val (modalidades, totalTorneios) = dadosModalidades!!.getOrThrow()
                     val torneios = dadosTorneios!!.getOrThrow()

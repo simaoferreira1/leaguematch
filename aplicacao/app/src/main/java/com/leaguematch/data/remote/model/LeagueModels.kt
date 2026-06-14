@@ -140,6 +140,15 @@ data class DetalheTorneio(
     val totalGolos: Int = jogos.sumOf { it.resultadoCasa + it.resultadoFora }
 }
 
+/**
+ * ESTUDAR PARA A APRESENTAÇÃO:
+ * DAOs (Data Access Objects) são interfaces exigidas pelo Room para mapear chamadas
+ * de métodos Kotlin em consultas SQL na base de dados SQLite local.
+ *
+ * O Room gera a implementação destas interfaces de forma automática em tempo de compilação.
+ * Métodos que retornam `Flow` são reativos: sempre que os dados na tabela local mudarem,
+ * o Flow emite a nova lista de forma automática para a UI.
+ */
 @Dao
 interface UtilizadorDao {
     @Query("SELECT * FROM utilizadores")
@@ -224,6 +233,19 @@ interface JogoDao {
     suspend fun activate(id: Int)
 }
 
+/**
+ * ESTUDAR PARA A APRESENTAÇÃO:
+ * A classe AppDatabase representa a base de dados local do Room (SQLite).
+ *
+ * Elementos chave:
+ * 1. `@Database`: Anotação que regista as tabelas/entidades locais (`Utilizador`, `Torneio`, `Jogo`) e a versão.
+ * 2. `@TypeConverters`: Regista os conversores de tipos. O SQLite local não suporta Enums, pelo que os convertemos
+ *    para String no registo local de dados.
+ * 3. `getDatabase`: Implementa o padrão Singleton. Garante que existe apenas uma instância ativa da base de dados
+ *    a correr na app, evitando conflitos de acesso a ficheiros no SQLite.
+ *    - `@Volatile`: Garante que as escritas nesta variável são visíveis instantaneamente por todas as threads.
+ *    - `synchronized(this)`: Tranca a execução para evitar que duas threads criem a base de dados em simultâneo.
+ */
 @Database(entities = [Utilizador::class, Torneio::class, Jogo::class], version = 1, exportSchema = false)
 @TypeConverters(LeagueConverters::class)
 abstract class AppDatabase : RoomDatabase() {
@@ -249,6 +271,10 @@ abstract class AppDatabase : RoomDatabase() {
     }
 }
 
+/**
+ * Converte tipos complexos (como Enums) para tipos simples (como String)
+ * para que o SQLite os consiga gravar localmente.
+ */
 class LeagueConverters {
     @TypeConverter
     fun fromTipoUtilizador(value: TipoUtilizador): String = value.name
